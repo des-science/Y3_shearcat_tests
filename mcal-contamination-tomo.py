@@ -1,4 +1,5 @@
 from astropy.table import Table, vstack
+from astropy.stats import jackknife_stats
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import rc
@@ -28,7 +29,8 @@ extended_class_coadd_names = {'0': 'High confidence stars',
 
 field_list = ['sxds',
               'vvds',
-              'deep23']
+              'deep23',
+              ]
 
 m_per_sub = {'sxds' : [],
               'vvds' : [],
@@ -53,7 +55,7 @@ for field_name in field_list:
   hsc_gold_match_fname = 'data/{0}.hsc_gold_matches.fits'.format(field_name)
   mcal_gold_match_fname = 'data/{0}.mcal_gold_matches.fits'.format(field_name)
   mcal_hsc_gold_match_fname = 'data/{0}.hsc_mcal_gold_matches.fits'.format(field_name)
-
+  
   #hsc = Table.read(hsc_fname)
   #gold = Table.read(gold_fname)
   #mcal = Table.read(mcal_fname)
@@ -142,15 +144,22 @@ for field_name in field_list:
     hsc_star_mean_R = np.mean(mcal_hsc_gold_matches_bin['R11'][R11_hsc_cut*shape_mcal_hsc_gold_cut*star_hsc_cut])
     hsc_galaxy_mean_R = np.mean(mcal_hsc_gold_matches_bin['R11'][R11_hsc_cut*shape_mcal_hsc_gold_cut*gal_hsc_cut])
 
-    hsc_star_var_R = np.var(mcal_hsc_gold_matches_bin['R11'][R11_hsc_cut*shape_mcal_hsc_gold_cut*star_hsc_cut])
-    hsc_galaxy_var_R = np.var(mcal_hsc_gold_matches_bin['R11'][R11_hsc_cut*shape_mcal_hsc_gold_cut*gal_hsc_cut])
+    #hsc_star_var_R = np.var(mcal_hsc_gold_matches_bin['R11'][R11_hsc_cut*shape_mcal_hsc_gold_cut*star_hsc_cut])
+    #hsc_galaxy_var_R = np.var(mcal_hsc_gold_matches_bin['R11'][R11_hsc_cut*shape_mcal_hsc_gold_cut*gal_hsc_cut])
+
+    hsc_star_stderr_R = jackknife_stats(mcal_hsc_gold_matches_bin['R11'][R11_hsc_cut*shape_mcal_hsc_gold_cut*star_hsc_cut], np.mean, 0.66)[2]
+    hsc_galaxy_stderr_R = jackknife_stats(mcal_hsc_gold_matches_bin['R11'][R11_hsc_cut*shape_mcal_hsc_gold_cut*star_hsc_cut], np.mean, 0.66)[2]
 
     m_hsc = (N_hsc_shape_stars / N_hsc_shape_gal)*(hsc_star_mean_R / hsc_galaxy_mean_R)
     #sigma_m_hsc = np.sqrt((hsc_star_var_R/hsc_star_mean_R)**2. + (hsc_galaxy_var_R/hsc_galaxy_mean_R)**2.)*m_hsc
-    sigma_m_hsc = np.sqrt((hsc_star_var_R/(hsc_star_mean_R*np.sqrt(N_hsc_shape_stars)))**2. + (hsc_galaxy_var_R/(hsc_galaxy_mean_R*np.sqrt(N_hsc_shape_gal)))**2.)*m_hsc
+    #sigma_m_hsc = np.sqrt((hsc_star_var_R/(hsc_star_mean_R*np.sqrt(N_hsc_shape_stars)))**2. + (hsc_galaxy_var_R/(hsc_galaxy_mean_R*np.sqrt(N_hsc_shape_gal)))**2.)*m_hsc
+    sigma_m_hsc = np.sqrt(hsc_star_stderr_R**2. + hsc_galaxy_stderr_R**2.)*m_hsc
   
+    
+
     m_per_sub[field_name].append(m_hsc)
     sigma_m_per_sub[field_name].append(sigma_m_hsc)
+    N_per_sub[field_name].append(N_shape_hsc)
 
     print('m from HSC stars = {0:.5f} +- {1:.5f}'.format(m_hsc, sigma_m_hsc))
 
@@ -220,17 +229,34 @@ for field_name in field_list:
   del(mcal_gold_matches)
   del(mcal_hsc_gold_matches)
 
+
 colors = ['C0', 'C1', 'C2']
 plt.close('all')
 plt.figure(4, figsize=(4.5, 3.75))
 x = np.array([1,2,3,4])
 x = x - 0.1
+m_total = np.zeros_like(x)
+sigma_m_total = np.zeros_like(x)
+total_N = np.zeros_like(x)
+
 for ifld,field_name in enumerate(field_list):
+
+  m_total = m_total + np.array(m_per_sub[field_name])*np.array(N_per_sub[field_name])
+  total_N = total_N + np.array(N_per_sub[field_name])
+  sigma_m_total = sigma_m_total + np.power(np.array(sigma_m_per_sub[field_name]), 2)
+
   plt.errorbar(x, np.array(m_per_sub[field_name]), yerr=np.asarray(sigma_m_per_sub[field_name], dtype=float), fmt='o', color=colors[ifld])#, label=field_name)
   plt.plot(x, np.array(m_per_sub[field_name]), '-', color=colors[ifld])#, label=field_name)
   x = x+0.1
-plt.ylim([-0.008,0.008])
-plt.legend(['SXDS', 'VVDS', 'DEEP2\_3'])
+
+m_total = m_total/total_N
+sigma_m_total = np.sqrt(sigma_m_total)
+
+plt.errorbar(x, m_total, yerr=sigma_m_total, fmt='o', color='k')#, label=field_name)
+plt.plot(x, m_total, '--', color='k')
+plt.ylim([-0.002,0.01])
+plt.axhline(0, color='k', linewidth=1, zorder=-10)
+plt.legend(['SXDS', 'VVDS', 'DEEP2\_3', 'Total'])
 plt.xlabel('Redshift bin')
 plt.ylabel('Stellar contamination shear bias $m$')
-plt.savefig('./plots/stellar-contamination-biases.png', dpi=300, bbox_inches='tight')
+plt.savefig('./stellar-contamination-biases.png', dpi=300, bbox_inches='tight')
