@@ -2,6 +2,8 @@ import numpy as np
 import scipy
 from scipy import spatial
 
+
+# There're many routines not used anymore. Soon I'll clean this up!
 def covariance_scalar_jck(TOTAL_PHI,jk_r, type_c = 'jackknife'):
 
   #  Covariance estimation
