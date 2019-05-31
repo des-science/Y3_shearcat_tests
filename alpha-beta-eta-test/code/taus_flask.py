@@ -174,70 +174,70 @@ def main():
     print("Objects with magnitude <20",  len(data_stars))
  
     min_sep = 0.1;  max_sep=300; bin_size=0.2
-    seed = args.seed
-    for zbin in range(args.zbin, 5):
-        for ck in range(1, 2):
-            data_galaxies =  read_flask(args.flask_cat, seed, zbin, ck)
-            print("Total objects in catalog:", len(data_galaxies))
-            tau0, tau2, tau5= measure_tau(data_stars, data_galaxies,
-                                          min_sep = min_sep,
-                                          max_sep = max_sep,
-                                          bin_size = bin_size,
-                                          mod=args.mod)
-            tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
-            tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
-            vartau0arr = tau0.varxi; vartau2arr= tau2.varxi; vartau5arr = tau5.varxi;
+    for seed in range (args.seed, 401):
+        for zbin in range(args.zbin, 5):
+            for ck in range(1, 2):
+                data_galaxies =  read_flask(args.flask_cat, seed, zbin, ck)
+                print("Total objects in catalog:", len(data_galaxies))
+                tau0, tau2, tau5= measure_tau(data_stars,
+                                              data_galaxies, min_sep =
+                                              min_sep, max_sep = max_sep,
+                                              bin_size = bin_size,
+                                              mod=args.mod)
+                tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
+                tau0parr = au0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
+                vartau0arr = tau0.varxi; vartau2arr= tau2.varxi; vartau5arr = tau5.varxi;
             
-            taus = [tau0parr, tau0marr, tau2parr, tau2marr, tau5parr, tau5marr]
-            taus_names = ['TAU0P', 'TAU0M','TAU2P','TAU2M', 'TAU5P', 'TAU5M']
-            vares = [vartau0arr, vartau2arr, vartau5arr]
+                taus = [tau0parr, tau0marr, tau2parr, tau2marr, tau5parr, tau5marr]
+                taus_names = ['TAU0P', 'TAU0M','TAU2P','TAU2M', 'TAU5P', 'TAU5M']
+                vares = [vartau0arr, vartau2arr, vartau5arr]
             
-            ##Format of the fit file output
-            names=['BIN1', 'BIN2','ANGBIN', 'VALUE', 'ANG']
-            forms = ['i4', 'i4', 'i4',  'f4',  'f4']
-            dtype = dict(names = names, formats=forms)
-            nrows = len(tau0marr)
-            outdata = np.recarray((nrows, ), dtype=dtype)
+                ##Format of the fit file output
+                names=['BIN1', 'BIN2','ANGBIN', 'VALUE', 'ANG']
+                forms = ['i4', 'i4', 'i4',  'f4',  'f4']
+                dtype = dict(names = names, formats=forms)
+                nrows = len(tau0marr)
+                outdata = np.recarray((nrows, ), dtype=dtype)
 
      
-            covmat = np.diag(np.concatenate((vares[0], vares[0], vares[1], vares[1],  vares[2], vares[2])))
-            hdu = fits.PrimaryHDU()
-            hdul = fits.HDUList([hdu])
-            covmathdu = fits.ImageHDU(covmat, name='COVMAT')
-            hdul.insert(1, covmathdu)
+                covmat = np.diag(np.concatenate((vares[0], vares[0], vares[1], vares[1],  vares[2], vares[2])))
+                hdu = fits.PrimaryHDU()
+                hdul = fits.HDUList([hdu])
+                covmathdu = fits.ImageHDU(covmat, name='COVMAT')
+                hdul.insert(1, covmathdu)
                 
-            bin1array = np.array([ zbin]*nrows)
-            bin2array = np.array([ -999]*nrows)
-            angbinarray = np.arange(nrows)
-            angarray = np.exp(tau0.meanlogr)
+                bin1array = np.array([ zbin]*nrows)
+                bin2array = np.array([ -999]*nrows)
+                angbinarray = np.arange(nrows)
+                angarray = np.exp(tau0.meanlogr)
                 
-            for j, nam in enumerate(taus_names):
-                array_list = [bin1array, bin2array, angbinarray,np.array(taus[j]),  angarray ]
-                for array, name in zip(array_list, names): outdata[name] = array 
-                corrhdu = fits.BinTableHDU(outdata, name=nam)
-                hdul.insert(j+2, corrhdu)
+                for j, nam in enumerate(taus_names):
+                    array_list = [bin1array, bin2array, angbinarray,np.array(taus[j]),  angarray ]
+                    for array, name in zip(array_list, names): outdata[name] = array 
+                    corrhdu = fits.BinTableHDU(outdata, name=nam)
+                    hdul.insert(j+2, corrhdu)
 
-            hdul[1].header['COVDATA'] = True
-            hdul[1].header['EXTNAME'] =  'COVMAT'
-            hdul[1].header['NAME_0'] =  'TAU0'
-            hdul[1].header['STRT_0'] =  0
-            hdul[1].header['LEN_0'] = nrows
-            hdul[1].header['NAME_1'] =  'TAU2'
-            hdul[1].header['STRT_1'] =  nrows
-            hdul[1].header['LEN_1'] = nrows
-            hdul[1].header['NAME_2'] =  'TAU5'
-            hdul[1].header['STRT_2'] =  2*nrows
-            hdul[1].header['LEN_2'] = nrows
+                hdul[1].header['COVDATA'] = True
+                hdul[1].header['EXTNAME'] =  'COVMAT'
+                hdul[1].header['NAME_0'] =  'TAU0'
+                hdul[1].header['STRT_0'] =  0
+                hdul[1].header['LEN_0'] = nrows
+                hdul[1].header['NAME_1'] =  'TAU2'
+                hdul[1].header['STRT_1'] =  nrows
+                hdul[1].header['LEN_1'] = nrows
+                hdul[1].header['NAME_2'] =  'TAU5'
+                hdul[1].header['STRT_2'] =  2*nrows
+                hdul[1].header['LEN_2'] = nrows
             
-            hdul[2].header['QUANT1'] = 'GeR'; hdul[3].header['QUANT1'] = 'GeR'
-            hdul[2].header['QUANT2'] = 'PeR'; hdul[3].header['QUANT2'] = 'PeR'
-            hdul[4].header['QUANT1'] = 'GeR'; hdul[5].header['QUANT1'] = 'GeR'
-            hdul[4].header['QUANT2'] = 'PqR'; hdul[5].header['QUANT2'] = 'PqR'
-            hdul[6].header['QUANT1'] = 'GeR'; hdul[7].header['QUANT1'] = 'GeR'
-            hdul[6].header['QUANT2'] = 'PwR'; hdul[7].header['QUANT2'] = 'PwR'
+                hdul[2].header['QUANT1'] = 'GeR'; hdul[3].header['QUANT1'] = 'GeR'
+                hdul[2].header['QUANT2'] = 'PeR'; hdul[3].header['QUANT2'] = 'PeR'
+                hdul[4].header['QUANT1'] = 'GeR'; hdul[5].header['QUANT1'] = 'GeR'
+                hdul[4].header['QUANT2'] = 'PqR'; hdul[5].header['QUANT2'] = 'PqR'
+                hdul[6].header['QUANT1'] = 'GeR'; hdul[7].header['QUANT1'] = 'GeR'
+                hdul[6].header['QUANT2'] = 'PwR'; hdul[7].header['QUANT2'] = 'PwR'
             
-            outname = os.path.join(outpath, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
-            hdul.writeto(outname, overwrite=True)
+                outname = os.path.join(outpath, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
+                hdul.writeto(outname, overwrite=True)
     
 if __name__ == "__main__":
     main()
