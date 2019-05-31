@@ -16,15 +16,9 @@ def parse_args():
                         help='Fits file containing all rho stats used to estimate abe')
     parser.add_argument('--rhoscosmo', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS_Y3.fits',
                         help='Fits file containing all rho stats used to estimate dxip, the contaminant to be used in cosmosis')
-    parser.add_argument('--xip', default=False,
-                        action='store_const', const=True,
-                        help='Include xip correlation functions in the vector')
-    parser.add_argument('--xim', default=False,
-                        action='store_const', const=True,
-                        help='Include xim correlation functions in the vectors. If --xim and -xip are True we got the addition of both vectors ')
     parser.add_argument('--samecont', default=False,
                         action='store_const', const=True,
-                        help='Include xim correlation functions in the vectors. If --xim and -xip are True we got the addition of both vectors ')
+                        help='Include xim correlation functions in the vectors. Then use only one contamination for both xip and xim ')
     parser.add_argument('--maxscale', default=None, type=float, 
                         help='Limit the analysis to certain maximum scale, units are determined by .json file with the correlations')
     parser.add_argument('--minscale', default=None, type=float, 
@@ -68,7 +62,7 @@ def corrmatrix(cov):
     d = np.linalg.inv(D)
     corr = d*cov*d
     return corr
-def writexipbias(samples, rhonames, nsig=1, plots=False,xim=False,nameterms='terms_dxi.png',dxiname='dxi.png',namecovmat='covm_pars.png',filename='dxi.fits'):
+def writexibias(samples, datarhos,  nsig=1, plots=False, nameterms='terms_dxi.png',dxiname='dxi.png',namecovmat='covm_pars.png',filename='dxi.fits'):
     from src.readfits import read_rhos
     from src.maxlikelihood import bestparameters, percentiles
     from src.plot_stats import pretty_rho
@@ -76,8 +70,8 @@ def writexipbias(samples, rhonames, nsig=1, plots=False,xim=False,nameterms='ter
     import numpy as np
 
     mcmcpars = percentiles(samples, nsig=nsig) 
-    print( ' mcmc parameters',  'nsig=', nsig, ' percentiles: ',  mcmcpars)
-    
+    print( ' mcmc parameters xip',  'nsig=', nsig, ' percentiles: ',  mcmcpars)
+
     ##Format of the fit file output
     names=['BIN1', 'BIN2','ANGBIN', 'VALUE', 'ANG']
     forms = ['i4', 'i4', 'i4',  'f8',  'f8']
@@ -89,13 +83,13 @@ def writexipbias(samples, rhonames, nsig=1, plots=False,xim=False,nameterms='ter
     if plots:
         par_matcov = np.cov(samples)
         corr=corrmatrix(par_matcov)
-        #print(par_matcov)
-        #print(corr)
         cov_vmin=np.min(corr)
+        plt.clf()
         plt.imshow(corr,cmap='viridis'+'_r', interpolation='nearest',
                    aspect='auto', origin='lower', vmin=cov_vmin, vmax=1.)
         plt.colorbar()
         plt.title(r'$\alpha \mid \beta \mid \eta $')
+        plt.tight_layout()
         print('Printing', namecovmat)
         plt.savefig(namecovmat, dpi=500)
         
@@ -120,13 +114,10 @@ def writexipbias(samples, rhonames, nsig=1, plots=False,xim=False,nameterms='ter
         vara =  variances
     else:
         print("Warning, test type not defined")
-    
-    meanr, rho0, cov_rho0 = read_corr(rhonames[0])
-    meanr, rho1, cov_rho1 = read_corr(rhonames[1])
-    meanr, rho2, cov_rho2 = read_corr(rhonames[2])
-    meanr, rho3, cov_rho3 = read_corr(rhonames[3])
-    meanr, rho4, cov_rho4 = read_corr(rhonames[4])
-    meanr, rho5, cov_rho5 = read_corr(rhonames[5])
+
+    meanr, rhos, covrhos =  datarhos
+    rho0, rho1, rho2, rho3, rho4, rho5 = rhos
+    cov_rho0, cov_rho1, cov_rho2, cov_rho3, cov_rho4, cov_rho5 =  covrhos
     sig_rho0 =  np.sqrt(np.diag(cov_rho0))
     sig_rho1 =  np.sqrt(np.diag(cov_rho1))
     sig_rho2 =  np.sqrt(np.diag(cov_rho2))
@@ -205,7 +196,7 @@ def writexipbias(samples, rhonames, nsig=1, plots=False,xim=False,nameterms='ter
     for array, name in zip(array_list, names): outdata[name] = array 
     corrhdu = fits.BinTableHDU(outdata, name='xi')
     hdul.insert(2, corrhdu)
-    hdul.writeto(filename, clobber=True)
+    hdul.writeto(filename, overwrite=True)
     print(filename,'Written!')
 
 def RUNtest(i_guess, data, nwalkers, nsteps, eq='All', mflags=[True, True, True], xip=True, xim=False, moderr=False, uwmprior=False, minimize=True ):
@@ -230,7 +221,7 @@ def RUNtest(i_guess, data, nwalkers, nsteps, eq='All', mflags=[True, True, True]
     return samples,  chains
     
 def main():
-    from src.readfits import read_rhos,  read_taus
+    from src.readfits import read_rhos, read_taus
     from src.plot_stats import plotallrhosfits, plotalltausfits, plot_samplesdist
     import numpy as np
 
@@ -283,83 +274,126 @@ def main():
     if(args.abe):
         print("### Runing alpha, beta and eta test ### ")
         mflags = [True, True, True] ##alpha,beta,eta
-        namemc = plotspath + 'mcmc_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        namecont = plotspath +'contours_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        nameterms = plotspath +'termsdxi_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        namecovmat = plotspath +'covmatrix_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        namedxip = plotspath +'xibias_abe_' + str(eq) + '_.png'
-        filename =  outpath +'abe_dxi.fits'            
+        namemc = 'mcmc_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        namecont = 'contours_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        nameterms = 'termsdxi_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        namecovmat = 'covmatrix_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        namedxip = 'xibias_abe_' + str(eq) + '_.png'
+        filename =  'abe_dxi.fits'            
     ## ALPHA-BETA
     if(args.ab):
         print("### Runing alpha and beta test ### ")
         mflags = [True, True, False] ##alpha,beta,eta
-        namemc = plotspath + 'mcmc_alpha-beta_eq_' + str(eq) + '_.png'
-        namecont = plotspath + 'contours_alpha-beta_eq_' + str(eq) + '_.png'
-        nameterms = plotspath + 'termsdxi_alpha-beta_eq_' + str(eq) + '_.png'
-        namecovmat = plotspath +'covmatrix_alpha-beta_eq_' + str(eq) + '_.png'
-        namedxip = plotspath +'xibias_ab_' + str(eq) + '_.png'
-        filename =  outpath +'ab_dxi.fits'
+        namemc = 'mcmc_alpha-beta_eq_' + str(eq) + '_.png'
+        namecont = 'contours_alpha-beta_eq_' + str(eq) + '_.png'
+        nameterms = 'termsdxi_alpha-beta_eq_' + str(eq) + '_.png'
+        namecovmat = 'covmatrix_alpha-beta_eq_' + str(eq) + '_.png'
+        namedxip = 'xibias_ab_' + str(eq) + '_.png'
+        filename =  'ab_dxi.fits'
     ## ALPHA-ETA
     if(args.ae):
         print("### Runing alpha and eta test ### ")
         mflags = [True, False, True] ##alpha,eta,eta
-        namemc = plotspath + 'mcmc_alpha-eta_eq_' + str(eq) + '_.png'
-        namecont = plotspath + 'contours_alpha-eta_eq_' + str(eq) + '_.png'
-        nameterms = plotspath + 'termsdxi_alpha-eta_eq_' + str(eq) + '_.png'
-        namecovmat = plotspath +'covmatrix_alpha-eta_eq_' + str(eq) + '_.png'
-        namedxip = plotspath +'xibias_ae_' + str(eq) + '_.png'
-        filename =  outpath +'ae_dxi.fits'
+        namemc = 'mcmc_alpha-eta_eq_' + str(eq) + '_.png'
+        namecont = 'contours_alpha-eta_eq_' + str(eq) + '_.png'
+        nameterms = 'termsdxi_alpha-eta_eq_' + str(eq) + '_.png'
+        namecovmat = 'covmatrix_alpha-eta_eq_' + str(eq) + '_.png'
+        namedxip = 'xibias_ae_' + str(eq) + '_.png'
+        filename =  'ae_dxi.fits'
     ## BETA-ETA
     if(args.be):
         print("### Runing beta and eta test ### ")
         mflags = [True, False, True] ##beta,eta,eta
-        namemc = plotspath + 'mcmc_beta-eta_eq_' + str(eq) + '_.png'
-        namecont = plotspath + 'contours_beta-eta_eq_' + str(eq) + '_.png'
-        nameterms = plotspath + 'termsdxi_beta-eta_eq_' + str(eq) + '_.png'
-        namecovmat = plotspath +'covmatrix_beta-eta_eq_' + str(eq) + '_.png'
-        namedxip = plotspath +'xibias_be_' + str(eq) + '_.png'
-        filename =  outpath +'be_dxi.fits' 
+        namemc = 'mcmc_beta-eta_eq_' + str(eq) + '_.png'
+        namecont = 'contours_beta-eta_eq_' + str(eq) + '_.png'
+        nameterms = 'termsdxi_beta-eta_eq_' + str(eq) + '_.png'
+        namecovmat = 'covmatrix_beta-eta_eq_' + str(eq) + '_.png'
+        namedxip = 'xibias_be_' + str(eq) + '_.png'
+        filename =  'be_dxi.fits' 
     ## ALPHA
     if(args.a):
         print("### Runing alpha test ### ")
         mflags = [True, False, False] ##alpha,beta,eta
-        namemc = plotspath +'mcmc_alpha_eq_' + str(eq) + '_.png'
-        namecont = plotspath +'contours_alpha_eq_' + str(eq) + '_.png'
-        nameterms = plotspath +'termsdxi_alpha_eq_' + str(eq) + '_.png'
-        namecovmat = plotspath +'covmatrix_alpha_eq_' + str(eq) + '_.png'
-        namedxip = plotspath +'xibias_a_' + str(eq) + '_.png'
-        filename =  outpath +'a_dxi.fits'
+        namemc = 'mcmc_alpha_eq_' + str(eq) + '_.png'
+        namecont = 'contours_alpha_eq_' + str(eq) + '_.png'
+        nameterms = 'termsdxi_alpha_eq_' + str(eq) + '_.png'
+        namecovmat = 'covmatrix_alpha_eq_' + str(eq) + '_.png'
+        namedxip = 'xibias_a_' + str(eq) + '_.png'
+        filename =  'a_dxi.fits'
     ## Beta
     if(args.b):
         print("### Runing beta test ### ")
         mflags = [False, True, False] ##alpha,beta,eta
-        namemc = plotspath +'mcmc_beta_eq_' + str(eq) + '_.png'
-        namecont = plotspath +'contours_beta_eq_' + str(eq) + '_.png'
-        nameterms = plotspath +'termsdxi_beta_eq_' + str(eq) + '_.png'
-        namecovmat = plotspath +'covmatrix_beta_eq_' + str(eq) + '_.png'
-        namedxip = plotspath +'xibias_b_' + str(eq) + '_.png'
-        filename =  outpath +'b_dxi.fits'
+        namemc = 'mcmc_beta_eq_' + str(eq) + '_.png'
+        namecont = 'contours_beta_eq_' + str(eq) + '_.png'
+        nameterms = 'termsdxi_beta_eq_' + str(eq) + '_.png'
+        namecovmat = 'covmatrix_beta_eq_' + str(eq) + '_.png'
+        namedxip = 'xibias_b_' + str(eq) + '_.png'
+        filename =  'b_dxi.fits'
     ## Eta
     if(args.e):
         print("### Runing eta test ### ")
         mflags = [False, False, True] ##alpha,eta,eta
-        namemc = plotspath +'mcmc_eta_eq_' + str(eq) + '_.png'
-        namecont = plotspath +'contours_eta_eq_' + str(eq) + '_.png'
-        nameterms = plotspath +'termsdxi_eta_eq_' + str(eq) + '_.png'
-        namecovmat = plotspath +'covmatrix_eta_eq_' + str(eq) + '_.png'
-        namedxip = plotspath +'xibias_e_' + str(eq) + '_.png'
-        filename =  outpath +'e_dxi.fits'
+        namemc = 'mcmc_eta_eq_' + str(eq) + '_.png'
+        namecont = 'contours_eta_eq_' + str(eq) + '_.png'
+        nameterms = 'termsdxi_eta_eq_' + str(eq) + '_.png'
+        namecovmat = 'covmatrix_eta_eq_' + str(eq) + '_.png'
+        namedxip = 'xibias_e_' + str(eq) + '_.png'
+        filename =  'e_dxi.fits'
+
+    meanr, rhos,  covrhos =  read_rhos(args.rhoscosmo)
+    datarhosp =  [meanr, [rhos[2*i] for i in range(6)],  [ covrhos[2*i] for i in range(6)]  ]
+    datarhosm =  [meanr, [rhos[2*i+1] for i in range(6)],  [ covrhos[2*i + 1] for i in range(6)] ]
 
     i_guess = np.array(i_guess0)[np.array(mflags)].tolist()
-    samples, chains = RUNtest(i_guess, data, nwalkers, nsteps, eq=eq,
-                      mflags=mflags, xip=args.xip , xim=args.xim , moderr=moderr,
-                      uwmprior=args.uwmprior, minimize= minimize)
+    if args.samecont:
+        samples, chains = RUNtest(i_guess, data, nwalkers, nsteps,
+                                  eq=eq, mflags=mflags, xip=True ,
+                                  xim=True , moderr=moderr,
+                                  uwmprior=args.uwmprior, minimize=
+                                  minimize)
+        if(args.plots):
+            plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont )
 
-    if(args.plots): plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont )
-    writexipbias(samples, args.rhoscosmo, plots=args.plots,
-                 samecont=args.samecont, nameterms=nameterms,
-                 dxiname=namedxip, namecovmat=namecovmat,
-                 filename=filename )
+        writexibias(samples, datarhosp, plots=args.plots,
+                    nameterms=plotspath + 'p_' + nameterms,
+                    dxiname=plotspath +'p_' + namedxip,
+                    namecovmat=plotspath +'p_' + namecovmat,
+                    filename=outpath + 'p_' + filename )
+        writexibias(samples, datarhosm, plots=args.plots,
+                    nameterms=plotspath +'m_' + nameterms,
+                    dxiname=plotspath +'m_' + namedxip,
+                    namecovmat=plotspath +'m_' + namecovmat,
+                    filename=outpath + 'm_' + filename )
+        
+
+    else:
+        samplesp, chainsp = RUNtest(i_guess, data, nwalkers, nsteps,
+                                    eq=eq, mflags=mflags, xip=True ,
+                                    xim=False , moderr=moderr,
+                                    uwmprior=args.uwmprior, minimize=
+                                    minimize)
+
+        samplesm, chainsm = RUNtest(i_guess, data, nwalkers, nsteps,
+                                    eq=eq, mflags=mflags, xip=False ,
+                                    xim=True , moderr=moderr,
+                                    uwmprior=args.uwmprior, minimize=
+                                    minimize)
+
+        if(args.plots):
+            plot_samplesdist(samplesp, chainsp, mflags, nwalkers, nsteps, plotspath +'p_' + namemc,plotspath + 'p_' +namecont )
+            plot_samplesdist(samplesm, chainsm, mflags, nwalkers, nsteps, plotspath +'m_' + namemc,plotspath + 'm_' +namecont )
+
+        writexibias(samplesp, datarhosp, plots=args.plots,
+                    nameterms=plotspath + 'p_' + nameterms,
+                    dxiname=plotspath +'p_' + namedxip,
+                    namecovmat=plotspath +'p_' + namecovmat,
+                    filename=outpath + 'p_' + filename )
+        writexibias(samplesm, datarhosm, plots=args.plots,
+                    nameterms=plotspath +'m_' + nameterms,
+                    dxiname=plotspath +'m_' + namedxip,
+                    namecovmat=plotspath +'m_' + namecovmat,
+                    filename=outpath + 'm_' + filename )
     
   
     

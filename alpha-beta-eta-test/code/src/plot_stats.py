@@ -130,7 +130,6 @@ def pretty_rho2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, tau
     if title is not None: plt.title(title)
     plt.tight_layout()
 
-    
 def plotcorrmat(cov):
     import numpy as np
     cov = np.mat(cov)

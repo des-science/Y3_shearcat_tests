@@ -19,6 +19,8 @@ def parse_args():
                         help='list of exposures (in lieu of separate exps)')
     parser.add_argument('--seed', type=int,
                         help='seed used, useful to run parallel')
+    parser.add_argument('--zbin', default=1 , type=int,
+                        help='seed used, useful to run parallel')
     parser.add_argument('--bands', default='riz', type=str,
                          help='Limit to the given bands')
     parser.add_argument('--bandcombo', default=False,
@@ -173,7 +175,7 @@ def main():
  
     min_sep = 0.1;  max_sep=300; bin_size=0.2
     seed = args.seed
-    for zbin in range(1, 5):
+    for zbin in range(args.zbin, 5):
         for ck in range(1, 2):
             data_galaxies =  read_flask(args.flask_cat, seed, zbin, ck)
             print("Total objects in catalog:", len(data_galaxies))

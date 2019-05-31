@@ -102,7 +102,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, eq=None,
 
 def bestparameters(samples):
     allpars = []
-    for i in range (0, len(samples)):
+    for i in range (len(samples)):
         par = np.percentile(samples[i], [50]);
         allpars.append(par[0])
     return allpars
