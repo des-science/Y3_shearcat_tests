@@ -9,8 +9,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Alpha beta gamma test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
     
     parser.add_argument('--taus',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS.fits',
-                         #default='/home2/dfa/sobreira/alsina/catalogs/flask/taus/taus_src-cat_s280_z1_ck1.fits',
+                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK.fits',
+                        #default='/home2/dfa/sobreira/alsina/catalogs/flask/taus/taus_src-cat_s280_z1_ck1.fits',
                         help='Fits file containing all tau stats used to estimate abe')
     parser.add_argument('--rhos', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS.fits',
                         help='Fits file containing all rho stats used to estimate abe')

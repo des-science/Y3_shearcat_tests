@@ -11,8 +11,14 @@ def parse_args():
     
     parser.add_argument('--tausflask',
                         default='/home2/dfa/sobreira/alsina/catalogs/flask/taus/',
-                        help='Full Path to the Only stars Piff catalog')
-    parser.add_argument('--outpath', default='home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations',
+                        help='Full Path to the taus measurement of flask catalogs')
+    parser.add_argument('--input_tau',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS.fits',
+                        help='Fit file with the taus correlations, and which covariance matrix will be replaced')
+    parser.add_argument('--filename',
+                        default='TAUS_FLASK.fits',
+                        help='Fit file based on inputfile but now with Flask Covariance matrix')
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
     parser.add_argument('--zbin', default=1 , type=int,
                         help='seed used, useful to run parallel')
@@ -40,6 +46,7 @@ def plotcorrmat(cov):
  
 def main():
     import fitsio
+    from fitsio import FITS,FITSHDR
     from astropy.io import fits
     import itertools
     import numpy as np
@@ -80,13 +87,14 @@ def main():
                 meanr, taus, covtaus = read_taus(name)
                 veclist.append(np.concatenate(np.c_[taus].T))
                 count +=1
-    print(count, "Catalogs were read")
+    print(count, "FLASK catalogs were read")
                 
     ranveclist = np.c_[veclist].T
     covmat = np.cov(ranveclist)
-    lengths = [len(taus[0]), len(taus[1]), len(taus[2]), len(taus[3]),
-               len(taus[4]), len(taus[5])]
+    
     if(args.plots):
+        lengths = [len(taus[0]), len(taus[1]), len(taus[2]), len(taus[3]),
+               len(taus[4]), len(taus[5])]
         plotcorrmat(covmat)
         plt.title(r'$\tau_{0+}(\theta) \mid \tau_{0-}(\theta) \mid \tau_{2+}(\theta) \mid \tau_{2-}(\theta) \mid \tau_{5+}(\theta) \mid \tau_{5-}(\theta) $')
         pos_lines = [0]
@@ -97,9 +105,21 @@ def main():
             plt.axvline(x=line, c='k', lw=1, ls='-')
             plt.axhline(y=line, c='k', lw=1, ls='-')
         plt.tight_layout()
-        filename = plotspath + 'CovariancematrixTausFlask.png'
+        filename = plotspath + 'CovariancematrixTausFlask_' + str(args.zbin) + '_.png'
         plt.savefig(filename, dpi=500)
         print(filename, 'Printed!')
+
+    hdulist = fits.open(args.input_tau)
+    oldheaders =  [hdulist[1].header]
+    hdulist.pop(index=1);
+    
+    
+    covmathdu= fits.ImageHDU(covmat)
+    hdulist.insert(1, covmathdu)
+    hdulist[1].header = oldheaders[0]
+    print(hdulist)
+    print("writting, ", outpath + args.filename)
+    hdulist.writeto(outpath + args.filename, overwrite=True)
     
 if __name__ == "__main__":
     main()

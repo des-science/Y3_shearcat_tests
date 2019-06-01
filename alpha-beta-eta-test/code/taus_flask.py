@@ -185,7 +185,7 @@ def main():
                                               bin_size = bin_size,
                                               mod=args.mod)
                 tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
-                tau0parr = au0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
+                tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
                 vartau0arr = tau0.varxi; vartau2arr= tau2.varxi; vartau5arr = tau5.varxi;
             
                 taus = [tau0parr, tau0marr, tau2parr, tau2marr, tau5parr, tau5marr]

@@ -361,6 +361,7 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
     import numpy as np
     import h5py as h
     import gc
+    gc.enable()
     dgamma = 2*0.01
     
     f = h.File(filename, 'r')
