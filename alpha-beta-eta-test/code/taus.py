@@ -1,13 +1,15 @@
 import os
-today = '31-05-19_'
+today = '02-06-19_'
+import numpy as np
+import treecorr
 
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Produce Tau correlations, i.e correlation among galaxies and reserved stars')
     
     parser.add_argument('--metacal_cat',
-                        #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3fullmaster/Y3_mastercat_v2_6_20_18.h5', 
+                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
+                        #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3fullmaster/Y3_mastercat_v2_6_20_18.h5', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
                         default='/home2/dfa/sobreira/alsina/catalogs/y3a1-v29',
@@ -35,13 +37,35 @@ def parse_args():
                         help='Full Path to the Only stars Piff catalog')
     args = parser.parse_args()
     return args
-    
+
+def band_combinations(bands, single=True, combo=True,  allcombo=True):
+    if(allcombo):
+        if single:
+            use_bands = [ [b] for b in bands ]
+        else:
+            use_bands = []
+
+        if combo:
+            if 'r' in bands and 'i' in bands:
+                use_bands.append(['r', 'i'])
+            if 'r' in bands and 'i' in bands and 'z' in bands:
+                use_bands.append(['r', 'i', 'z'])
+            if 'g' in bands and 'r' in bands and 'i' in bands and 'z' in bands:
+                use_bands.append(['g', 'r', 'i', 'z'])
+            if 'g' in bands and 'r' in bands and 'i' in bands and 'z' in bands and 'Y' in bands:
+                use_bands.append(['g', 'r', 'i', 'z', 'Y'])
+    else:
+        letters = [k for k in bands]
+        use_bands = []
+        use_bands.append(letters)
+
+    print('use_bands = ',use_bands)
+    print('tags = ',[ ''.join(band) for band in use_bands ])
+    return use_bands
 def measure_tau(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin_size=0.2, sep_units='arcmin', prefix='piff', mod=True):
     """Compute the tau statistics
     """
-    import treecorr
-    import numpy as np
-    import gc
+    #import gc
     
     e1 = data_stars['obs_e1']
     e2 = data_stars['obs_e2']
@@ -94,8 +118,8 @@ def measure_tau(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin_size
 
 
     #del data_stars, data_galaxies,  ra, dec, ragal, decgal, p_e1, p_e2, de1, de2, w1, w2, e1gal, e2gal, e1, e2, T, p_T, dt
-    del data_stars, data_galaxies, e1, e2, T, p_T, dt
-    gc.collect()
+    #del data_stars, data_galaxies, e1, e2, T, p_T, dt
+    #gc.collect()
     
     #bin_config = dict( sep_units = sep_units, min_sep = 2.5, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = sep_units, bin_slop = 0.1, min_sep = 0.5,  max_sep=300, bin_size=0.2)
@@ -125,11 +149,8 @@ def measure_tau(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin_size
 def measure_tau_tomo(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin_size=0.2, sep_units='arcmin', prefix='piff', mod=True, zbin=None):
     """Compute the tau statistics
     """
-    import treecorr
-    import numpy as np
     from astropy.io import fits
-    import gc
-    gc.enable()
+    #import gc
     
     e1 = data_stars['obs_e1']; p_e1 = data_stars[prefix+'_e1']; de1 = e1-p_e1
     e2 = data_stars['obs_e2']; p_e2 = data_stars[prefix+'_e2']; de2 = e2-p_e2
@@ -159,8 +180,8 @@ def measure_tau_tomo(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin
     egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
     ecat.name = 'ecat'; decat.name = 'decat'; wcat.name = 'wcat';egal_cat.name = 'egal_cat'
 
-    del data_stars, data_galaxies, e1, e2, T, p_T, dt
-    gc.collect()
+    #del data_stars, data_galaxies, e1, e2, T, p_T, dt
+    #gc.collect()
     
     bin_config = dict(sep_units = sep_units , bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
 
@@ -257,11 +278,9 @@ def measure_tau_tomo(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin
    
 
 def main():
-    import numpy as np
     from src.read_cats import read_data, toList, read_metacal
     from astropy.io import fits
-    import gc
-    gc.enable()
+ 
     
     args = parse_args()
 
@@ -283,18 +302,17 @@ def main():
                                      use_reserved=args.use_reserved)
     print("Objects",  len(data_stars))
     data_stars = data_stars[data_stars['mag']<20]
-    print("Objects with magnitude <20",  len(data_stars))
-
-    del bands, tilings, exps, keys
-    gc.collect()
-
+    print("Objects with magnitude <20",  len(data_stars))   
+    
     min_sep = 0.1;  max_sep=300; bin_size=0.2
     galkeys = ['ra','dec','e_1','e_2','R11','R22']
 
     if args.zbin is not None:
         print('Starting Tomography!, measuring tau for zbin=', args.zbin)
-        data_gal = read_metacal(args.metacal_cat,  galkeys,  zbin=args.zbin,  nz_source_file=args.nz_source)
-        measure_tau_tomo(data_stars, data_gal, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size,  mod=args.mod, zbin=arg.zbin)
+        #data_gal = read_metacal(args.metacal_cat,  galkeys,  zbin=args.zbin,  nz_source_file=args.nz_source)
+        measure_tau_tomo(data_stars,
+                         read_metacal(args.metacal_cat,  galkeys,  zbin=args.zbin,  nz_source_file=args.nz_source),
+                         min_sep = min_sep, max_sep = max_sep, bin_size = bin_size,  mod=args.mod, zbin=args.zbin)
         
                 
     else:

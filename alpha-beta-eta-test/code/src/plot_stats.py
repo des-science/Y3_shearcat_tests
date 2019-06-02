@@ -186,7 +186,7 @@ def plotallrhosfits(stat_file, outpath, title= None, xlim=None, ylims=None):
         plt.savefig(outpath + names[i], dpi=500)
         print(outpath +names[i], 'Printed!')
     
-def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None):
+def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zbin=''):
     import numpy as np
     from readfits import read_taus
     import fitsio
@@ -201,12 +201,14 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None):
 
     plt.clf()
     pretty_rho2(meanr, tau0p, sig_tau0p, tau2p, sig_tau2p, tau5p, sig_tau5p, tauleg=True, title=title, xlim=xlim, ylim=ylim0p)
-    print("Printing file: ", outpath +'taup_all_rsrs.png')
-    plt.savefig(outpath +'taup_all_rsgal.png')
+    name = outpath +'taup_all_rsrs' + zbin +  '.png'
+    print("Printing file: ", name)
+    plt.savefig(name)
     plt.clf()
     pretty_rho2(meanr, tau0m, sig_tau0m, tau2m, sig_tau2m, tau5m, sig_tau5m, tauleg=True, title=title, xlim=xlim, ylim=ylim0m)
-    print("Printing file: ", outpath +'taum_all_rsrs.png')
-    plt.savefig(outpath +'taum_all_rsgal.png')
+    name = outpath +'taum_all_rsrs' + zbin +  '.png'
+    print("Printing file: ", name)
+    plt.savefig(name)
 
     '''
     titles =  [r'$\tau_{0+}(\theta)$', r'$\tau_{0-}(\theta)$',
@@ -236,7 +238,7 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None):
         plt.axvline(x=line, c='k', lw=1, ls='-')
         plt.axhline(y=line, c='k', lw=1, ls='-')
     plt.tight_layout()
-    filename = outpath + 'CovariancematrixTaus.png'
+    filename = outpath + 'CovariancematrixTaus' + zbin + '.png'
     plt.savefig(filename, dpi=500)
     print(filename, 'Printed!')
 
