@@ -8,8 +8,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Produce Tau correlations, i.e correlation among galaxies and reserved stars')
     
     parser.add_argument('--metacal_cat',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
-                        #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3fullmaster/Y3_mastercat_v2_6_20_18.h5', 
+                        #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
+                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3fullmaster/Y3_mastercat_v2_6_20_18.h5', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
                         default='/home2/dfa/sobreira/alsina/catalogs/y3a1-v29',
@@ -98,19 +98,19 @@ def measure_tau(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin_size
         e2gal = e2gal - np.array(np.mean(e2gal))
 
         
-    ra = data_stars['ra']
-    dec = data_stars['dec']
-    print('ra = ',ra)
-    print('dec = ',dec)
-    ragal = data_galaxies['ra']
-    decgal = data_galaxies['dec']
-    print('ragal = ',ragal)
-    print('decgal = ',decgal)
+    #ra = data_stars['ra']
+    #dec = data_stars['dec']
+    #print('ra = ',ra)
+    #print('dec = ',dec)
+    #ragal = data_galaxies['ra']
+    #decgal = data_galaxies['dec']
+    #print('ragal = ',ragal)
+    #print('decgal = ',decgal)
     
-    ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
-    decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-    wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
-    egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
+    ecat = treecorr.Catalog(ra=data_stars['ra'], dec=data_stars['dec'], ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
+    decat = treecorr.Catalog(ra=data_stars['ra'], dec=data_stars['dec'], ra_units='deg', dec_units='deg', g1=de1, g2=de2)
+    wcat = treecorr.Catalog(ra=data_stars['ra'], dec=data_stars['dec'], ra_units='deg', dec_units='deg', g1=w1, g2=w2)
+    egal_cat = treecorr.Catalog(ra=data_galaxies['ra'], dec=data_galaxies['dec'], ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
     ecat.name = 'ecat'
     decat.name = 'decat'
     wcat.name = 'wcat'
@@ -121,10 +121,10 @@ def measure_tau(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin_size
     #del data_stars, data_galaxies, e1, e2, T, p_T, dt
     #gc.collect()
     
-    #bin_config = dict( sep_units = sep_units, min_sep = 2.5, max_sep = 250, nbins = 20,)
+    bin_config = dict( sep_units = sep_units, min_sep = 2.5, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = sep_units, bin_slop = 0.1, min_sep = 0.5,  max_sep=300, bin_size=0.2)
 
-    bin_config = dict(sep_units = sep_units , bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
+    #bin_config = dict(sep_units = sep_units , bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
     
     results = []
 
@@ -182,10 +182,9 @@ def measure_tau_tomo(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin
 
     #del data_stars, data_galaxies, e1, e2, T, p_T, dt
     #gc.collect()
-    
-    bin_config = dict(sep_units = sep_units , bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
 
-    
+    bin_config = dict( sep_units = sep_units, min_sep = 2.5,max_sep = 250, nbins = 20,)
+    #bin_config = dict(sep_units = sep_units , bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
      
     hdu = fits.PrimaryHDU()
     hdul = fits.HDUList([hdu])
@@ -310,10 +309,75 @@ def main():
     if args.zbin is not None:
         print('Starting Tomography!, measuring tau for zbin=', args.zbin)
         #data_gal = read_metacal(args.metacal_cat,  galkeys,  zbin=args.zbin,  nz_source_file=args.nz_source)
-        measure_tau_tomo(data_stars,
-                         read_metacal(args.metacal_cat,  galkeys,  zbin=args.zbin,  nz_source_file=args.nz_source),
-                         min_sep = min_sep, max_sep = max_sep, bin_size = bin_size,  mod=args.mod, zbin=args.zbin)
+        #measure_tau_tomo(data_stars,
+        #                 read_metacal(args.metacal_cat,  galkeys,  zbin=args.zbin,  nz_source_file=args.nz_source),
+        #                 min_sep = min_sep, max_sep = max_sep, bin_size = bin_size,  mod=args.mod, zbin=args.zbin)
+        tau0, tau2, tau5= measure_tau(data_stars,
+                                      read_metacal(args.metacal_cat,  galkeys,  zbin=args.zbin,  nz_source_file=args.nz_source),
+                                      min_sep = min_sep, max_sep = max_sep, bin_size = bin_size, mod=args.mod)
+        tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
+        tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
+        vartau0arr = tau0.varxi; vartau2arr= tau2.varxi; vartau5arr = tau5.varxi;
+
+        taus = [tau0parr, tau0marr, tau2parr, tau2marr, tau5parr, tau5marr]
+        taus_names = ['TAU0P', 'TAU0M','TAU2P','TAU2M', 'TAU5P', 'TAU5M']
+        vares = [vartau0arr, vartau2arr, vartau5arr]
+
+        ##Format of the fit file output
+        names=['BIN1', 'BIN2','ANGBIN', 'VALUE', 'ANG']
+        forms = ['i4', 'i4', 'i4',  'f8',  'f8']
+        dtype = dict(names = names, formats=forms)
+        nrows = len(tau0marr)
+        outdata = np.recarray((nrows, ), dtype=dtype)
+
+     
+        covmat = np.diag(np.concatenate((vares[0], vares[0], vares[1], vares[1],  vares[2], vares[2])))
+        hdu = fits.PrimaryHDU()
+        hdul = fits.HDUList([hdu])
+        covmathdu = fits.ImageHDU(covmat, name='COVMAT')
+        hdul.insert(1, covmathdu)
         
+        bin1array = np.array([ -999]*nrows)
+        bin2array = np.array([ -999]*nrows)
+        angbinarray = np.arange(nrows)
+        angarray = np.exp(tau0.meanlogr)
+        
+        for j, nam in enumerate(taus_names):
+            array_list = [bin1array, bin2array, angbinarray,np.array(taus[j]),  angarray ]
+            for array, name in zip(array_list, names): outdata[name] = array 
+            corrhdu = fits.BinTableHDU(outdata, name=nam)
+            hdul.insert(j+2, corrhdu)
+
+        hdul[1].header['COVDATA'] = True
+        hdul[1].header['EXTNAME'] =  'COVMAT'
+        hdul[1].header['NAME_0'] =  'TAU0P'
+        hdul[1].header['STRT_0'] =  0
+        hdul[1].header['LEN_0'] = nrows
+        hdul[1].header['NAME_1'] =  'TAU0M'
+        hdul[1].header['STRT_1'] =  nrows
+        hdul[1].header['LEN_1'] = nrows
+        hdul[1].header['NAME_2'] =  'TAU2P'
+        hdul[1].header['STRT_2'] =  2*nrows
+        hdul[1].header['LEN_2'] = nrows
+        hdul[1].header['NAME_3'] =  'TAU2M'
+        hdul[1].header['STRT_3'] =  3*nrows
+        hdul[1].header['LEN_3'] = nrows
+        hdul[1].header['NAME_4'] =  'TAU5P'
+        hdul[1].header['STRT_4'] =  4*nrows
+        hdul[1].header['LEN_4'] = nrows
+        hdul[1].header['NAME_5'] =  'TAU5M'
+        hdul[1].header['STRT_5'] =  5*nrows
+        hdul[1].header['LEN_5'] = nrows
+        
+        hdul[2].header['QUANT1'] = 'GeR'; hdul[3].header['QUANT1'] = 'GeR'
+        hdul[2].header['QUANT2'] = 'PeR'; hdul[3].header['QUANT2'] = 'PeR'
+        hdul[4].header['QUANT1'] = 'GeR'; hdul[5].header['QUANT1'] = 'GeR'
+        hdul[4].header['QUANT2'] = 'PqR'; hdul[5].header['QUANT2'] = 'PqR'
+        hdul[6].header['QUANT1'] = 'GeR'; hdul[7].header['QUANT1'] = 'GeR'
+        hdul[6].header['QUANT2'] = 'PwR'; hdul[7].header['QUANT2'] = 'PwR'
+
+        print("Printin file:", outpath + 'TAUS_zbin_' +str(args.zbin) '_.fits')
+        hdul.writeto(outpath + 'TAUS_zbin_' +str(args.zbin) '_.fits', overwrite=True)
                 
     else:
         data_galaxies =  read_metacal(args.metacal_cat,  galkeys )

@@ -23,9 +23,6 @@ def parse_args():
                         help='seed used, useful to run parallel')
     parser.add_argument('--bands', default='riz', type=str,
                          help='Limit to the given bands')
-    parser.add_argument('--bandcombo', default=False,
-                        action='store_const', const=True,
-                        help='run rho2 for all combination of bands, if false run particular combination defined in band')
     parser.add_argument('--use_reserved', default=True,
                         action='store_const', const=True,
                         help='just use the objects with the RESERVED flag')
@@ -39,11 +36,6 @@ def parse_args():
     parser.add_argument('--tomo', default=False,
                         action='store_const', const=True,
                         help='Run all tomographic correlations')
-    parser.add_argument('--nz_source',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/nz_source_zbin.h5',
-                        help='Full Path to the Only stars Piff catalog')
-    parser.add_argument('--filename', default='alltaus_4jk.fits', help='Name of the fit file where info of dxip will be saved ')
-    
     
     args = parser.parse_args()
 
@@ -132,18 +124,6 @@ def measure_tau(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin_size
         
     return results
 
-def write_fit(data, names, filename):
-    import fitsio
-    from fitsio import FITS,FITSHDR
-    import os.path
-    if not os.path.isfile(filename):
-        fits = FITS(filename,'rw')
-        fits.write(data, names=names, clobber=False)
-        print("Writing file: ", filename)
-    else:
-        fits = FITS(filename,'rw')
-        fits[-1].append(data)
-        print("Apending File: ",  filename)
 def main():
     from astropy.io import fits
     import numpy as np
