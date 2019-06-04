@@ -49,9 +49,9 @@ def logprior(pars, mflags=[True, True, True],  uwmprior=False):
 def loglike(chisq):
     return -0.5*chisq
 ##Log natural of the posterior
-def logpost(pars, data, eq=None, mflags=[True, True, True], moderr=False, uwmprior=False):
+def logpost(pars, data, eq=None, mflags=[True, True, True], xip=True, xim=False, moderr=False, uwmprior=False):
     from chi2 import CHI2
-    chisq = CHI2(pars, data,eq=eq, mflags=mflags,  moderr=moderr )
+    chisq = CHI2(pars, data,eq=eq, mflags=mflags, xip=xip, xim=xim,  moderr=moderr )
     lp = logprior(pars, mflags=mflags, uwmprior=uwmprior)
     if not np.isfinite(lp):
         return -np.inf
@@ -72,13 +72,14 @@ def corner_plot(samples, labels, title):
     plt.close(fig)
     print(title, "Printed")
 def MCMC(best_pars,data, nwalkers=50, nsteps=1000, eq=None,
-         mflags=[True, True, True], moderr=False, uwmprior=False):
+         mflags=[True, True, True], xip=True, xim=False, moderr=False,
+         uwmprior=False):
     import emcee
     import itertools
     ndim =  len(list(itertools.compress(xrange(len(mflags)),  mflags)))
     pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=1,
-                                    args=(data, eq, mflags,moderr, uwmprior))
+                                    args=(data, eq, mflags,xip,xim, moderr, uwmprior))
     print("Runing MCMC ...")
     sampler.run_mcmc(pos, nsteps)
     print("Run finished")
@@ -98,6 +99,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, eq=None,
         eta_chain = sampler.chain[:,:,2]; eta_chain_flat = np.reshape(eta_chain, (nwalkers*nsteps,))
         samples = np.c_[alpha_chain_flat, beta_chain_flat, eta_chain_flat].T
         chains = [alpha_chain, beta_chain, eta_chain]
+    del sampler
     return samples, chains
 
 def bestparameters(samples):

@@ -13,16 +13,16 @@ def parse_args():
                         default='/home2/dfa/sobreira/alsina/catalogs/flask/taus/',
                         help='Full Path to the taus measurement of flask catalogs')
     parser.add_argument('--input_tau',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_1_.fits',
                         help='Fit file with the taus correlations, and which covariance matrix will be replaced')
     parser.add_argument('--filename',
-                        default='TAUS_FLASK.fits',
+                        default='TAUS_FLASK_zbin_1.fits',
                         help='Fit file based on inputfile but now with Flask Covariance matrix')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
     parser.add_argument('--zbin', default=1 , type=int,
                         help='seed used, useful to run parallel')
-    parser.add_argument('--plots', default=False,
+    parser.add_argument('--plots', default=True,
                         action='store_const', const=True, help='Plot correlations functions')
     parser.add_argument('--plotspath',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/plots/',
@@ -32,7 +32,7 @@ def parse_args():
     args = parser.parse_args()
 
     return args
-def plotcorrmat(cov):
+def plotcorrmat(cov, zbin):
     import numpy as np
     cov = np.mat(cov)
     D = np.diag(np.sqrt(np.diag(cov)))
@@ -41,7 +41,8 @@ def plotcorrmat(cov):
     cov_vmin=np.min(corr)
     plt.imshow(corr,cmap='viridis'+'_r', interpolation='nearest',
                aspect='auto', origin='lower', vmin=cov_vmin, vmax=1.)
-    plt.colorbar()
+    clb = plt.colorbar()
+    clb.ax.set_title("zbin" + str(zbin))
     plt.tight_layout()
  
 def main():
@@ -95,7 +96,7 @@ def main():
     if(args.plots):
         lengths = [len(taus[0]), len(taus[1]), len(taus[2]), len(taus[3]),
                len(taus[4]), len(taus[5])]
-        plotcorrmat(covmat)
+        plotcorrmat(covmat, zbin)
         plt.title(r'$\tau_{0+}(\theta) \mid \tau_{0-}(\theta) \mid \tau_{2+}(\theta) \mid \tau_{2-}(\theta) \mid \tau_{5+}(\theta) \mid \tau_{5-}(\theta) $')
         pos_lines = [0]
         for i in range(len(lengths)):

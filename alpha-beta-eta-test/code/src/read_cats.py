@@ -333,6 +333,19 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
 
     return data, bands, tiling
 
+
+def read_data_stars(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=False, frac=1.,  verbose=False):
+    data_stars, bands, tilings = read_data(exps, work , keys,
+                                           limit_bands=limit_bands,
+                                           prefix=prefix,
+                                           use_reserved=use_reserved,
+                                           frac=frac, verbose=verbose)
+    print("Objects",  len(data_stars))
+    data_stars = data_stars[data_stars['mag']<20]
+    print("Objects with magnitude <20",  len(data_stars))
+    data_stars['mag'] = None
+    return data_stars
+
 def read_h5(filename, folder, keys):
     import h5py as h
     f = h.File(filename, 'r')
@@ -401,7 +414,7 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
         ind_2m = np.where(np.array(n['nofz/zbin_2m'])==zbin)
         R11s = (data['e_1'][select_1p][ind_1p].mean() - data['e_1'][select_1m][ind_1m].mean() )/dgamma
         R22s = (data['e_2'][select_2p][ind_2p].mean() - data['e_2'][select_2m][ind_2m].mean() )/dgamma
-        data[select][ind]
+        data = data[select][ind]
         
     data['e_1'] = data['e_1']/(R11s + np.mean(data['R11']))
     data['e_2'] = data['e_2']/(R22s + np.mean(data['R22']))
