@@ -97,7 +97,8 @@ def measure_rho(data, min_sep = 0.1,  max_sep=300, bin_size=0.2,  sep_units='arc
         #BINNING USED TO PROPAGATE IN COSMOLOGY
         bin_config = dict(sep_units = sep_units, nbins = 20, min_sep = 2.5, max_sep = 250,)
     else:
-        bin_config = dict(sep_units = sep_units, bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
+        bin_config = dict(sep_units = sep_units, nbins = 20, min_sep = 1.0, max_sep = 250,)
+        #bin_config = dict(sep_units = sep_units, bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
  
     
 

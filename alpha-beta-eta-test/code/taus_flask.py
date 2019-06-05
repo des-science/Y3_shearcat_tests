@@ -103,7 +103,8 @@ def measure_tau(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin_size
     gc.collect()
     
     #bin_config = dict( sep_units = sep_units, min_sep = 2.5, max_sep = 250, nbins = 20,)
-    bin_config = dict(sep_units = sep_units , bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
+    bin_config = dict( sep_units = sep_units, min_sep = 1.0, max_sep = 250, nbins = 20,)
+    #bin_config = dict(sep_units = sep_units , bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
     
     results = []
 
