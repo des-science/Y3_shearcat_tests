@@ -718,7 +718,7 @@ def main():
             samplesp_list.append(samplesp); parsp_list.append(parsp)
             samplesm_list.append(samplesm); parsm_list.append(parsm)
         write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, eq, nsig, args.plots, outpath, plotspath)
-        #write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, eq, args.plots, outpath, plotspath)
+        write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, eq, args.plots, outpath, plotspath)
 
     
 

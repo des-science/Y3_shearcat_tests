@@ -156,7 +156,7 @@ def main():
     min_sep = 0.1;  max_sep=300; bin_size=0.2
     for seed in range (args.seed, 401):
         for zbin in range(args.zbin, 5):
-            for ck in range(1, 2):
+            for ck in range(1, 3):
                 data_galaxies =  read_flask(args.flask_cat, seed, zbin, ck)
                 print("Total objects in catalog:", len(data_galaxies))
                 tau0, tau2, tau5= measure_tau(data_stars,
@@ -218,6 +218,7 @@ def main():
             
                 outname = os.path.join(outpath, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
                 hdul.writeto(outname, overwrite=True)
-    
+
+            args.zbin = 1
 if __name__ == "__main__":
     main()
