@@ -163,18 +163,13 @@ def main():
     rho3parr = rho3.xip; rho4parr = rho4.xip; rho5parr = rho5.xip
     rho0marr = rho0.xim; rho1marr = rho1.xim; rho2marr = rho2.xim
     rho3marr = rho3.xim; rho4marr = rho4.xim; rho5marr = rho5.xim
-    varrho0arr = rho0.varxi; varrho1arr = rho1.varxi; varrho2arr = rho2.varxi;
-    varrho3arr = rho3.varxi; varrho4arr = rho4.varxi; varrho5arr = rho5.varxi;
 
     rhos = [rho0parr, rho0marr, rho1parr, rho1marr, rho2parr,
             rho2marr, rho3parr, rho3marr, rho4parr, rho4marr,
             rho5parr, rho5marr]
     rhos_names = ['RHO0P', 'RHO0M', 'RHO1P', 'RHO1M', 'RHO2P','RHO2M', 'RHO3P', 'RHO3M', 'RHO4P', 'RHO4M', 'RHO5P', 'RHO5M']
-  
-    vares = [varrho0arr,varrho0arr, varrho1arr, varrho1arr,
-             varrho2arr, varrho2arr, varrho3arr,varrho3arr,
-             varrho4arr, varrho4arr, varrho5arr, varrho5arr]
 
+    
     names=['BIN1', 'BIN2','ANGBIN', 'VALUE', 'ANG']
     forms = ['i4', 'i4', 'i4',  'f8',  'f8']
     dtype = dict(names = names, formats=forms)
@@ -185,10 +180,10 @@ def main():
     hdu = fits.PrimaryHDU()
     hdul = fits.HDUList([hdu])
     
-    covmat = np.diag(np.concatenate((vares[0], vares[1], vares[2],
-                                     vares[3], vares[4], vares[5],
-                                     vares[6], vares[7], vares[8],
-                                     vares[9], vares[10], vares[11])))
+    covmat = np.diag(np.concatenate((rho0.varxip, rho0.varxim, rho1.varxip,
+                                     rho1.varxim, rho2.varxip, rho2.varxim,
+                                     rho3.varxip, rho3.varxim, rho4.varxip,
+                                     rho4.varxim, rho5.varxip, rho5.varxim)))
     covmathdu = fits.ImageHDU(covmat, name='COVMAT')
     hdul.insert(1, covmathdu)
     

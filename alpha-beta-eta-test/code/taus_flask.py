@@ -167,11 +167,9 @@ def main():
                                               mod=args.mod)
                 tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
                 tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
-                vartau0arr = tau0.varxi; vartau2arr= tau2.varxi; vartau5arr = tau5.varxi;
-            
                 taus = [tau0parr, tau0marr, tau2parr, tau2marr, tau5parr, tau5marr]
                 taus_names = ['TAU0P', 'TAU0M','TAU2P','TAU2M', 'TAU5P', 'TAU5M']
-                vares = [vartau0arr, vartau2arr, vartau5arr]
+         
             
                 ##Format of the fit file output
                 names=['BIN1', 'BIN2','ANGBIN', 'VALUE', 'ANG']
@@ -181,7 +179,7 @@ def main():
                 outdata = np.recarray((nrows, ), dtype=dtype)
 
      
-                covmat = np.diag(np.concatenate((vares[0], vares[0], vares[1], vares[1],  vares[2], vares[2])))
+                covmat = np.diag(np.concatenate( (tau0.varxip, tau0.varxim, tau2.varxip, tau2.varxim, tau5.varxip, tau5.varxim ) ))
                 hdu = fits.PrimaryHDU()
                 hdul = fits.HDUList([hdu])
                 covmathdu = fits.ImageHDU(covmat, name='COVMAT')
