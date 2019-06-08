@@ -1,5 +1,5 @@
 import os
-today = '22-04-19_'
+today = '06-06-19_'
 
 def parse_args():
     import argparse
@@ -35,97 +35,11 @@ def parse_args():
     args = parser.parse_args()
 
     return args
-
-def measure_rho(data, min_sep = 0.1,  max_sep=300, bin_size=0.2,  sep_units='arcmin',  tag=None, prefix='piff', mod=True,  obs=False,  cosmobin=False ):
-    """Compute the rho statistics
-    """
-    import treecorr
-    import numpy as np
-
-    e1 = data['obs_e1']
-    e2 = data['obs_e2']
-    p_e1 = data[prefix+'_e1']
-    p_e2 = data[prefix+'_e2']
-    T = data['obs_T']
-    p_T = data[prefix+'_T']
-
-    de1 = e1-p_e1
-    de2 = e2-p_e2
-    dt = (T-p_T)/T
-    w1 = p_e1*dt
-    w2 = p_e2*dt
-    w1obs = e1*dt 
-    w2obs = e2*dt 
-        
     
-    #Modified ellipticities
-    if(mod):
-        e1 = e1 - np.array(np.mean(e1))
-        e2 = e2 - np.array(np.mean(e2))       
-        p_e1 = p_e1 - np.array(np.mean(p_e1))
-        p_e2 = p_e2 - np.array(np.mean(p_e2))
-        de1 = de1 - np.array(np.mean(de1))
-        de2 = de2 - np.array(np.mean(de2))
-        w1 = w1 - np.array(np.mean(w1))
-        w2 = w2 - np.array(np.mean(w2))
-        w1obs = w1obs - np.array(np.mean(w1obs))
-        w2obs = w2obs - np.array(np.mean(w2obs))
-        
-    ra = data['ra']
-    dec = data['dec']
-    print('ra = ',ra)
-    print('dec = ',dec)
-    if(obs):
-        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
-        decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1obs, g2=w2obs)
-    else:
-        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
-        decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-        #wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
-        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1obs, g2=w2obs)
-    ecat.name = 'ecat'
-    decat.name = 'decat'
-    wcat.name = 'wcat'
-    if tag is not None:
-        for cat in [ ecat, decat, wcat ]:
-            cat.name = tag + ":"  + cat.name
-
-    
-    #bin_config = dict(sep_units = sep_units, bin_slop = 0.1, min_sep = 0.5,  max_sep=300, bin_size=0.2)
-    if cosmobin:
-        #BINNING USED TO PROPAGATE IN COSMOLOGY
-        bin_config = dict(sep_units = sep_units, nbins = 20, min_sep = 2.5, max_sep = 250,)
-    else:
-        bin_config = dict(sep_units = sep_units, nbins = 20, min_sep = 1.0, max_sep = 250,)
-        #bin_config = dict(sep_units = sep_units, bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
- 
-    
-
-    results = []
-    for (cat1, cat2) in [(ecat, ecat), 
-                         (decat, decat),
-                          (decat, ecat),
-                          (wcat, wcat),
-                          (decat, wcat),
-                          (ecat, wcat) ]:
-        print('Doing correlation of %s vs %s'%(cat1.name, cat2.name))
-
-        rho = treecorr.GGCorrelation(bin_config, verbose=2)
-
-        if cat1 is cat2:
-            rho.process(cat1)
-        else:
-            rho.process(cat1, cat2)
-        print('mean xi+ = ',rho.xip.mean())
-        print('mean xi- = ',rho.xim.mean())
-        results.append(rho)
-
-    return results
-
 def main():
     import numpy as np
     from src.read_cats import read_data,  toList
+    from src.runcorr import measure_rho
     from astropy.io import fits
     
     args = parse_args()
@@ -153,12 +67,18 @@ def main():
 
    
     
-    #BINING FOR ESTIMATING ABE
-    min_sep = 0.1;  max_sep=300; bin_size=0.2
+    
+    if args.cosmobin:
+        #BINNING USED TO PROPAGATE IN COSMOLOGY
+        bin_config = dict(sep_units = 'arcmin', nbins = 20, min_sep = 2.5, max_sep = 250,)
+    else:
+        #BINING FOR ESTIMATING ABE
+        bin_config = dict(sep_units = 'arcmin', nbins = 20, min_sep = 1.0, max_sep = 250,)
+        #bin_config = dict(sep_units = 'arcmin', bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
 
-    rho0, rho1, rho2, rho3, rho4, rho5 = measure_rho(data,min_sep = min_sep, max_sep = max_sep,
-                                                     bin_size = bin_size, mod=args.mod,
-                                                     obs=args.obs, cosmobin=args.cosmobin)
+    rho0, rho1, rho2, rho3, rho4, rho5 = measure_rho(data,bin_config,
+                                                     mod=args.mod,
+                                                     obs=args.obs)
     rho0parr = rho0.xip; rho1parr = rho1.xip; rho2parr = rho2.xip
     rho3parr = rho3.xip; rho4parr = rho4.xip; rho5parr = rho5.xip
     rho0marr = rho0.xim; rho1marr = rho1.xim; rho2marr = rho2.xim

@@ -81,7 +81,7 @@ def main():
     veclist = []
     count = 0; zbin = args.zbin
     for seed in range(201, 401 ):
-        for ck in range(1, 2):
+        for ck in range(1, 3):
             name = os.path.join(args.tausflask, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
             exist =  os.path.isfile(name)
             if exist:

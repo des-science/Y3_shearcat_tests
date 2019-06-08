@@ -1,6 +1,6 @@
+today = '06-06-19_'
 import numpy as np
 import os
-import kmeans_radec
 import matplotlib.pyplot as plt
 
 def parse_args():
@@ -41,93 +41,10 @@ def parse_args():
 
     return args
 
-def measure_tau(data_stars, data_galaxies, min_sep = 0.1,  max_sep=300, bin_size=0.2, sep_units='arcmin', prefix='piff', mod=True):
-    """Compute the tau statistics
-    """
-    import treecorr
-    import numpy as np
-    import gc
-    
-    e1 = data_stars['obs_e1']
-    e2 = data_stars['obs_e2']
-    p_e1 = data_stars[prefix+'_e1']
-    p_e2 = data_stars[prefix+'_e2']
-    T = data_stars['obs_T']
-    p_T = data_stars[prefix+'_T']
-
-    de1 = e1-p_e1
-    de2 = e2-p_e2
-    dt = (T-p_T)/T
-
-    #w1 = p_e1*dt
-    #w2 = p_e2*dt
-    w1 = e1*dt
-    w2 = e2*dt
-
-    e1gal = data_galaxies['e_1']
-    e2gal = data_galaxies['e_2']
-    
-    #Modified ellipticities reserved stars and galaxies
-    if(mod):
-        p_e1 = p_e1 - np.array(np.mean(p_e1))
-        p_e2 = p_e2 - np.array(np.mean(p_e2))
-        de1 = de1 - np.array(np.mean(de1))
-        de2 = de2 - np.array(np.mean(de2))
-        w1 = w1 - np.array(np.mean(w1))
-        w2 = w2 - np.array(np.mean(w2))
-        e1gal = e1gal - np.array(np.mean(e1gal))
-        e2gal = e2gal - np.array(np.mean(e2gal))
-
-        
-    ra = data_stars['ra']
-    dec = data_stars['dec']
-    print('ra = ',ra)
-    print('dec = ',dec)
-    ragal = data_galaxies['ra']
-    decgal = data_galaxies['dec']
-    print('ragal = ',ragal)
-    print('decgal = ',decgal)
-    
-    ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
-    decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-    wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
-    egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
-    ecat.name = 'ecat'
-    decat.name = 'decat'
-    wcat.name = 'wcat'
-    egal_cat.name = 'egal_cat'
-
-
-    #del data_stars, data_galaxies,  ra, dec, ragal, decgal, p_e1, p_e2, de1, de2, w1, w2, e1gal, e2gal, e1, e2, T, p_T, dt
-    del data_stars, data_galaxies, e1, e2, T, p_T, dt
-    gc.collect()
-    
-    #bin_config = dict( sep_units = sep_units, min_sep = 2.5, max_sep = 250, nbins = 20,)
-    bin_config = dict( sep_units = sep_units, min_sep = 1.0, max_sep = 250, nbins = 20,)
-    #bin_config = dict(sep_units = sep_units , bin_slop = 0.1, min_sep = min_sep, max_sep = max_sep, bin_size = bin_size)
-    
-    results = []
-
-    for (cat1, cat2) in [(egal_cat, ecat), 
-                         (egal_cat, decat),
-                          (egal_cat, wcat) ]:
-        print('Doing correlation of %s vs %s'%(cat1.name, cat2.name))
-
-        rho = treecorr.GGCorrelation(bin_config, verbose=3)
-
-        if cat1 is cat2:
-            rho.process(cat1)
-        else:
-            rho.process(cat1, cat2)
-        print('mean xi+ = ',rho.xip.mean())
-        print('mean xi- = ',rho.xim.mean())
-        results.append(rho)
-        
-    return results
-
 def main():
     from astropy.io import fits
     import numpy as np
+    from src.runcorr import measure_tau
     from src.read_cats import read_data, toList, read_flask
     import h5py as h
     
@@ -154,17 +71,15 @@ def main():
     data_stars = data_stars[data_stars['mag']<20]
     print("Objects with magnitude <20",  len(data_stars))
  
-    min_sep = 0.1;  max_sep=300; bin_size=0.2
+    bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
+    #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
     for seed in range (args.seed, 401):
         for zbin in range(args.zbin, 5):
             for ck in range(1, 3):
                 data_galaxies =  read_flask(args.flask_cat, seed, zbin, ck)
                 print("Total objects in catalog:", len(data_galaxies))
-                tau0, tau2, tau5= measure_tau(data_stars,
-                                              data_galaxies, min_sep =
-                                              min_sep, max_sep = max_sep,
-                                              bin_size = bin_size,
-                                              mod=args.mod)
+                tau0, tau2, tau5= measure_tau( data_stars , data_galaxies,
+                                       bin_config, mod=args.mod)
                 tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
                 tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
                 taus = [tau0parr, tau0marr, tau2parr, tau2marr, tau5parr, tau5marr]

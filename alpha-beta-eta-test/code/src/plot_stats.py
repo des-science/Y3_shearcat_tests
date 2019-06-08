@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 plt.style.use('SVA1StyleSheet.mplstyle')
 
 def pretty_rho(meanr, rho, sig,  legend=None, lfontsize=24, color='black', marker='o', ylabel=r'$\rho(\theta)$',title=None,  xlim=None,  ylim=None):
+    import numpy as np
     '''
     plt.plot(meanr, rho, color=color, label=legend, marker=marker)
     plt.plot(meanr, -rho, color=color, ls=':', marker=marker)
@@ -10,6 +11,7 @@ def pretty_rho(meanr, rho, sig,  legend=None, lfontsize=24, color='black', marke
         plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0], color=color, ls='', marker=marker)
         rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color=color, marker=marker)
     '''
+    if sig is None: sig =  np.zeros(len(rho))
     plt.plot(meanr, rho, color=color, label=legend)
     plt.plot(meanr, -rho, color=color, ls=':')
     #rigth quadrants
@@ -48,9 +50,8 @@ def pretty_rho0(meanr, rho, sig, title= None,  xlim=None, ylim=None):
     if title is not None: plt.title(title)
     plt.tight_layout()
 
-def pretty_rho1(meanr, rho, sig, rho3=None, sig3=None, rho4=None, sig4=None, title= None,xlim=None, ylim=None):
-    import matplotlib.patches as mp
-    
+def pretty_rho1(meanr, rho, sig, rho3=None, sig3=None, rho4=None, sig4=None, mlabel=False,  title= None,xlim=None, ylim=None):
+    fsize = 24
     plt.plot(meanr, rho, color='blue')
     plt.plot(meanr, -rho, color='blue', ls=':')
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0], color='blue', ls='', marker='o')
@@ -72,23 +73,32 @@ def pretty_rho1(meanr, rho, sig, rho3=None, sig3=None, rho4=None, sig4=None, tit
         rho4_line = plt.errorbar(-meanr, rho4, yerr=sig4, color='red', marker='^')
         #rho4_line = plt.errorbar(-meanr,-rho4, yerr=sig4, color='red', marker='^', ls=':')
 
-    plt.legend([rho1_line, rho3_line, rho4_line],
-               [r'$\rho_1(\theta)$', r'$\rho_3(\theta)$',
-                r'$\rho_4(\theta)$'], loc='upper right',
-               fontsize=24)
+    if mlabel:
+        plt.legend([rho1_line, rho3_line, rho4_line],
+                   [r'$\rho_{1-}(\theta)$', r'$\rho_{3-}(\theta)$',
+                    r'$\rho_{4-}(\theta)_{+}$'], loc='upper right',
+                   fontsize=fsize)
+        plt.ylabel(r'$\rho_{-}(\theta)$', fontsize=fsize)
+    else:
+        plt.legend([rho1_line, rho3_line, rho4_line],
+                   [r'$\rho_{1+}(\theta)$', r'$\rho_{3+}(\theta)$',
+                    r'$\rho_{4+}(\theta)_{+}$'], loc='upper right',
+                   fontsize=fsize)
+        plt.ylabel(r'$\rho_{+}(\theta)$', fontsize=fsize)
+
+    
 
     plt.tick_params(axis='both', which='major', labelsize=24)
     if ylim is not None: plt.ylim( ylim )
     if xlim is not None: plt.xlim(xlim)
-    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
-    plt.ylabel(r'$\rho(\theta)$', fontsize=24)
+    plt.xlabel(r'$\theta$ (arcmin)', fontsize=fsize)  
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
     if title is not None: plt.title(title)
     plt.tight_layout()
 
-def pretty_rho2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, tauleg=False, title= None, xlim=None, ylim=None):
- 
+def pretty_rho2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, mlabel=False, title= None, xlim=None, ylim=None):
+    fsize = 24
     plt.plot(meanr, rho, color='blue')
     plt.plot(meanr, -rho, color='blue', ls=':')
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0], color='blue', ls='', marker='o')
@@ -109,17 +119,67 @@ def pretty_rho2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, tau
         plt.errorbar(meanr[rho5<0]*1.03, -rho5[rho5<0], yerr=sig5[rho5<0], color='red', ls='', marker='^')
         rho5_line = plt.errorbar(-meanr, rho5, yerr=sig5, color='red', marker='^')
         #rho5_line = plt.errorbar(-meanr,-rho5, yerr=sig5, color='red', marker='^', ls=':')
-    if tauleg:
+
+    if mlabel:
         plt.legend([rho0_line, rho2_line, rho5_line],
-                   [r'$\tau_0(\theta)$', r'$\tau_2(\theta)$',
-                    r'$\tau_5(\theta)$'], loc='upper right',
-                   fontsize=24)
-        plt.ylabel(r'$\tau(\theta)$', fontsize=24)
+                   [r'$\rho_{0-}(\theta)$', r'$\rho_{2-}(\theta)$',
+                    r'$\rho_{5-}(\theta)_{-}$'], loc='upper right',
+                   fontsize=fsize)
+        plt.ylabel(r'$\rho_{-}(\theta)$', fontsize=fsize)
     else:
         plt.legend([rho0_line, rho2_line, rho5_line],
-                   [r'$\rho_0(\theta)$', r'$\rho_2(\theta)$',
-                    r'$\rho_5(\theta)$'], loc='upper right', fontsize=24)
-        plt.ylabel(r'$\rho(\theta)$', fontsize=24)
+                   [r'$\rho_{0+}(\theta)$', r'$\rho_{2+}(\theta)$',
+                    r'$\rho_{5+}(\theta)_{+}$'], loc='upper right',
+                   fontsize=fsize)
+        plt.ylabel(r'$\rho_{+}(\theta)$', fontsize=fsize)
+
+    plt.tick_params(axis='both', which='major', labelsize=24)
+    if ylim is not None: plt.ylim( ylim )
+    if xlim is not None: plt.xlim(xlim)
+    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
+    plt.xscale('log')
+    plt.yscale('log', nonposy='clip')
+    if title is not None: plt.title(title)
+    plt.tight_layout()
+
+def pretty_tau2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, mlabel=False, title= None, xlim=None, ylim=None):
+    fsize = 24
+    plt.plot(meanr, rho, color='blue')
+    plt.plot(meanr, -rho, color='blue', ls=':')
+    plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0], color='blue', ls='', marker='o')
+    plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0], color='blue', ls='', marker='o')
+    rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color='blue', marker='o')
+    #rho2_line = plt.errorbar(-meanr,-rho, yerr=sig, color='blue', marker='o', ls=':')
+    if rho2 is not None:
+        plt.plot(meanr*1.03, rho2, color='green')
+        plt.plot(meanr*1.03, -rho2, color='green', ls=':')
+        plt.errorbar(meanr[rho2>0]*1.03, rho2[rho2>0], yerr=sig2[rho2>0], color='green', ls='', marker='s')
+        plt.errorbar(meanr[rho2<0]*1.03, -rho2[rho2<0], yerr=sig2[rho2<0], color='green', ls='', marker='s')
+        rho2_line = plt.errorbar(-meanr, rho2, yerr=sig2, color='green', marker='s')
+        #rho2_line = plt.errorbar(-meanr,-rho2, yerr=sig2, color='green', marker='s', ls=':')
+    if rho5 is not None:
+        plt.plot(meanr*1.03, rho5, color='red')
+        plt.plot(meanr*1.03, -rho5, color='red', ls=':')
+        plt.errorbar(meanr[rho5>0]*1.03, rho5[rho5>0], yerr=sig5[rho5>0], color='red', ls='', marker='^')
+        plt.errorbar(meanr[rho5<0]*1.03, -rho5[rho5<0], yerr=sig5[rho5<0], color='red', ls='', marker='^')
+        rho5_line = plt.errorbar(-meanr, rho5, yerr=sig5, color='red', marker='^')
+        #rho5_line = plt.errorbar(-meanr,-rho5, yerr=sig5, color='red', marker='^', ls=':')
+
+    if mlabel:
+        plt.legend([rho0_line, rho2_line, rho5_line],
+                   [r'$\tau_{0-}(\theta)$', r'$\tau_{2-}(\theta)$',
+                    r'$\tau_{5-}(\theta)$'], loc='upper right',
+                   fontsize=fsize)
+        plt.ylabel(r'$\tau_{-}(\theta)$', fontsize=fsize)
+    else:
+        plt.legend([rho0_line, rho2_line, rho5_line],
+                   [r'$\tau_{0+}(\theta)$', r'$\tau_{2+}(\theta)$',
+                    r'$\tau_{5+}(\theta)$'], loc='upper right',
+                   fontsize=fsize)
+        plt.ylabel(r'$\tau_{+}(\theta)$', fontsize=fsize)
+
+    
+
 
     plt.tick_params(axis='both', which='major', labelsize=24)
     if ylim is not None: plt.ylim( ylim )
@@ -165,11 +225,11 @@ def plotallrhosfits(stat_file, outpath, title= None, xlim=None, ylims=None):
     print("Printing file: ", outpath +'rho2p_all_rsrs.png')
     plt.savefig(outpath +'rho2p_all_rsrs.png')
     plt.clf()
-    pretty_rho1(meanr, rho1m, sig_rho1m, rho3m, sig_rho3m, rho4m, sig_rho4m,title=title, xlim=xlim,ylim=ylim0m)
+    pretty_rho1(meanr, rho1m, sig_rho1m, rho3m, sig_rho3m, rho4m, sig_rho4m,mlabel=True, title=title, xlim=xlim,ylim=ylim0m)
     print("Printing file: ", outpath +'rho1m_all_rsrs.png')
     plt.savefig(outpath +'rho1m_all_rsrs.png')
     plt.clf()
-    pretty_rho2(meanr,rho0m, sig_rho0m ,rho2m, sig_rho2m,  rho5m, sig_rho5m,title=title, xlim=xlim,ylim=ylim1m)
+    pretty_rho2(meanr,rho0m, sig_rho0m ,rho2m, sig_rho2m,  rho5m, sig_rho5m, mlabel=True, title=title, xlim=xlim,ylim=ylim1m)
     print("Printing file: ", outpath +'rho2m_all_rsrs.png')
     plt.savefig(outpath +'rho2m_all_rsrs.png')
 
@@ -200,12 +260,12 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
     sig_tau5p =  np.sqrt(np.diag(cov5p)); sig_tau5m =  np.sqrt(np.diag(cov5m))
 
     plt.clf()
-    pretty_rho2(meanr, tau0p, sig_tau0p, tau2p, sig_tau2p, tau5p, sig_tau5p, tauleg=True, title=title, xlim=xlim, ylim=ylim0p)
+    pretty_tau2(meanr, tau0p, sig_tau0p, tau2p, sig_tau2p, tau5p, sig_tau5p, mlabel=True, title=title, xlim=xlim, ylim=ylim0p)
     name = outpath +'taup_all_rsrs' + zbin +  '.png'
     print("Printing file: ", name)
     plt.savefig(name)
     plt.clf()
-    pretty_rho2(meanr, tau0m, sig_tau0m, tau2m, sig_tau2m, tau5m, sig_tau5m, tauleg=True, title=title, xlim=xlim, ylim=ylim0m)
+    pretty_tau2(meanr, tau0m, sig_tau0m, tau2m, sig_tau2m, tau5m, sig_tau5m, mlabel=False, title=title, xlim=xlim, ylim=ylim0m)
     name = outpath +'taum_all_rsrs' + zbin +  '.png'
     print("Printing file: ", name)
     plt.savefig(name)
@@ -257,6 +317,7 @@ def corner_plot(samples, labels, title):
     import corner
     import numpy as np
     #burn = 5000
+    plt.clf()
     samples= np.c_[[par[int(0.2 * len(par)):] for par in samples]].T
     fig = corner.corner(samples, labels=labels,
                         quantiles=[0.16, 0.5, 0.84],  #-1sigma,0sigma,1sigma

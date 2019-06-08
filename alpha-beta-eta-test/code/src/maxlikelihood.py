@@ -99,7 +99,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, eq=None,
         eta_chain = sampler.chain[:,:,2]; eta_chain_flat = np.reshape(eta_chain, (nwalkers*nsteps,))
         samples = np.c_[alpha_chain_flat, beta_chain_flat, eta_chain_flat].T
         chains = [alpha_chain, beta_chain, eta_chain]
-    del sampler
+    sampler.reset()
     return samples, chains
 
 def bestparameters(samples):
