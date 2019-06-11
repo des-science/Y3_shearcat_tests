@@ -14,13 +14,13 @@ def parse_args():
                         help='Full Path to the taus measurement of flask catalogs')
     parser.add_argument('--input_tau',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_1_.fits',
-                        help='Fit file with the taus correlations, and which covariance matrix will be replaced')
+                        help='Fit file with the taus correlations, and which covariance matrix will be replaced and writen in filename')
     parser.add_argument('--filename',
                         default='TAUS_FLASK_zbin_1.fits',
                         help='Fit file based on inputfile but now with Flask Covariance matrix')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
-    parser.add_argument('--zbin', default=1 , type=int,
+    parser.add_argument('--zbin', default=3 , type=int,
                         help='seed used, useful to run parallel')
     parser.add_argument('--plots', default=True,
                         action='store_const', const=True, help='Plot correlations functions')
@@ -86,8 +86,11 @@ def main():
             exist =  os.path.isfile(name)
             if exist:
                 meanr, taus, covtaus = read_taus(name)
-                veclist.append(np.concatenate(np.c_[taus].T))
-                count +=1
+                if (np.count_nonzero(taus) == 0):
+                    print("Warning, weird measurement, skipping", name)
+                else:
+                    veclist.append(np.concatenate(np.c_[taus].T))
+                    count +=1
     print(count, "FLASK catalogs were read")
                 
     ranveclist = np.c_[veclist].T

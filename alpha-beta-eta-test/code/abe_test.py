@@ -30,15 +30,15 @@ def parse_args():
     parser.add_argument('--splitxipxim', default=False,
                         action='store_const', const=True,
                         help='Instead of use only one set of contamination parameter for both xip and xim, treat xip and axim independently')
-    parser.add_argument('--maxscale', default=250, type=float, 
+    parser.add_argument('--maxscale', default=None, type=float, 
                         help='Limit the analysis to certain maximum scale, units are determined by .json file with the correlations')
-    parser.add_argument('--minscale', default=2.5, type=float, 
+    parser.add_argument('--minscale', default=None, type=float, 
                         help='Limit the analysis to certain minimum scale')
     parser.add_argument('--uwmprior', default=False,
                         action='store_const', const=True, help='Use Unweighted moments prior')
     parser.add_argument('--overall', default=False, 
                         action='store_const', const=True, help='Use the values of the maximum of the likelihood function, then no covariance matrix will be written in dxi')
-    parser.add_argument('--margin', default=True, 
+    parser.add_argument('--margin', default=False, 
                         action='store_const', const=True, help='Use the values of the best fits of the marginalized likelihood function')
     parser.add_argument('--nsig', default=1, type=int, 
                         help='How many sigman for the marginalized confidence interval')
@@ -116,9 +116,9 @@ def getxibias_margin(samples, datarhos, models_combo, plots=False, nameterms='te
     
     if not (abe_bool or ab_bool or a_bool): abe_bool = True
     if(abe_bool):
-        a, b, n = bestpar
+        a, b, e = bestpar
         vara, varb, vare =  variances
-        covab, covan, covbn =  covariances   
+        covab, covae, covbe =  covariances   
     if(ab_bool):
         a, b = bestpar
         vara, varb =  variances
@@ -543,6 +543,7 @@ def getflagsnames(models_combo):
         namecont = 'contours_alpha-beta-eta_eq_' + str(eq) + '_.png'
         nameterms = 'termsdxi_alpha-beta-eta_eq_' + str(eq) + '_.png'
         namecovmat = 'covmatrix_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        namebfres = 'Bestfitresiduals_alpha-beta-eta_eq_' + str(eq) + '_.png'
         namedxip = 'xibias_abe_' + str(eq) + '_.png'
         filename =  'abe_dxi_eq'+ str(eq) + '.fits'            
     ## ALPHA-BETA
@@ -553,6 +554,7 @@ def getflagsnames(models_combo):
         namecont = 'contours_alpha-beta_eq_' + str(eq) + '_.png'
         nameterms = 'termsdxi_alpha-beta_eq_' + str(eq) + '_.png'
         namecovmat = 'covmatrix_alpha-beta_eq_' + str(eq) + '_.png'
+        namebfres = 'Bestfitresiduals_alpha-beta_eq_' + str(eq) + '_.png'
         namedxip = 'xibias_ab_' + str(eq) + '_.png'
         filename =  'ab_dxi_eq'+ str(eq) + '.fits'
     ## ALPHA-ETA
@@ -563,6 +565,7 @@ def getflagsnames(models_combo):
         namecont = 'contours_alpha-eta_eq_' + str(eq) + '_.png'
         nameterms = 'termsdxi_alpha-eta_eq_' + str(eq) + '_.png'
         namecovmat = 'covmatrix_alpha-eta_eq_' + str(eq) + '_.png'
+        namebfres = 'Bestfitresiduals_alpha-eta_eq_' + str(eq) + '_.png'
         namedxip = 'xibias_ae_' + str(eq) + '_.png'
         filename =  'ae_dxi_eq'+ str(eq) + '.fits'
     ## BETA-ETA
@@ -573,6 +576,7 @@ def getflagsnames(models_combo):
         namecont = 'contours_beta-eta_eq_' + str(eq) + '_.png'
         nameterms = 'termsdxi_beta-eta_eq_' + str(eq) + '_.png'
         namecovmat = 'covmatrix_beta-eta_eq_' + str(eq) + '_.png'
+        namebfres = 'Bestfitresiduals_beta-eta_eq_' + str(eq) + '_.png'
         namedxip = 'xibias_be_' + str(eq) + '_.png'
         filename =  'be_dxi_eq'+ str(eq) + '.fits' 
     ## ALPHA
@@ -583,6 +587,7 @@ def getflagsnames(models_combo):
         namecont = 'contours_alpha_eq_' + str(eq) + '_.png'
         nameterms = 'termsdxi_alpha_eq_' + str(eq) + '_.png'
         namecovmat = 'covmatrix_alpha_eq_' + str(eq) + '_.png'
+        namebfres = 'Bestfitresiduals_alpha_eq_' + str(eq) + '_.png'
         namedxip = 'xibias_a_' + str(eq) + '_.png'
         filename =  'a_dxi_eq'+ str(eq) + '.fits'
     ## Beta
@@ -593,6 +598,7 @@ def getflagsnames(models_combo):
         namecont = 'contours_beta_eq_' + str(eq) + '_.png'
         nameterms = 'termsdxi_beta_eq_' + str(eq) + '_.png'
         namecovmat = 'covmatrix_beta_eq_' + str(eq) + '_.png'
+        namebfres = 'Bestfitresiduals_beta_eq_' + str(eq) + '_.png'
         namedxip = 'xibias_b_' + str(eq) + '_.png'
         filename =  'b_dxi_eq'+ str(eq) + '.fits'
     ## Eta
@@ -603,16 +609,17 @@ def getflagsnames(models_combo):
         namecont = 'contours_eta_eq_' + str(eq) + '_.png'
         nameterms = 'termsdxi_eta_eq_' + str(eq) + '_.png'
         namecovmat = 'covmatrix_eta_eq_' + str(eq) + '_.png'
+        namebfres = 'Bestfitresiduals_eta_eq_' + str(eq) + '_.png'
         namedxip = 'xibias_e_' + str(eq) + '_.png'
         filename =  'e_dxi_eq'+ str(eq) + '.fits'
-    return [ mflags, namemc, namecont, namecovmat, nameterms, namedxip, filename]
+    return [ mflags, namemc, namecont, namecovmat, namebfres, nameterms, namedxip, filename]
 
 def write_singlexip_margin( samplesp, samplesm, rhoscosmo,  models_combo, plots,  outpath,  plotspath):
     import numpy as np
-    from src.readfits import read_rhos
+    from src.readfits import read_rhos_plots
     from astropy.io import fits
     nameterms, namedxip, filename = getflagsnames(models_combo)[-3: ] 
-    meanr, rhos,  covrhos =  read_rhos(rhoscosmo)
+    meanr, rhos,  covrhos =  read_rhos_plots(rhoscosmo)
     datarhosp =  [meanr, [rhos[2*i] for i in range(6)],  [ covrhos[2*i] for i in range(6)]  ]
     datarhosm =  [meanr, [rhos[2*i+1] for i in range(6)],  [ covrhos[2*i + 1] for i in range(6)] ]
 
@@ -654,10 +661,10 @@ def write_singlexip_margin( samplesp, samplesm, rhoscosmo,  models_combo, plots,
     print(filename,'Written!')
 def write_singlexip_overall( parsp, pasrsm, rhoscosmo,  models_combo,   plots,  outpath,  plotspath):
     import numpy as np
-    from src.readfits import read_rhos
+    from src.readfits import read_rhos_plots
     from astropy.io import fits
     nameterms,  namedxip, filename = getflagsnames(models_combo)[-3: ]
-    meanr, rhos,  covrhos =  read_rhos(rhoscosmo)
+    meanr, rhos,  covrhos =  read_rhos_plots(rhoscosmo)
     datarhosp =  [meanr, [rhos[2*i] for i in range(6)],  [ covrhos[2*i] for i in range(6)]  ]
     datarhosm =  [meanr, [rhos[2*i+1] for i in range(6)],  [ covrhos[2*i + 1] for i in range(6)] ]
 
@@ -695,11 +702,11 @@ def write_singlexip_overall( parsp, pasrsm, rhoscosmo,  models_combo,   plots,  
     print(filename,'Written!')
 def write_tomoxip_margin(samplesp_list, samplesm_list, rhoscosmo, models_combo, plots, outpath, plotspath ):
     import itertools
-    from src.readfits import read_rhos
+    from src.readfits import read_rhos_plots
     from astropy.io import fits
     import numpy as np
     nameterms, namedxip, filename = getflagsnames(models_combo)[-3: ] 
-    meanr, rhos,  covrhos =  read_rhos(rhoscosmo)
+    meanr, rhos,  covrhos =  read_rhos_plots(rhoscosmo)
     datarhosp =  [meanr, [rhos[2*i] for i in range(6)],  [ covrhos[2*i] for i in range(6)]  ]
     datarhosm =  [meanr, [rhos[2*i+1] for i in range(6)],  [ covrhos[2*i + 1] for i in range(6)] ]
 
@@ -766,11 +773,11 @@ def write_tomoxip_margin(samplesp_list, samplesm_list, rhoscosmo, models_combo, 
         
 def write_tomoxip_overall(parsp_list, parsm_list, rhoscosmo, models_combo, plots, outpath, plotspath ):
     import itertools
-    from src.readfits import read_rhos
+    from src.readfits import read_rhos_plots
     from astropy.io import fits
     import numpy as np
     nameterms, namedxip, filename = getflagsnames(models_combo)[-3: ] 
-    meanr, rhos,  covrhos =  read_rhos(rhoscosmo)
+    meanr, rhos,  covrhos =  read_rhos_plots(rhoscosmo)
     datarhosp =  [meanr, [rhos[2*i] for i in range(6)],  [ covrhos[2*i] for i in range(6)]  ]
     datarhosm =  [meanr, [rhos[2*i+1] for i in range(6)],  [ covrhos[2*i + 1] for i in range(6)] ]
 
@@ -841,7 +848,7 @@ def RUNTEST(i_guess, data, nwalkers, nsteps, eq='All', mflags=[True, True, True]
                                                 xim=xim, moderr=moderr)
         
             iguess = fitted_params
-    
+
         samples, chains = MCMC(i_guess,data, nwalkers, nsteps, eq=eq,
                                mflags=mflags, xip=xip, xim=xim,
                                moderr=moderr, uwmprior=uwmprior)
@@ -854,31 +861,29 @@ def RUNTEST(i_guess, data, nwalkers, nsteps, eq='All', mflags=[True, True, True]
                                             mflags=mflags, xip=xip,
                                             xim=xim, moderr=moderr)
         
-        dof = len(data['rhosp'][0]) - len(i_guess)
-        return [fitted_params, chisq/dof]
+        return fitted_params, chisq
     else:
-        print("Not proper configuration, choose only one, overall o margin")
+        print("Not proper configuration, choose only one, or overall or margin")
 
 def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers, nsteps,  uwmprior, splitxipxim, margin, overall,  plots,  plotspath, zbin=''):
     import numpy as np
-    from src.readfits import read_rhos, read_taus
-    from src.plot_stats import plotallrhosfits, plotalltausfits, plot_samplesdist
+    from src.readfits import  read_rhos, read_taus
+    from src.plot_stats import plotallrhosfits, plotalltausfits, plot_samplesdist,  plotbestfitresiduals
 
     if (plots):
         xlim = [0.1, 300.]
         taustitle = ''
         plotalltausfits(taufile, outpath=plotspath, title='zbin:' + zbin,  xlim=xlim, zbin=str(zbin))
- 
-    meanr, rhos,  covrhos =  read_rhos(rhofile, minscale=minscale, maxscale=maxscale)
-    meanr, taus,  covtaus =  read_taus(taufile, minscale=minscale, maxscale=maxscale)
+    
+    meanr, rhos,  covrho =  read_rhos(rhofile, minscale=minscale, maxscale=maxscale)
+    meanr, taus,  covtau =  read_taus(taufile, minscale=minscale, maxscale=maxscale)
     data = {}
-    data['rhosp'] = [rhos[2*i] for i in range(6)]; data['rhosm'] = [rhos[2*i+1] for i in range(6)]
-    data['covrhosp'] = [ covrhos[2*i] for i in range(6)]; data['covrhosm'] = [ covrhos[2*i + 1] for i in range(6)]
-    data['tausp'] = [taus[2*i] for i in range(3)]; data['tausm'] = [taus[2*i + 1] for i in range(3)];
-    data['covtausp'] = [covtaus[2*i] for i in range(3)]; data['covtausm'] = [covtaus[2*i + 1] for i in range(3)]; 
-
-
-    mflags, namemc, namecont, namecovmat = getflagsnames(models_combo)[:4]
+    data['rhos'] = rhos
+    data['cov_rhos'] = covrho
+    data['taus'] = taus
+    data['cov_taus'] = covtau
+    
+    mflags, namemc, namecont, namecovmat, namebfres = getflagsnames(models_combo)[:5]
 
     #Finding best alpha beta gamma 
     moderr = False
@@ -921,9 +926,14 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
             plot_samplesdist(auxm1 , auxm2, mflags, nwalkers, nsteps, plotspath +'m_zbin_'+ zbin + namemc,plotspath + 'm_zbin_'+ zbin  +namecont )
             plotcovpars(auxp1, namecovmat=plotspath + 'p_zbin_' + zbin + namecovmat)
             plotcovpars(auxm1, namecovmat=plotspath + 'm_zbin_' + zbin + namecovmat)
+            plotbestfitresiduals(auxp1, auxm1, meanr, data, models_combo,  plotspath +'p_zbin_'+ zbin + namebfres, margin=margin, overall=overall)
+        #samplesp, samplesm
         return auxp1, auxm1 
 
     if (overall and not margin):
+        if (plots):
+            plotbestfitresiduals(auxp1, auxm1, meanr, data, models_combo,  plotspath +'p_zbin_'+ zbin + namebfres, margin=margin, overall=overall)
+        #parsp,chisqp,parsm,chisqm
         return auxp1, auxp2, auxm1, auxm2
 
                         

@@ -204,10 +204,10 @@ def plotcorrmat(cov):
     
 def plotallrhosfits(stat_file, outpath, title= None, xlim=None, ylims=None):
     import numpy as np
-    from readfits import read_rhos
+    from readfits import read_rhos_plots
     ylim0p, ylim0m, ylim1p, ylim1m = [None, None,  None, None]
     if ylims is not None: ylim0p, ylim0m, ylim1p, ylim1m = ylims
-    meanr, rhos,  cov_rhos =  read_rhos(stat_file)
+    meanr, rhos,  cov_rhos =  read_rhos_plots(stat_file)
     rho0p, rho0m, rho1p, rho1m, rho2p, rho2m, rho3p, rho3m, rho4p, rho4m, rho5p, rho5m =  rhos
     cov0p, cov0m, cov1p, cov1m, cov2p, cov2m, cov3p, cov3m, cov4p, cov4m, cov5p, cov5m =  cov_rhos
     sig_rho0p =  np.sqrt(np.diag(cov0p)); sig_rho0m =  np.sqrt(np.diag(cov0m))
@@ -248,11 +248,11 @@ def plotallrhosfits(stat_file, outpath, title= None, xlim=None, ylims=None):
     
 def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zbin=''):
     import numpy as np
-    from readfits import read_taus
+    from readfits import read_taus_plots
     import fitsio
     ylim0p, ylim0m = [None, None]
     if ylims is not None: ylim0p, ylim0m = ylims
-    meanr, taus,  cov_taus =  read_taus(stat_file)
+    meanr, taus,  cov_taus =  read_taus_plots(stat_file)
     tau0p, tau0m, tau2p, tau2m, tau5p, tau5m =  taus
     cov0p, cov0m, cov2p, cov2m, cov5p, cov5m =  cov_taus
     sig_tau0p =  np.sqrt(np.diag(cov0p)); sig_tau0m =  np.sqrt(np.diag(cov0m))
@@ -429,6 +429,158 @@ def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecon
     print(namemc, "Printed")
     corner_plot(samples, labels, namecont)
 
+def plotbestfitresiduals(samplesp, samplesm,  meanr, data, models_combo, plotname,  margin=False, overall=False):
+    from maxlikelihood import bestparameters
+    import numpy as np
+    rhosp =[data['rhos'][2*i] for i in range(6)]; nrows = len(rhosp[0])
+    covrhosp =[data['cov_rhos'][2*i*nrows:(2*i + 1)*nrows , 2*i*nrows:(2*i + 1)*nrows] for i in range(6)]
+    rhosm =[data['rhos'][2*i + 1] for i in range(6)]
+    covrhosm =[data['cov_rhos'][(2*i + 1)*nrows:2*(i + 1)*nrows , (2*i + 1)*nrows:2*(i + 1)*nrows] for i in range(6)]
+    tausp =[data['taus'][2*i] for i in range(3)]; nrows = len(rhosp[0])
+    covtausp =[data['cov_taus'][2*i*nrows:(2*i + 1)*nrows , 2*i*nrows:(2*i + 1)*nrows] for i in range(3)]
+    tausm =[data['taus'][2*i + 1] for i in range(3)]
+    covtausm =[data['cov_taus'][(2*i + 1)*nrows:2*(i + 1)*nrows , (2*i + 1)*nrows:2*(i + 1)*nrows] for i in range(3)]
     
+    if(overall and not margin):
+        a = b = e = 0; 
+        am = bm = em = 0; 
+        eq, abe_bool, ab_bool,  ae_bool, be_bool, a_bool, b_bool, e_bool =  models_combo
+    
+    
+        if not (abe_bool or ab_bool or a_bool): abe_bool = True
+        if(abe_bool):
+            a, b, e = samplesp
+            am, bm, em = samplesm
+        if(ab_bool):
+            a, b = samplesp
+            am, bm = samplesm
+        if(ae_bool):
+            a, e = samplesp
+            am, em = samplesm
+        if(be_bool):
+            b, e = samplesp
+            bm, em = samplesm
+        if(a_bool):
+            a = samplesp
+            am= samplesm
+        if(b_bool):
+            b = samplesp
+            bm= samplesm
+        if(e_bool):
+            e = samplesp
+            em= samplesm
+
+        res0p = tausp[0] - a*rhosp[0] - b*rhosp[2] - e*rhosp[5]
+        res0m = tausm[0] - am*rhosm[0] - b*rhosm[2] - e*rhosm[5]
+        v0p= np.diag(covtausp[0])+(a**2)*np.diag(covrhosp[0])+(b**2)*np.diag(covrhosp[2])+(e**2)*np.diag(covrhosp[5])
+        v0m= np.diag(covtausm[0])+(am**2)*np.diag(covrhosm[0])+(bm**2)*np.diag(covrhosm[2])+(em**2)*np.diag(covrhosm[5])
+        res1p = tausp[1] - a*rhosp[2] - b*rhosp[1] - e*rhosp[4]
+        res1m = tausm[1] - am*rhosm[2] - b*rhosm[1] - e*rhosm[4]
+        v1p= np.diag(covtausp[1]) + (a**2)*np.diag(covrhosp[2]) + (b**2)*np.diag(covrhosp[1])+(e**2)*np.diag(covrhosp[4])  
+        v1m=  np.diag(covtausm[1]) + (am**2)*np.diag(covrhosm[2]) + (bm**2)*np.diag(covrhosm[1])+(em**2)*np.diag(covrhosm[4]) 
+        res2p = tausp[2] - a*rhosp[5] - b*rhosp[4] - e*rhosp[3]
+        res2m = tausm[2] - am*rhosm[5] - b*rhosm[4] - e*rhosm[3]
+        v2p= np.diag(covtausp[2]) + (a**2)*np.diag(covrhosp[5]) + (b**2)*np.diag(covrhosp[4]) + (e**2)*np.diag(covrhosp[3])
+        v2m= np.diag(covtausm[2]) + (am**2)*np.diag(covrhosm[5]) + (bm**2)*np.diag(covrhosm[4]) + (e**2)*np.diag(covrhosm[3])
+
+        plt.clf()
+        pretty_rho(meanr, res0p, np.sqrt(v0p),  legend=r'$\delta \tau_{0+}$', lfontsize=14, color='red', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res0m, np.sqrt(v0m),  legend=r'$\delta \tau_{0-}$', lfontsize=14, color='blue', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res1p, np.sqrt(v1p),  legend=r'$\delta \tau_{2+}$', lfontsize=14, color='green', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res1m, np.sqrt(v1m),  legend=r'$\delta \tau_{2-}$', lfontsize=14, color='pink', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res2p, np.sqrt(v2p),  legend=r'$\delta \tau_{5+}$', lfontsize=14, color='gray', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res2m, np.sqrt(v2m),  legend=r'$\delta \tau_{5-}$', lfontsize=14, color='black', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        
+ 
+    elif(margin and not overall):
+        a = b = e = 0; vara =  varb =  vare = 0; covab = covae = covbe = 0
+        am = bm = em = 0; varam =  varbm =  varem = 0; covabm = covaem = covbem = 0
+        bestpar = bestparameters(samplesp)
+        bestparm = bestparameters(samplesm)
+        #print("Best pars", bestpar)
+        par_matcov = np.cov(samplesp) 
+        if (par_matcov.size==1 ): variances = par_matcov
+        else: variances = np.diagonal(par_matcov)
+        covariances = sum( (par_matcov[i,i+1: ].tolist() for i in range(len(samplesp) - 1)) , [] )
+
+        par_matcovm = np.cov(samplesm) 
+        if (par_matcov.size==1 ): variancesm = par_matcovm
+        else: variancesm = np.diagonal(par_matcovm)
+        covariancesm = sum( (par_matcovm[i,i+1: ].tolist() for i in range(len(samplesm) - 1)) , [] )
+
+        eq, abe_bool, ab_bool,  ae_bool, be_bool, a_bool, b_bool, e_bool =  models_combo
+    
+    
+        if not (abe_bool or ab_bool or a_bool): abe_bool = True
+        if(abe_bool):
+            a, b, e = bestpar
+            vara, varb, vare =  variances
+            covab, covae, covbe =  covariances
+            am, bm, em = bestparm
+            varam, varbm, varem =  variancesm
+            covabm, covaem, covbem =  covariancesm 
+        if(ab_bool):
+            a, b = bestpar
+            vara, varb =  variances
+            covab =  covariances[0]
+            am, bm = bestparm
+            varam, varbm =  variancesm
+            covabm =  covariancesm[0]
+        if(ae_bool):
+            a, e = bestpar
+            vara, vare =  variances
+            covae =  covariances[0]
+            am, em = bestparm
+            varam, varem =  variancesm
+            covaem =  covariancesm[0]
+        if(be_bool):
+            b, e = bestpar
+            varb, vare =  variances
+            covbe =  covariances[0]
+            bm, em = bestparm
+            varbm, varem =  variancesm
+            covbem =  covariancesm[0]
+        if(a_bool):
+            a =  bestpar[0]
+            vara =  variances
+            am =  bestparm[0]
+            varam =  variancesm
+        if(b_bool):
+            b =  bestpar[0]
+            varb =  variances
+            bm =  bestparm[0]
+            varbm =  variancesm
+        if(e_bool):
+            e =  bestpar[0]
+            vare =  variances
+            em =  bestparm[0]
+            varem =  variancesm
+
+        res0p = tausp[0] - a*rhosp[0] - b*rhosp[2] - e*rhosp[5]
+        res0m = tausm[0] - am*rhosm[0] - b*rhosm[2] - e*rhosm[5]
+        v0p= np.diag(covtausp[0])+(rhosp[0]**2)*vara +(rhosp[2]**2)*varb+(rhosp[5]**2)*vare+2*(rhosp[0]*rhosp[2]*covab+rhosp[2]*rhosp[5]*covbe+rhosp[0]*rhosp[5]*covae)+(a**2)*np.diag(covrhosp[0])+(b**2)*np.diag(covrhosp[2])+(e**2)*np.diag(covrhosp[5])
+        v0m= np.diag(covtausm[0])+(rhosm[0]**2)*varam +(rhosm[2]**2)*varbm+(rhosm[5]**2)*varem+2*(rhosm[0]*rhosm[2]*covabm+rhosm[2]*rhosm[5]*covbem+rhosm[0]*rhosm[5]*covaem)+(am**2)*np.diag(covrhosm[0])+(bm**2)*np.diag(covrhosm[2])+(em**2)*np.diag(covrhosm[5])
+        res1p = tausp[1] - a*rhosp[2] - b*rhosp[1] - e*rhosp[4]
+        res1m = tausm[1] - am*rhosm[2] - b*rhosm[1] - e*rhosm[4]
+        v1p= np.diag(covtausp[1]) + (rhosp[2]**2)*vara +(rhosp[1]**2)*varb + (rhosp[4]**2)*vare + 2*(rhosp[1]*rhosp[2]*covab+rhosp[1]*rhosp[4]*covbe+rhosp[2]*rhosp[4]*covae) + (a**2)*np.diag(covrhosp[2]) + (b**2)*np.diag(covrhosp[1])+(e**2)*np.diag(covrhosp[4])  
+        v1m=  np.diag(covtausm[1]) + (rhosm[2]**2)*varam +(rhosm[1]**2)*varbm + (rhosm[4]**2)*varem + 2*(rhosm[1]*rhosm[2]*covabm+rhosm[1]*rhosm[4]*covbem+rhosm[2]*rhosm[4]*covaem) + (am**2)*np.diag(covrhosm[2]) + (bm**2)*np.diag(covrhosm[1])+(em**2)*np.diag(covrhosm[4]) 
+        res2p = tausp[2] - a*rhosp[5] - b*rhosp[4] - e*rhosp[3]
+        res2m = tausm[2] - am*rhosm[5] - b*rhosm[4] - e*rhosm[3]
+        v2p= np.diag(covtausp[2]) + (rhosp[5]**2)*vara +(rhosp[4]**2)*varb + (rhosp[3]**2)*vare + 2*(rhosp[5]*rhosp[4]*covab+rhosp[3]*rhosp[4]*covbe+rhosp[5]*rhosp[3]*covae) + (a**2)*np.diag(covrhosp[5]) + (b**2)*np.diag(covrhosp[4]) + (e**2)*np.diag(covrhosp[3])
+        v2m= np.diag(covtausm[2]) + (rhosm[5]**2)*varam +(rhosm[4]**2)*varbm + (rhosm[3]**2)*varem + 2*(rhosm[5]*rhosm[4]*covabm+rhosm[3]*rhosm[4]*covbem+rhosm[5]*rhosm[3]*covaem) + (am**2)*np.diag(covrhosm[5]) + (bm**2)*np.diag(covrhosm[4]) + (e**2)*np.diag(covrhosm[3])
+
+        plt.clf()
+        pretty_rho(meanr, res0p, np.sqrt(v0p),  legend=r'$\delta \tau_{0+}$', lfontsize=14, color='red', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res0m, np.sqrt(v0m),  legend=r'$\delta \tau_{0-}$', lfontsize=14, color='blue', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res1p, np.sqrt(v1p),  legend=r'$\delta \tau_{2+}$', lfontsize=14, color='green', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res1m, np.sqrt(v1m),  legend=r'$\delta \tau_{2-}$', lfontsize=14, color='pink', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res2p, np.sqrt(v2p),  legend=r'$\delta \tau_{5+}$', lfontsize=14, color='gray', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res2m, np.sqrt(v2m),  legend=r'$\delta \tau_{5-}$', lfontsize=14, color='black', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+            
+    else:
+        print("Not valid configuration for overall and margin flags")
+        
+    print('Printing',  plotname)
+    plt.savefig(plotname, dpi=150)       
  
   

@@ -1,4 +1,4 @@
-def read_rhos(stat_file, minscale=None, maxscale=None):
+def read_rhos_plots(stat_file, minscale=None, maxscale=None):
     import numpy as np
     import fitsio
     covmat =  fitsio.read(stat_file, ext=1)
@@ -28,14 +28,14 @@ def read_rhos(stat_file, minscale=None, maxscale=None):
             rhos[i] = rhos[i][:idx]
             covmats[i] = covmats[i][:idx,:idx]
     if minscale is not None:
-        meanr = meanr[meanr<minscale]
-        idx = len(meanr)    
+        idx = len(meanr[meanr<minscale])
+        meanr = meanr[idx:]
         for i in range(len(rhos)):
             rhos[i] = rhos[i][idx:]
             covmats[i] = covmats[i][idx:,idx:]
     return  meanr, rhos,  covmats
 
-def read_taus(stat_file, minscale=None, maxscale=None):
+def read_taus_plots(stat_file, minscale=None, maxscale=None):
     import numpy as np
     import fitsio
     covmat =  fitsio.read(stat_file, ext=1)
@@ -57,11 +57,82 @@ def read_taus(stat_file, minscale=None, maxscale=None):
             taus[i] = taus[i][:idx]
             covmats[i] = covmats[i][:idx,:idx]
     if minscale is not None:
-        meanr = meanr[meanr<minscale]
-        idx = len(meanr)    
+        idx = len(meanr[meanr<minscale])
+        meanr = meanr[idx:]
         for i in range(len(taus)):
             taus[i] = taus[i][idx:]
             covmats[i] = covmats[i][idx:,idx:]
     return  meanr, taus,  covmats
 
+def read_rhos(stat_file, minscale=None, maxscale=None):
+    import numpy as np
+    import fitsio
+    covmat =  fitsio.read(stat_file, ext=1)
+    RHO0P =  fitsio.read(stat_file, ext=2); rho0p =  RHO0P['VALUE']
+    RHO0M =  fitsio.read(stat_file, ext=3); rho0m =  RHO0M['VALUE']
+    RHO1P =  fitsio.read(stat_file, ext=4); rho1p =  RHO1P['VALUE']
+    RHO1M =  fitsio.read(stat_file, ext=5); rho1m =  RHO1M['VALUE']
+    RHO2P =  fitsio.read(stat_file, ext=6); rho2p =  RHO2P['VALUE']
+    RHO2M =  fitsio.read(stat_file, ext=7); rho2m =  RHO2M['VALUE']
+    RHO3P =  fitsio.read(stat_file, ext=8); rho3p =  RHO3P['VALUE']
+    RHO3M =  fitsio.read(stat_file, ext=9); rho3m =  RHO3M['VALUE']
+    RHO4P =  fitsio.read(stat_file, ext=10); rho4p =  RHO4P['VALUE']
+    RHO4M =  fitsio.read(stat_file, ext=11); rho4m =  RHO4M['VALUE']
+    RHO5P =  fitsio.read(stat_file, ext=12); rho5p =  RHO5P['VALUE']
+    RHO5M =  fitsio.read(stat_file, ext=13); rho5m =  RHO5M['VALUE']
+    
+    meanr = RHO0P['ANG']
+    rhos = [rho0p, rho0m, rho1p, rho1m, rho2p, rho2m, rho3p, rho3m,
+            rho4p, rho4m, rho5p, rho5m]
+    nrhos = len(rhos)
+    if maxscale is not None:
+        meanr = meanr[meanr<maxscale]
+        idx = int(len(meanr))
+        ind =  np.arange(idx); size = int(len(covmat)/nrhos)
+        indxs = np.concatenate([ind + i*size for i in range(nrhos) ] )
+        covmat = covmat[indxs,: ][:,indxs]
+        for i in range(len(rhos)):
+            rhos[i] = rhos[i][:idx]
+    if minscale is not None:
+        idx = len(meanr[meanr<minscale])
+        meanr = meanr[idx:]
+        ind =  np.arange(idx, idx + len(meanr)); size = int(len(covmat)/nrhos)
+        indxs = np.concatenate([ind + i*size for i in range(nrhos) ] )
+        covmat = covmat[indxs,: ][:,indxs]
+        for i in range(len(rhos)):
+            rhos[i] = rhos[i][idx:]
+    return  meanr, rhos,  covmat
+
+def read_taus(stat_file, minscale=None, maxscale=None):
+    import numpy as np
+    import fitsio
+    covmat =  fitsio.read(stat_file, ext=1)
+    TAU0P =  fitsio.read(stat_file, ext=2); tau0p =  TAU0P['VALUE']
+    TAU0M =  fitsio.read(stat_file, ext=3); tau0m =  TAU0M['VALUE']
+    TAU2P =  fitsio.read(stat_file, ext=4); tau2p =  TAU2P['VALUE']
+    TAU2M =  fitsio.read(stat_file, ext=5); tau2m =  TAU2M['VALUE']
+    TAU5P =  fitsio.read(stat_file, ext=6); tau5p =  TAU5P['VALUE']
+    TAU5M =  fitsio.read(stat_file, ext=7); tau5m =  TAU5M['VALUE']
+    
+    meanr = TAU0P['ANG']
+    taus = [tau0p, tau0m, tau2p, tau2m, tau5p, tau5m]
+    ntaus = len(taus)
+    if maxscale is not None:
+        meanr = meanr[meanr<maxscale]
+        idx = len(meanr)
+        ind =  np.arange(idx); size = int(len(covmat)/ntaus)
+        indxs = np.concatenate([ind + i*size for i in range(ntaus) ] )
+        covmat = covmat[indxs,: ][:,indxs]   
+        for i in range(len(taus)):
+            taus[i] = taus[i][:idx]
+
+    if minscale is not None:
+        idx = len(meanr[meanr<minscale])
+        meanr = meanr[idx:]
+        ind =  np.arange(idx, idx + len(meanr)); size = int(len(covmat)/ntaus)
+        indxs = np.concatenate([ind + i*size for i in range(ntaus) ] )
+        covmat = covmat[indxs,: ][:,indxs]   
+        for i in range(len(taus)):
+            taus[i] = taus[i][idx:]
+    return  meanr, taus,  covmat
 

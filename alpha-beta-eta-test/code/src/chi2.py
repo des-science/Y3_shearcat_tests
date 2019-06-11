@@ -16,102 +16,261 @@ def selectipars(params, mflags):
         alpha = 0; beta = 0; eta = params
     return alpha, beta, eta
  
-def modelvector(rhos, params, eq=None, mflags=[True, True, True]):
-    alpha, beta, eta = selectipars(params, mflags)     
-    mvec0 = alpha*rhos[0] + beta*rhos[2] + eta*rhos[5] 
-    mvec1 = alpha*rhos[2] + beta*rhos[1] + eta*rhos[4] 
-    mvec2 = alpha*rhos[5] + beta*rhos[4] + eta*rhos[3]   
+def modelvector(pars, rhos, eq=None, mflags=[True, True, True], xip=True, xim=True):
+    import fitsio
+    import numpy as np
+    alpha, beta, eta = selectipars(pars, mflags)
+    rho0p, rho0m, rho1p, rho1m, rho2p, rho2m, rho3p, rho3m, rho4p, rho4m, rho5p, rho5m =  rhos
+
+
+    mvec0p = alpha*rho0p + beta*rho2p + eta*rho5p
+    mvec1p = alpha*rho2p + beta*rho1p + eta*rho4p 
+    mvec2p = alpha*rho5p + beta*rho4p + eta*rho3p
+
+    mvec0m = alpha*rho0m + beta*rho2m + eta*rho5m
+    mvec1m = alpha*rho2m + beta*rho1m + eta*rho4m 
+    mvec2m = alpha*rho5m + beta*rho4m + eta*rho3m
+
     if(eq==0):
-        return mvec0
+        if(xip and not xim):
+            return mvec0p
+        elif(xim and not xip):
+            return mvec0m
+        else:
+            return np.concatenate([mvec0p, mvec0m])
     elif(eq==1):
-        return mvec1
+        if(xip and not xim):
+            return mvec1p
+        elif(xim and not xip):
+            return mvec1m
+        else:
+            return np.concatenate([mvec1p, mvec1m])
     elif(eq==2):
-        return mvec2
+        if(xip and not xim):
+            return mvec2p
+        elif(xim and not xip):
+            return mvec2m
+        else:
+            return np.concatenate([mvec2p, mvec2m])
     elif(eq==[0,1]):
-        return mvec0 + mvec1
+        if(xip and not xim):
+            return np.concatenate([mvec0p, mvec1p])
+        elif(xim and not xip):
+            return np.concatenate([mvec0m, mvec1m])
+        else:
+            return np.concatenate([mvec0p, mvec0m, mvec1p, mvec1m])
     elif(eq==[0,2]):
-        return mvec0 + mvec2
+        if(xip and not xim):
+            return np.concatenate([mvec0p, mvec2p])
+        elif(xim and not xip):
+            return np.concatenate([mvec0m, mvec2m])
+        else:
+            return np.concatenate([mvec0p, mvec0m, mvec2p, mvec2m])
     elif(eq==[1,2]):
-        return mvec1 + mvec2    
+        if(xip and not xim):
+            return np.concatenate([mvec1p, mvec2p])
+        elif(xim and not xip):
+            return np.concatenate([mvec1m, mvec2m])
+        else:
+            return np.concatenate([mvec1p, mvec1m, mvec2p, mvec2m])   
     else:
-        return mvec0 +  mvec1 +  mvec2
+        if(xip and not xim):
+            return np.concatenate([mvec0p, mvec1p, mvec2p])
+        elif(xim and not xip):
+            return np.concatenate([mvec0m, mvec1m, mvec2m])
+        else:
+            return np.concatenate([mvec0p, mvec0m, mvec1p, mvec1m, mvec2p, mvec2m])  
         
-def modelcov(covrhos, params, eq =None,mflags=[True, True, True]):
-    alpha, beta, eta = selectipars(params, mflags)
-    mvar0 = (alpha**2)*covrhos[0]+(beta**2)*covrhos[2]+ (eta**2)*covrhos[5]
-    mvar1 = (alpha**2)*covrhos[2] +(beta**2)*covrhos[1] + (eta**2)*covrhos[4] 
-    mvar2 = (alpha**2)*covrhos[5] +(beta**2)*covrhos[4] + (eta**2)*covrhos[3]   
+def modelcov(pars, cov_rhos, nrows,  eq =None,mflags=[True, True, True], xip=True, xim=True):
+    import numpy as np
+    alpha, beta, eta = selectipars(pars, mflags)
+    covmat = cov_rhos
+    #mvar0 = (alpha**2)*covrhos[0]+(beta**2)*covrhos[2]+ (eta**2)*covrhos[5]
+    #mvar1 = (alpha**2)*covrhos[2] +(beta**2)*covrhos[1] + (eta**2)*covrhos[4] 
+    #mvar2 = (alpha**2)*covrhos[5] +(beta**2)*covrhos[4] + (eta**2)*covrhos[3]   
     if(eq==0):
-        return mvar0
+        if(xip and not xim):
+            return covmat[0:nrows,0:nrows]
+        elif(xim and not xip):
+            return covmat[nrows:2*nrows,nrows:2*nrows] 
+        else:
+            return covmat[0:2*nrows,0:2*nrows]
     elif(eq==1):
-        return mvar1
+        if(xip and not xim):
+            return covmat[2*nrows:3*nrows,2*nrows:3*nrows ] 
+        elif(xim and not xip):
+            return covmat[3*nrows:4*nrows,3*nrows:4*nrows ] 
+        else:
+            return covmat[2*nrows:4*nrows,2*nrows:4*nrows ] 
     elif(eq==2):
-        return mvar2
+        if(xip and not xim):
+            return covmat[4*nrows:5*nrows,4*nrows:5*nrows ] 
+        elif(xim and not xip):
+            return covmat[5*nrows:6*nrows,5*nrows:6*nrows ]
+        else:
+            return covmat[4*nrows:6*nrows,4*nrows:6*nrows ] 
     elif(eq==[0,1]):
-        return mvar0 + mvar1
+        if(xip and not xim):
+            idx = np.concatenate([np.arange(0,nrows), np.arange(2*nrows, 3*nrows)])
+            return covmat[idx,:][:,idx] 
+        elif(xim and not xip):
+            idx = np.concatenate([np.arange(nrows, 2*nrows), np.arange(3*nrows, 4*nrows)])
+            return covmat[idx,:][:,idx] 
+        else:
+            return covmat[0:4*nrows,0:4*nrows ] 
     elif(eq==[0,2]):
-        return mvar0 + mvar2
+        if(xip and not xim):
+            idx = np.concatenate([np.arange(0, nrows), np.arange(4*nrows, 5*nrows)])
+            return covmat[idx,:][:,idx] 
+        elif(xim and not xip):
+            idx = np.concatenate([np.arange(nrows, 2*nrows), np.arange(5*nrows, 6*nrows)])
+            return covmat[idx,:][:,idx] 
+        else:
+            idx = np.concatenate([np.arange(0, nrows), np.arange(4*nrows, 6*nrows)])
+            return covmat[idx,:][:,idx] 
     elif(eq==[1,2]):
-        return mvar1 + mvar2  
+        if(xip and not xim):
+            idx = np.concatenate([np.arange(2*nrows, 3*nrows), np.arange(4*nrows, 5*nrows)])
+            return covmat[idx,:][:,idx] 
+        elif(xim and not xip):
+            idx = np.concatenate([np.arange(3*nrows, 4*nrows), np.arange(5*nrows, 6*nrows)])
+            return covmat[idx,:][:,idx] 
+        else:
+            return covmat[2:6*nrows,2:6*nrows ]   
     else:
-        return mvar0 +  mvar1 +  mvar2
+        if(xip and not xim):
+            idx = np.concatenate([np.arange(0, nrows), np.arange(2*nrows, 3*nrows), np.arange(4*nrows, 5*nrows)])
+            return covmat[idx,:][:,idx] 
+        elif(xim and not xip):
+            idx = np.concatenate([np.arange(nrows, 2*nrows), np.arange(3*nrows, 4*nrows), np.arange(5*nrows, 6*nrows)])
+            return covmat[idx,:][:,idx] 
+        else:
+            return covmat
    
-def datavector(taus, eq=None):
+def datavector( taus, eq=None, xip=True, xim=True):
+    import fitsio
+    import numpy as np
+    tau0p, tau0m, tau2p, tau2m, tau5p, tau5m =  taus
     if(eq==0):
-        return taus[0]
+        if(xip and not xim):
+            return tau0p
+        elif(xim and not xip):
+            return tau0m
+        else:
+            return np.concatenate([tau0p, tau0m])
     elif(eq==1):
-        return taus[1]
+        if(xip and not xim):
+            return tau2p
+        elif(xim and not xip):
+            return tau2m
+        else:
+            return np.concatenate([tau2p, tau2m])
     elif(eq==2):
-        return taus[2]
+        if(xip and not xim):
+            return tau5p
+        elif(xim and not xip):
+            return tau5m
+        else:
+            return np.concatenate([tau5p, tau5m])
     elif(eq==[0,1]):
-        return taus[0] + taus[1]
+        if(xip and not xim):
+            return np.concatenate([tau0p, tau2p])
+        elif(xim and not xip):
+            return np.concatenate([tau0m, tau2m])
+        else:
+            return np.concatenate([tau0p, tau0m, tau2p, tau2m])
     elif(eq==[0,2]):
-        return taus[0] + taus[2]
+        if(xip and not xim):
+            return np.concatenate([tau0p, tau5p])
+        elif(xim and not xip):
+            return np.concatenate([tau0m, tau5m])
+        else:
+            return np.concatenate([tau0p, tau0m, tau5p, tau5m])
     elif(eq==[1,2]):
-        return taus[1] + taus[2]
+        if(xip and not xim):
+            return np.concatenate([tau2p, tau5p])
+        elif(xim and not xip):
+            return np.concatenate([tau2m, tau5m])
+        else:
+            return np.concatenate([tau2p, tau2m, tau5p, tau5m])   
     else:
-        return taus[0] + taus[1] + taus[2]
-def datacov(covtaus, eq=None):
+        if(xip and not xim):
+            return np.concatenate([tau0p, tau2p, tau5p])
+        elif(xim and not xip):
+            return np.concatenate([tau0m, tau2m, tau5m])
+        else:
+            return np.concatenate([tau0p, tau0m, tau2p, tau2m, tau5p, tau5m])  
+def datacov(cov_taus, nrows, eq=None, xip=True, xim=True):
+    import numpy as np
+    covmat =  cov_taus
     if(eq==0):
-        return covtaus[0]
+        if(xip and not xim):
+            return covmat[0:nrows,0:nrows]
+        elif(xim and not xip):
+            return covmat[nrows:2*nrows,nrows:2*nrows] 
+        else:
+            return covmat[0:2*nrows,0:2*nrows]
     elif(eq==1):
-        return covtaus[1]
+        if(xip and not xim):
+            return covmat[2*nrows:3*nrows,2*nrows:3*nrows ] 
+        elif(xim and not xip):
+            return covmat[3*nrows:4*nrows,3*nrows:4*nrows ] 
+        else:
+            return covmat[2*nrows:4*nrows,2*nrows:4*nrows ] 
     elif(eq==2):
-        return covtaus[2]
+        if(xip and not xim):
+            return covmat[4*nrows:5*nrows,4*nrows:5*nrows ] 
+        elif(xim and not xip):
+            return covmat[5*nrows:6*nrows,5*nrows:6*nrows ]
+        else:
+            return covmat[4*nrows:6*nrows,4*nrows:6*nrows ] 
     elif(eq==[0,1]):
-        return covtaus[0] + covtaus[1]
+        if(xip and not xim):
+            idx = np.concatenate([np.arange(0,nrows), np.arange(2*nrows, 3*nrows)])
+            return covmat[idx,:][:,idx] 
+        elif(xim and not xip):
+            idx = np.concatenate([np.arange(nrows, 2*nrows), np.arange(3*nrows, 4*nrows)])
+            return covmat[idx,:][:,idx] 
+        else:
+            return covmat[0:4*nrows,0:4*nrows ] 
     elif(eq==[0,2]):
-        return covtaus[0] + covtaus[2]
+        if(xip and not xim):
+            idx = np.concatenate([np.arange(0, nrows), np.arange(4*nrows, 5*nrows)])
+            return covmat[idx,:][:,idx] 
+        elif(xim and not xip):
+            idx = np.concatenate([np.arange(nrows, 2*nrows), np.arange(5*nrows, 6*nrows)])
+            return covmat[idx,:][:,idx] 
+        else:
+            idx = np.concatenate([np.arange(0, 2*nrows), np.arange(4*nrows, 6*nrows)])
+            return covmat[idx,:][:,idx] 
     elif(eq==[1,2]):
-        return covtaus[1] + covtaus[2]
+        if(xip and not xim):
+            idx = np.concatenate([np.arange(2*nrows, 3*nrows), np.arange(4*nrows, 5*nrows)])
+            return covmat[idx,:][:,idx] 
+        elif(xim and not xip):
+            idx = np.concatenate([np.arange(3*nrows, 4*nrows), np.arange(5*nrows, 6*nrows)])
+            return covmat[idx,:][:,idx] 
+        else:
+            return covmat[2:6*nrows,2:6*nrows ]   
     else:
-        return covtaus[0] + covtaus[1] + covtaus[2]
-    
-def CHI2(params, data, eq=None, mflags=[True, True, True], xip=True, xim=False,  moderr=False):
-    rhosp = data['rhosp'];covrhosp = data['covrhosp']
-    rhosm = data['rhosm'];covrhosm = data['covrhosm']
-    tausp =  data['tausp'];covtausp = data['covtausp']
-    tausm =  data['tausm'];covtausm = data['covtausm']
-    if (xip and xim):
-        dvect=  datavector(tausp, eq=eq)
-        dvect+= datavector(tausm, eq=eq)
-        mvect=  modelvector(rhosp, params, eq=eq, mflags=mflags)
-        mvect+= modelvector(rhosm,params,eq=eq,mflags=mflags)
-        dcov_mat = datacov(covtausp, eq=eq)
-        dcov_mat+= datacov(covtausm, eq=eq)
-        mcov_mat = modelcov(covrhosp, params, eq=eq, mflags=mflags)
-        mcov_mat+= modelcov(covrhosm, params, eq=eq, mflags=mflags)
-    elif (xip and (not xim)):
-        dvect=  datavector(tausp, eq=eq)
-        mvect=  modelvector(rhosp, params, eq=eq, mflags=mflags)
-        dcov_mat = datacov(covtausp, eq=eq)
-        mcov_mat = modelcov(covrhosp, params, eq=eq, mflags=mflags)
-    elif (xim and (not xip)):
-        dvect=  datavector(tausm, eq=eq)
-        mvect=  modelvector(rhosm, params, eq=eq, mflags=mflags)
-        dcov_mat = datacov(covtausm, eq=eq)
-        mcov_mat = modelcov(covrhosm, params, eq=eq, mflags=mflags)
-    
+        if(xip and not xim):
+            idx = np.concatenate([np.arange(0, nrows), np.arange(2*nrows, 3*nrows), np.arange(4*nrows, 5*nrows)])
+            return covmat[idx,:][:,idx] 
+        elif(xim and not xip):
+            idx = np.concatenate([np.arange(nrows, 2*nrows), np.arange(3*nrows, 4*nrows), np.arange(5*nrows, 6*nrows)])
+            return covmat[idx,:][:,idx] 
+        else:
+            return covmat
+
+def CHI2(pars, data, eq=None, mflags=[True, True, True], xip=True, xim=True,  moderr=False):
+    taus = data['taus']
+    rhos = data['rhos']
+    cov_taus = data['cov_taus']
+    cov_rhos = data['cov_rhos']
+    dvect =  datavector(taus, eq=eq, xip=xip, xim=xim)
+    dcov_mat = datacov(cov_taus, len(taus[0]),  eq=eq, xip=xip, xim=xim)
+    mvect =  modelvector(pars, rhos,  eq=eq, mflags=mflags, xip=xip, xim=xim)
+    mcov_mat = modelcov(pars, cov_rhos,  len(rhos[0]),  eq=eq, mflags=mflags, xip=xip, xim=xim)
     val=chi2(mvect, dvect, mcov_mat, dcov_mat, moderr=moderr )
     return val
 def chi2(modelvec, datavec,  covmodel, covdata,  moderr=False ):
@@ -119,6 +278,7 @@ def chi2(modelvec, datavec,  covmodel, covdata,  moderr=False ):
     d =  np.array([modelvec - datavec])
     if(moderr):
         cov_inv = np.linalg.inv(covdata + covmodel)
+        print("ERROR")
     else:
         cov_inv = np.linalg.inv(covdata)
         
@@ -128,8 +288,22 @@ def chi2(modelvec, datavec,  covmodel, covdata,  moderr=False ):
 def minimizeCHI2(data, initial_guess, eq=None,  mflags=[True, True, True], xip=True, xim=False, moderr=False):
     import scipy.optimize as optimize
     result = optimize.minimize(CHI2, initial_guess,args=(data,eq,mflags, xip, xim, moderr), method='Nelder-Mead', tol=1e-6)
+
+    npoints = len(data['rhos'][0])
+    print(npoints)
+    if (eq ==  0 or eq==1 or eq==1) :
+        npoints *=1 
+    elif(eq==[1,2] or eq==[0, 2] or eq==[0, 1]):
+        npoints *=2
+    else:
+        npoints *=3
+    if(xip and xim):
+        npoints *= 2
+
+    dof = npoints- len(initial_guess)
+
     if result.success:
         fitted_params = result.x
-        return fitted_params, result.fun
+        return fitted_params, result.fun/dof
     else:
         raise ValueError(result.message)
