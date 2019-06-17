@@ -42,9 +42,9 @@ def parse_args():
                         action='store_const', const=True, help='Use the values of the best fits of the marginalized likelihood function')
     parser.add_argument('--nsig', default=1, type=int, 
                         help='How many sigman for the marginalized confidence interval')
-    parser.add_argument('--nsteps', default=10000, type=int, 
+    parser.add_argument('--nsteps', default=1000, type=int, 
                         help='nsteps of MCMC')
-    parser.add_argument('--nwalkers', default=1000, type=int, 
+    parser.add_argument('--nwalkers', default=100, type=int, 
                         help='nwalkers of MCMC')
     parser.add_argument('--eq', default=4, type=int, 
                         help='Select equations to be used for istance --eq=0, 4 represent the whole system of equations')
@@ -846,9 +846,9 @@ def RUNTEST(i_guess, data, nwalkers, nsteps, eq='All', mflags=[True, True, True]
             fitted_params, chisq = minimizeCHI2(data, i_guess, eq=eq,
                                                 mflags=mflags, xip=xip,
                                                 xim=xim, moderr=moderr)
-        
-            iguess = fitted_params
+            i_guess = fitted_params
 
+        print("Used initial_guess", i_guess)
         samples, chains = MCMC(i_guess,data, nwalkers, nsteps, eq=eq,
                                mflags=mflags, xip=xip, xim=xim,
                                moderr=moderr, uwmprior=uwmprior)
@@ -922,12 +922,12 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
         
     if (margin and not overall):
         if(plots):
-            plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, plotspath +'p_zbin_%d'%(zbin) + namemc,plotspath + 'p_zbin_%d'%(zbin)  +namecont )
-            plot_samplesdist(auxm1 , auxm2, mflags, nwalkers, nsteps, plotspath +'m_zbin_%d'%(zbin) + namemc,plotspath + 'm_zbin_%d'%(zbin)  +namecont )
+            plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, plotspath +'p_zbin_%d_%s'%(zbin,namemc),plotspath + 'p_zbin_%d_%s'%(zbin,namecont),zbin=zbin )
+            plot_samplesdist(auxm1 , auxm2, mflags, nwalkers, nsteps, plotspath +'m_zbin_%d_%s'%(zbin,namemc),plotspath + 'm_zbin_%d_%s'%(zbin,namecont),zbin=zbin )
             plotcovpars(auxp1, namecovmat=plotspath + 'p_zbin_%d'%(zbin) + namecovmat)
             plotcovpars(auxm1, namecovmat=plotspath + 'm_zbin_%d'%(zbin) + namecovmat)
-            title='zbin %d %s'%(zbin,namebfres[17:-4])
-            plotbestfitresiduals(auxp1, auxm1, meanr, data, models_combo,  plotspath +'zbin_%d'%(zbin) + namebfres, title=title.replace('_','\_') , margin=margin, overall=overall)
+            #title='zbin %d %s'%(zbin,namebfres[17:-4])
+            #plotbestfitresiduals(auxp1, auxm1, meanr, data, models_combo,  plotspath +'zbin_%d'%(zbin) + namebfres, title=title.replace('_','\_') , margin=margin, overall=overall)
         #samplesp, samplesm
         return auxp1, auxm1 
 

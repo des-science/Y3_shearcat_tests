@@ -314,11 +314,12 @@ def plotalltauscorrmatfits(filenames, outpath):
         plt.title(titles[i])
         plt.savefig(outpath + names[i], dpi=500)
         print(outpath +names[i], 'Printed!')
-def corner_plot(samples, labels, title):
+def corner_plot(samples, labels, filename, title=None):
     import corner
     import numpy as np
     #burn = 5000
     plt.clf()
+    #butning 20% of start data
     samples= np.c_[[par[int(0.2 * len(par)):] for par in samples]].T
     fig = corner.corner(samples, labels=labels,
                         quantiles=[0.16, 0.5, 0.84],  #-1sigma,0sigma,1sigma
@@ -326,12 +327,14 @@ def corner_plot(samples, labels, title):
                         show_titles=True, title_kwargs={"fontsize": 12}, title_fmt= '.4f', 
                         smooth1d=None, plot_contours=True,  
                         no_fill_contours=False, plot_density=True, use_math_text=True, )
-    print("Printing file:",  title)
+    print("Printing file:",  filename)
+    if title is not None:
+        plt.suptitle(title)
     plt.tight_layout()
-    plt.savefig(title)
+    plt.savefig(filename)
     plt.close(fig)
     print(title, "Printed")
-def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont):
+def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont, zbin=0):
     import numpy as np
     import emcee
     aflag, bflag, eflag =  mflags
@@ -428,7 +431,7 @@ def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecon
     plt.savefig(namemc)
     plt.close(fig)
     print(namemc, "Printed")
-    corner_plot(samples, labels, namecont)
+    corner_plot(samples, labels, namecont,title='zbin %d'%(zbin))
 
 def pretty_residuals(axs, idx, meanr,res,sig,label='Corr',color='black'):
     axs[idx].plot(meanr, res, color=color, label=label)

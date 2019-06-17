@@ -15,7 +15,8 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/pipeline/2pt_sim_1110_baseline_Y3cov.fits',
                         help='fit file with fiducial data vectors, covariance matrix and so on.')
     parser.add_argument('--contaminant_marg',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/marg_ab_dxi.fits',
+                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/marg_abe_dxi_eq4.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/marg_ab_dxi_eq4.fits',
                         help='fit file with contamination data vector, covariance matrix, marginalized best fit')
     parser.add_argument('--contaminant',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/overall_ab_dxi_eq4.fits',
@@ -316,7 +317,7 @@ def plotcontaminantandfiducial(contaminant, fiducial, out, title):
     fig.legend(handles=[red_patch, blue_patch], fontsize=20)
     if title is not None: fig.suptitle(title)
     fig.tight_layout()
-    filename = out + 'xicont_and_xipfid.png'
+    filename = out + 'xicont_and_xipfid_abe.png'
     plt.savefig(filename, dpi=300)
     plt.close(fig)
     print(filename, 'Printed!')
@@ -354,12 +355,12 @@ def plotcontaminantandfiducial(contaminant, fiducial, out, title):
     fig.legend(handles=[red_patch, blue_patch], fontsize=20)
     if title is not None: fig.suptitle(title)
     fig.tight_layout()
-    filename = out + 'xicont_and_ximfid.png'
+    filename = out + 'xicont_and_ximfid_abe.png'
     plt.savefig(filename, dpi=300)
     plt.close(fig)
     print(filename, 'Printed!')
  
-def plotcontaminantandfiducial_marg(contaminant, fiducial, out):
+def plotcontaminantandfiducial_marg(contaminant, fiducial, out,title):
     import fitsio
     import itertools
     import numpy as np
@@ -406,8 +407,9 @@ def plotcontaminantandfiducial_marg(contaminant, fiducial, out):
     red_patch = mpatches.Patch(color='red', label=r'$\delta \xi $')
     blue_patch = mpatches.Patch(color='blue', label=r'$\xi_{+}^{sim}$')
     fig.legend(handles=[red_patch, blue_patch], fontsize=20)
+    if title is not None: fig.suptitle(title)
     fig.tight_layout()
-    filename = out + 'xicont_and_xipfid_marg.png'
+    filename = out + 'xicont_and_xipfid_marg_ab.png'
     plt.savefig(filename, dpi=300)
     plt.close(fig)
     print(filename, 'Printed!')
@@ -443,9 +445,9 @@ def plotcontaminantandfiducial_marg(contaminant, fiducial, out):
     red_patch = mpatches.Patch(color='red', label=r'$\delta \xi $')
     blue_patch = mpatches.Patch(color='blue', label=r'$\xi_{-}^{sim}$')
     fig.legend(handles=[red_patch, blue_patch], fontsize=20)
-    if title is not None: plt.title(title)
+    if title is not None: fig.suptitle(title)
     fig.tight_layout()
-    filename = out + 'xicont_and_ximfid_marg.png'
+    filename = out + 'xicont_and_ximfid_marg_ab.png'
     plt.savefig(filename, dpi=300)
     plt.close(fig)
     print(filename, 'Printed!')
@@ -666,8 +668,8 @@ def main():
     
     #plotfiducial(args.fiducial,  out)
     #plotcontaminant(args.contaminant, out)
-    plotcontaminantandfiducial(args.contaminant, args.fiducial, out, 'Alpha-Beta contamination')
-    #plotcontaminantandfiducial_marg(args.contaminant_marg, args.fiducial, out)
+    #plotcontaminantandfiducial(args.contaminant, args.fiducial, out, 'Alpha-Beta contamination')
+    plotcontaminantandfiducial_marg(args.contaminant_marg, args.fiducial, out, 'Alpha-Beta contaminations')
     #plotcontaminated(args.contaminated, out)
     #checkcontamination(args.contaminated,args.fiducial,  out)
     
