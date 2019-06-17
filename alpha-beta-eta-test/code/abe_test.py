@@ -8,14 +8,14 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Alpha beta gamma test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
     parser.add_argument('--taus',
-                        default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK_zbin_1.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK_zbin_2.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK_zbin_3.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK_zbin_4.fits'],
-                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK.fits'],
+                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK_zbin_1.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK_zbin_2.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK_zbin_3.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK_zbin_4.fits'],
+                        default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
                         help='Ordered list of fits TAUS, containing all tau stats used to estimate abe')
     parser.add_argument('--singletau',
                         default=None, 
@@ -23,9 +23,9 @@ def parse_args():
                         #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK.fits',
                         #default='/home2/dfa/sobreira/alsina/catalogs/flask/taus/taus_src-cat_s201_z1_ck1.fits',
                         help='Fits file containing all tau stats used to estimate abe')
-    parser.add_argument('--rhos', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/RHOS.fits',
+    parser.add_argument('--rhos', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS.fits',
                         help='Fits file containing all rho stats used to estimate abe')
-    parser.add_argument('--rhoscosmo', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/RHOS_Y3.fits',
+    parser.add_argument('--rhoscosmo', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS_Y3.fits',
                         help='Fits file containing all rho stats used to estimate dxip, the contaminant to be used in cosmosis')
     parser.add_argument('--splitxipxim', default=False,
                         action='store_const', const=True,
@@ -42,9 +42,9 @@ def parse_args():
                         action='store_const', const=True, help='Use the values of the best fits of the marginalized likelihood function')
     parser.add_argument('--nsig', default=1, type=int, 
                         help='How many sigman for the marginalized confidence interval')
-    parser.add_argument('--nsteps', default=1000, type=int, 
+    parser.add_argument('--nsteps', default=10000, type=int, 
                         help='nsteps of MCMC')
-    parser.add_argument('--nwalkers', default=100, type=int, 
+    parser.add_argument('--nwalkers', default=1000, type=int, 
                         help='nwalkers of MCMC')
     parser.add_argument('--eq', default=4, type=int, 
                         help='Select equations to be used for istance --eq=0, 4 represent the whole system of equations')
@@ -65,10 +65,10 @@ def parse_args():
     parser.add_argument('--plots', default=False,
                         action='store_const', const=True, help='Plot correlations functions')
     parser.add_argument('--outpath',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the final contaminant')
     parser.add_argument('--plotspath',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/plots/',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/plots/',
                         help='location of the plots.')
     
     args = parser.parse_args()
@@ -539,78 +539,78 @@ def getflagsnames(models_combo):
     if(abe):
         print("### Runing alpha, beta and eta test ### ")
         mflags = [True, True, True]
-        namemc = 'mcmc_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        namecont = 'contours_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        nameterms = 'termsdxi_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        namecovmat = 'covmatrix_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        namebfres = 'Bestfitresiduals_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        namemc = 'mcmc_alpha-beta-eta_eq_' + str(eq) + '.png'
+        namecont = 'contours_alpha-beta-eta_eq_' + str(eq) + '.png'
+        nameterms = 'termsdxi_alpha-beta-eta_eq_' + str(eq) + '.png'
+        namecovmat = 'covmatrix_alpha-beta-eta_eq_' + str(eq) + '.png'
+        namebfres = 'Bestfitresiduals_alpha-beta-eta_eq_' + str(eq) + '.png'
         namedxip = 'xibias_abe_' + str(eq) + '_.png'
         filename =  'abe_dxi_eq'+ str(eq) + '.fits'            
     ## ALPHA-BETA
     if(ab):
         print("### Runing alpha and beta test ### ")
         mflags = [True, True, False] ##alpha,beta,eta
-        namemc = 'mcmc_alpha-beta_eq_' + str(eq) + '_.png'
-        namecont = 'contours_alpha-beta_eq_' + str(eq) + '_.png'
-        nameterms = 'termsdxi_alpha-beta_eq_' + str(eq) + '_.png'
-        namecovmat = 'covmatrix_alpha-beta_eq_' + str(eq) + '_.png'
-        namebfres = 'Bestfitresiduals_alpha-beta_eq_' + str(eq) + '_.png'
-        namedxip = 'xibias_ab_' + str(eq) + '_.png'
+        namemc = 'mcmc_alpha-beta_eq_' + str(eq) + '_png'
+        namecont = 'contours_alpha-beta_eq_' + str(eq) + '.png'
+        nameterms = 'termsdxi_alpha-beta_eq_' + str(eq) + '.png'
+        namecovmat = 'covmatrix_alpha-beta_eq_' + str(eq) + '.png'
+        namebfres = 'Bestfitresiduals_alpha-beta_eq_' + str(eq) + '.png'
+        namedxip = 'xibias_ab_' + str(eq) + '.png'
         filename =  'ab_dxi_eq'+ str(eq) + '.fits'
     ## ALPHA-ETA
     if(ae):
         print("### Runing alpha and eta test ### ")
         mflags = [True, False, True]
-        namemc = 'mcmc_alpha-eta_eq_' + str(eq) + '_.png'
-        namecont = 'contours_alpha-eta_eq_' + str(eq) + '_.png'
-        nameterms = 'termsdxi_alpha-eta_eq_' + str(eq) + '_.png'
-        namecovmat = 'covmatrix_alpha-eta_eq_' + str(eq) + '_.png'
-        namebfres = 'Bestfitresiduals_alpha-eta_eq_' + str(eq) + '_.png'
-        namedxip = 'xibias_ae_' + str(eq) + '_.png'
+        namemc = 'mcmc_alpha-eta_eq_' + str(eq) + '.png'
+        namecont = 'contours_alpha-eta_eq_' + str(eq) + '.png'
+        nameterms = 'termsdxi_alpha-eta_eq_' + str(eq) + '.png'
+        namecovmat = 'covmatrix_alpha-eta_eq_' + str(eq) + '.png'
+        namebfres = 'Bestfitresiduals_alpha-eta_eq_' + str(eq) + '.png'
+        namedxip = 'xibias_ae_' + str(eq) + '.png'
         filename =  'ae_dxi_eq'+ str(eq) + '.fits'
     ## BETA-ETA
     if(be):
         print("### Runing beta and eta test ### ")
         mflags = [True, False, True]
-        namemc = 'mcmc_beta-eta_eq_' + str(eq) + '_.png'
-        namecont = 'contours_beta-eta_eq_' + str(eq) + '_.png'
-        nameterms = 'termsdxi_beta-eta_eq_' + str(eq) + '_.png'
-        namecovmat = 'covmatrix_beta-eta_eq_' + str(eq) + '_.png'
-        namebfres = 'Bestfitresiduals_beta-eta_eq_' + str(eq) + '_.png'
-        namedxip = 'xibias_be_' + str(eq) + '_.png'
+        namemc = 'mcmc_beta-eta_eq_' + str(eq) + '.png'
+        namecont = 'contours_beta-eta_eq_' + str(eq) + '.png'
+        nameterms = 'termsdxi_beta-eta_eq_' + str(eq) + '.png'
+        namecovmat = 'covmatrix_beta-eta_eq_' + str(eq) + '.png'
+        namebfres = 'Bestfitresiduals_beta-eta_eq_' + str(eq) + '.png'
+        namedxip = 'xibias_be_' + str(eq) + '.png'
         filename =  'be_dxi_eq'+ str(eq) + '.fits' 
     ## ALPHA
     if(a):
         print("### Runing alpha test ### ")
         mflags = [True, False, False]
-        namemc = 'mcmc_alpha_eq_' + str(eq) + '_.png'
-        namecont = 'contours_alpha_eq_' + str(eq) + '_.png'
-        nameterms = 'termsdxi_alpha_eq_' + str(eq) + '_.png'
-        namecovmat = 'covmatrix_alpha_eq_' + str(eq) + '_.png'
-        namebfres = 'Bestfitresiduals_alpha_eq_' + str(eq) + '_.png'
-        namedxip = 'xibias_a_' + str(eq) + '_.png'
+        namemc = 'mcmc_alpha_eq_' + str(eq) + '.png'
+        namecont = 'contours_alpha_eq_' + str(eq) + '.png'
+        nameterms = 'termsdxi_alpha_eq_' + str(eq) + '.png'
+        namecovmat = 'covmatrix_alpha_eq_' + str(eq) + '.png'
+        namebfres = 'Bestfitresiduals_alpha_eq_' + str(eq) + '.png'
+        namedxip = 'xibias_a_' + str(eq) + '.png'
         filename =  'a_dxi_eq'+ str(eq) + '.fits'
     ## Beta
     if(b):
         print("### Runing beta test ### ")
         mflags = [False, True, False] 
-        namemc = 'mcmc_beta_eq_' + str(eq) + '_.png'
-        namecont = 'contours_beta_eq_' + str(eq) + '_.png'
-        nameterms = 'termsdxi_beta_eq_' + str(eq) + '_.png'
-        namecovmat = 'covmatrix_beta_eq_' + str(eq) + '_.png'
-        namebfres = 'Bestfitresiduals_beta_eq_' + str(eq) + '_.png'
-        namedxip = 'xibias_b_' + str(eq) + '_.png'
+        namemc = 'mcmc_beta_eq_' + str(eq) + '.png'
+        namecont = 'contours_beta_eq_' + str(eq) + '.png'
+        nameterms = 'termsdxi_beta_eq_' + str(eq) + '.png'
+        namecovmat = 'covmatrix_beta_eq_' + str(eq) + '.png'
+        namebfres = 'Bestfitresiduals_beta_eq_' + str(eq) + '.png'
+        namedxip = 'xibias_b_' + str(eq) + '.png'
         filename =  'b_dxi_eq'+ str(eq) + '.fits'
     ## Eta
     if(e):
         print("### Runing eta test ### ")
         mflags = [False, False, True]
-        namemc = 'mcmc_eta_eq_' + str(eq) + '_.png'
-        namecont = 'contours_eta_eq_' + str(eq) + '_.png'
-        nameterms = 'termsdxi_eta_eq_' + str(eq) + '_.png'
-        namecovmat = 'covmatrix_eta_eq_' + str(eq) + '_.png'
-        namebfres = 'Bestfitresiduals_eta_eq_' + str(eq) + '_.png'
-        namedxip = 'xibias_e_' + str(eq) + '_.png'
+        namemc = 'mcmc_eta_eq_' + str(eq) + '.png'
+        namecont = 'contours_eta_eq_' + str(eq) + '.png'
+        nameterms = 'termsdxi_eta_eq_' + str(eq) + '.png'
+        namecovmat = 'covmatrix_eta_eq_' + str(eq) + '.png'
+        namebfres = 'Bestfitresiduals_eta_eq_' + str(eq) + '.png'
+        namedxip = 'xibias_e_' + str(eq) + '.png'
         filename =  'e_dxi_eq'+ str(eq) + '.fits'
     return [ mflags, namemc, namecont, namecovmat, namebfres, nameterms, namedxip, filename]
 
@@ -865,15 +865,15 @@ def RUNTEST(i_guess, data, nwalkers, nsteps, eq='All', mflags=[True, True, True]
     else:
         print("Not proper configuration, choose only one, or overall or margin")
 
-def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers, nsteps,  uwmprior, splitxipxim, margin, overall,  plots,  plotspath, zbin=''):
+def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers, nsteps,  uwmprior, splitxipxim, margin, overall,  plots,  plotspath, zbin=0, axs=None):
     import numpy as np
     from src.readfits import  read_rhos, read_taus
-    from src.plot_stats import plotallrhosfits, plotalltausfits, plot_samplesdist,  plotbestfitresiduals
+    from src.plot_stats import plotallrhosfits, plotalltausfits, plot_samplesdist, plotbestfit, plotbestfitresiduals
 
     if (plots):
-        xlim = [0.1, 300.]
+        xlim = [1, 300.]
         taustitle = ''
-        plotalltausfits(taufile, outpath=plotspath, title='zbin:' + zbin,  xlim=xlim, zbin=str(zbin))
+        plotalltausfits(taufile, outpath=plotspath, title='zbin: %d'%(zbin),  xlim=xlim, zbin=str(zbin))
     
     meanr, rhos,  covrho =  read_rhos(rhofile, minscale=minscale, maxscale=maxscale)
     meanr, taus,  covtau =  read_taus(taufile, minscale=minscale, maxscale=maxscale)
@@ -922,17 +922,26 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
         
     if (margin and not overall):
         if(plots):
-            plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, plotspath +'p_zbin_'+ zbin + namemc,plotspath + 'p_zbin_'+ zbin +namecont )
-            plot_samplesdist(auxm1 , auxm2, mflags, nwalkers, nsteps, plotspath +'m_zbin_'+ zbin + namemc,plotspath + 'm_zbin_'+ zbin  +namecont )
-            plotcovpars(auxp1, namecovmat=plotspath + 'p_zbin_' + zbin + namecovmat)
-            plotcovpars(auxm1, namecovmat=plotspath + 'm_zbin_' + zbin + namecovmat)
-            plotbestfitresiduals(auxp1, auxm1, meanr, data, models_combo,  plotspath +'p_zbin_'+ zbin + namebfres, margin=margin, overall=overall)
+            plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, plotspath +'p_zbin_%d'%(zbin) + namemc,plotspath + 'p_zbin_%d'%(zbin)  +namecont )
+            plot_samplesdist(auxm1 , auxm2, mflags, nwalkers, nsteps, plotspath +'m_zbin_%d'%(zbin) + namemc,plotspath + 'm_zbin_%d'%(zbin)  +namecont )
+            plotcovpars(auxp1, namecovmat=plotspath + 'p_zbin_%d'%(zbin) + namecovmat)
+            plotcovpars(auxm1, namecovmat=plotspath + 'm_zbin_%d'%(zbin) + namecovmat)
+            title='zbin %d %s'%(zbin,namebfres[17:-4])
+            plotbestfitresiduals(auxp1, auxm1, meanr, data, models_combo,  plotspath +'zbin_%d'%(zbin) + namebfres, title=title.replace('_','\_') , margin=margin, overall=overall)
         #samplesp, samplesm
         return auxp1, auxm1 
 
     if (overall and not margin):
         if (plots):
-            plotbestfitresiduals(auxp1, auxm1, meanr, data, models_combo,  plotspath +'p_zbin_'+ zbin + namebfres, margin=margin, overall=overall)
+            if axs is not None:
+                plotbestfit(zbin, axs, auxp1, auxm1, meanr, data, models_combo,  plotspath, margin=margin, overall=overall)
+            
+ 
+                    
+#plt.savefig(plotpath, dpi=150)
+            #title='zbin %d %s'%(zbin,namebfres[17:-4])
+            #plotbestfitresiduals(auxp1, auxm1, meanr, data, models_combo,  plotspath +'zbin_%d'%(zbin) + namebfres, title=title.replace('_', '\_'), margin=margin, overall=overall)
+            
         #parsp,chisqp,parsm,chisqm
         return auxp1, auxp2, auxm1, auxm2
 
@@ -960,8 +969,8 @@ def main():
         if not os.path.exists(outpath): raise
 
     if (args.plots):
-        xlim = [0.1, 300.]
-        ylims = [[1.e-11,5.e-6 ],[1.e-12,1.e-6 ],[3.e-9 ,3.e-4 ],[3.e-9 ,3.e-6 ]]
+        xlim = [1, 300.]
+        ylims = [[1.e-11,5.e-6 ],[1.e-12,1.e-6 ],[3.e-9 ,3.e-4 ],[3.e-12 ,3.e-6 ]]
         rhostitle = ''
         plotallrhosfits(args.rhos, outpath=plotspath, title=rhostitle, xlim=xlim, ylims=ylims)
 
@@ -998,7 +1007,7 @@ def main():
             for i,  taufile in enumerate(args.taus):
                 samplesp, samplesm=RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                   models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
-                                                  True, False, args.plots, plotspath,  zbin='%d'%(i + 1))
+                                                  True, False, args.plots, plotspath,  zbin=(i + 1))
                 mcmcpars = percentiles(samplesp, nsig=nsig) 
                 print( ' mcmc parameters xi+',  'nsig=', nsig, ' percentiles: ',  mcmcpars)
                 mcmcpars = percentiles(samplesm, nsig=nsig) 
@@ -1007,14 +1016,34 @@ def main():
             write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
 
         if args.overall:
+            fig1, ax1 = plt.subplots()
+            fig2, ax2 = plt.subplots()
+            fig3, ax3 = plt.subplots()
+            fig4, ax4 = plt.subplots()
+            fig5, ax5 = plt.subplots()
+            fig6, ax6 = plt.subplots()
+            fig7, ax7 = plt.subplots()
+            axs=[ax1,ax2,ax3,ax4,ax5,ax6,ax7]
+            figs=[fig1,fig2,fig3,fig4,fig5,fig6]
+            ylabels=[r'$\tau_{0+}$',r'$\tau_{0-}$',r'$\tau_{2+}$',r'$\tau_{2-}$',r'$\tau_{5+}$',r'$\tau_{5-}$']
             for i,  taufile in enumerate(args.taus):
                 parsp, chi2p_nu, parsm, chi2m_nu =RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                                  models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
-                                                                 False, True, args.plots, plotspath,  zbin='%d'%(i + 1))
+                                                                 False, True, args.plots, plotspath,  zbin=(i + 1), axs=axs)
                 
-                print( 'overall parameters xi+', parsp, 'chi2r: ',  chi2p_nu)
-                print( 'overall parameters xi-', parsm, 'chi2r: ',  chi2m_nu)
+                print( 'overall parameters xi+', parsp.tolist()) 
+                print( 'chi2r: ',  chi2p_nu)
+                print( 'overall parameters xi-', parsm.tolist()) 
+                print( 'chi2r: ',  chi2m_nu)
                 parsp_list.append(parsp); parsm_list.append(parsm)
+            if(args.plots):
+                for i, fig in enumerate(figs):
+                    print('Printing', plotspath+'%d_tau_bestfit.png'%(i))
+                    axs[i].set_ylabel(ylabels[i])
+                    axs[i].set_title('Alpha-beta-eta')
+                    fig.tight_layout()
+                    fig.savefig(plotspath+'%d_tau_bestfit.png'%(i),dpi=200)
+                
             write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )
 
     

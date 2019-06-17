@@ -11,6 +11,7 @@ def pretty_rho(meanr, rho, sig,  legend=None, lfontsize=24, color='black', marke
         plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0], color=color, ls='', marker=marker)
         rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color=color, marker=marker)
     '''
+    
     if sig is None: sig =  np.zeros(len(rho))
     plt.plot(meanr, rho, color=color, label=legend)
     plt.plot(meanr, -rho, color=color, ls=':')
@@ -48,7 +49,7 @@ def pretty_rho0(meanr, rho, sig, title= None,  xlim=None, ylim=None):
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
     if title is not None: plt.title(title)
-    plt.tight_layout()
+   #plt.tight_layout()
 
 def pretty_rho1(meanr, rho, sig, rho3=None, sig3=None, rho4=None, sig4=None, mlabel=False,  title= None,xlim=None, ylim=None):
     fsize = 24
@@ -76,13 +77,13 @@ def pretty_rho1(meanr, rho, sig, rho3=None, sig3=None, rho4=None, sig4=None, mla
     if mlabel:
         plt.legend([rho1_line, rho3_line, rho4_line],
                    [r'$\rho_{1-}(\theta)$', r'$\rho_{3-}(\theta)$',
-                    r'$\rho_{4-}(\theta)_{+}$'], loc='upper right',
+                    r'$\rho_{4-}(\theta)$'], loc='upper right',
                    fontsize=fsize)
         plt.ylabel(r'$\rho_{-}(\theta)$', fontsize=fsize)
     else:
         plt.legend([rho1_line, rho3_line, rho4_line],
                    [r'$\rho_{1+}(\theta)$', r'$\rho_{3+}(\theta)$',
-                    r'$\rho_{4+}(\theta)_{+}$'], loc='upper right',
+                    r'$\rho_{4+}(\theta)$'], loc='upper right',
                    fontsize=fsize)
         plt.ylabel(r'$\rho_{+}(\theta)$', fontsize=fsize)
 
@@ -123,13 +124,13 @@ def pretty_rho2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, mla
     if mlabel:
         plt.legend([rho0_line, rho2_line, rho5_line],
                    [r'$\rho_{0-}(\theta)$', r'$\rho_{2-}(\theta)$',
-                    r'$\rho_{5-}(\theta)_{-}$'], loc='upper right',
+                    r'$\rho_{5-}(\theta)$'], loc='upper right',
                    fontsize=fsize)
         plt.ylabel(r'$\rho_{-}(\theta)$', fontsize=fsize)
     else:
         plt.legend([rho0_line, rho2_line, rho5_line],
                    [r'$\rho_{0+}(\theta)$', r'$\rho_{2+}(\theta)$',
-                    r'$\rho_{5+}(\theta)_{+}$'], loc='upper right',
+                    r'$\rho_{5+}(\theta)$'], loc='upper right',
                    fontsize=fsize)
         plt.ylabel(r'$\rho_{+}(\theta)$', fontsize=fsize)
 
@@ -140,7 +141,7 @@ def pretty_rho2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, mla
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
     if title is not None: plt.title(title)
-    plt.tight_layout()
+    #plt.tight_layout()
 
 def pretty_tau2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, mlabel=False, title= None, xlim=None, ylim=None):
     fsize = 24
@@ -429,9 +430,41 @@ def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecon
     print(namemc, "Printed")
     corner_plot(samples, labels, namecont)
 
+def pretty_residuals(axs, idx, meanr,res,sig,label='Corr',color='black'):
+    axs[idx].plot(meanr, res, color=color, label=label)
+    axs[idx].plot(meanr, -res, color=color, ls=':')
+    axs[idx].errorbar(meanr[res>0], res[res>0], yerr=sig[res>0], color=color, ls='', marker='.',  capsize=2)
+    axs[idx].errorbar(meanr[res<0], -res[res<0], yerr=sig[res<0], color=color, ls='', marker='.',  capsize=2)   
+    axs[idx].errorbar( -meanr, res, yerr=sig, color=color,  marker='^',  capsize=2)
+    axs[idx].errorbar( -meanr,-res, yerr=sig, color=color,  marker='^', ls=':', capsize=2)
+    axs[idx].legend(loc='best', fontsize=5) 
+    axs[idx].tick_params(axis='both', which='major', labelsize=10)
+    axs[idx].set_xlabel(r'$\theta$ (arcmin)', fontsize=7)
+    axs[idx].set_ylim(1.e-12,1.e-5 )
+    axs[idx].set_xscale('log')
+    axs[idx].set_yscale('log', nonposy='clip')
+
+def pretty_residuals_tomo(axs,  meanr,res,sig,label='Corr',color='black'):
+    #axs.plot(meanr, res, color=color, label=label)
+    #axs.plot(meanr, -res, color=color, ls=':')
+    axs.errorbar(meanr, res, yerr=sig, color=color, ls='', marker='.',  capsize=2, label=label)
+    #axs.errorbar(meanr[res>0], res[res>0], yerr=sig[res>0], color=color, ls='', marker='.',  capsize=2)
+    #axs.errorbar(meanr[res<0], -res[res<0], yerr=sig[res<0], color=color, ls='', marker='.',  capsize=2)   
+    #axs.errorbar( -meanr, res, yerr=sig, color=color,  marker='^',  capsize=2)
+    #axs.errorbar( -meanr,-res, yerr=sig, color=color,  marker='^', ls=':', capsize=2)
+    axs.legend(loc='best', fontsize=5) 
+    axs.tick_params(axis='both', which='major', labelsize=15)
+    axs.set_xlabel(r'$\theta$ (arcmin)', fontsize=17)
+    #axs.set_ylim(-3.e-6,6.e-6 )
+    axs.set_xscale('log')
+    #axs.tight_layout()
+    #axs.set_yscale('log', nonposy='clip')
+
 def plotbestfitresiduals(samplesp, samplesm,  meanr, data, models_combo, plotname,  margin=False, overall=False):
     from maxlikelihood import bestparameters
     import numpy as np
+    import matplotlib.gridspec as gridspec
+
     rhosp =[data['rhos'][2*i] for i in range(6)]; nrows = len(rhosp[0])
     covrhosp =[data['cov_rhos'][2*i*nrows:(2*i + 1)*nrows , 2*i*nrows:(2*i + 1)*nrows] for i in range(6)]
     rhosm =[data['rhos'][2*i + 1] for i in range(6)]
@@ -484,13 +517,25 @@ def plotbestfitresiduals(samplesp, samplesm,  meanr, data, models_combo, plotnam
         v2m= np.diag(covtausm[2]) + (am**2)*np.diag(covrhosm[5]) + (bm**2)*np.diag(covrhosm[4]) + (e**2)*np.diag(covrhosm[3])
 
         plt.clf()
+        #fig, axs = plt.subplots(1, 3, figsize=(1.6*3,1.6), sharey=True)
+        fig, axs = plt.subplots(1, 6, sharey=True)
+        fig.subplots_adjust(hspace=0, wspace=0)
+        pretty_residuals(axs, 0, meanr,res0p, np.sqrt(v0p),label=r'$\delta \tau_{0+}$', color='red')
+        pretty_residuals(axs, 1, meanr,res0m, np.sqrt(v0m),label=r'$\delta \tau_{0-}$', color='green')
+        pretty_residuals(axs, 2, meanr,res1p, np.sqrt(v1p),label=r'$\delta \tau_{2+}$', color='blue')
+        pretty_residuals(axs, 3, meanr,res1m, np.sqrt(v1m),label=r'$\delta \tau_{2-}$', color='black')
+        pretty_residuals(axs, 4, meanr,res2p, np.sqrt(v2p),label=r'$\delta \tau_{5+}$', color='gray')
+        pretty_residuals(axs, 5, meanr,res2m, np.sqrt(v2m),label=r'$\delta \tau_{5-}$', color='purple')
+        #plt.tight_layout()
+
+        '''
         pretty_rho(meanr, res0p, np.sqrt(v0p),  legend=r'$\delta \tau_{0+}$', lfontsize=14, color='red', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
         pretty_rho(meanr, res0m, np.sqrt(v0m),  legend=r'$\delta \tau_{0-}$', lfontsize=14, color='blue', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
         pretty_rho(meanr, res1p, np.sqrt(v1p),  legend=r'$\delta \tau_{2+}$', lfontsize=14, color='green', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
         pretty_rho(meanr, res1m, np.sqrt(v1m),  legend=r'$\delta \tau_{2-}$', lfontsize=14, color='pink', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
         pretty_rho(meanr, res2p, np.sqrt(v2p),  legend=r'$\delta \tau_{5+}$', lfontsize=14, color='gray', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
         pretty_rho(meanr, res2m, np.sqrt(v2m),  legend=r'$\delta \tau_{5-}$', lfontsize=14, color='black', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
-        
+        '''
  
     elif(margin and not overall):
         a = b = e = 0; vara =  varb =  vare = 0; covab = covae = covbe = 0
@@ -579,8 +624,181 @@ def plotbestfitresiduals(samplesp, samplesm,  meanr, data, models_combo, plotnam
             
     else:
         print("Not valid configuration for overall and margin flags")
-        
+    
+    
     print('Printing',  plotname)
     plt.savefig(plotname, dpi=150)       
  
   
+def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpath, title=None,  margin=False, overall=False):
+    from maxlikelihood import bestparameters
+    import numpy as np
+    import matplotlib.gridspec as gridspec
+
+    rhosp =[data['rhos'][2*i] for i in range(6)]; nrows = len(rhosp[0])
+    covrhosp =[data['cov_rhos'][2*i*nrows:(2*i + 1)*nrows , 2*i*nrows:(2*i + 1)*nrows] for i in range(6)]
+    rhosm =[data['rhos'][2*i + 1] for i in range(6)]
+    covrhosm =[data['cov_rhos'][(2*i + 1)*nrows:2*(i + 1)*nrows , (2*i + 1)*nrows:2*(i + 1)*nrows] for i in range(6)]
+    tausp =[data['taus'][2*i] for i in range(3)]; nrows = len(tausp[0])
+    covtausp =[data['cov_taus'][2*i*nrows:(2*i + 1)*nrows , 2*i*nrows:(2*i + 1)*nrows] for i in range(3)]
+    tausm =[data['taus'][2*i + 1] for i in range(3)]
+    covtausm =[data['cov_taus'][(2*i + 1)*nrows:2*(i + 1)*nrows , (2*i + 1)*nrows:2*(i + 1)*nrows] for i in range(3)]
+    
+    if(overall and not margin):
+        a = b = e = 0; 
+        am = bm = em = 0; 
+        eq, abe_bool, ab_bool,  ae_bool, be_bool, a_bool, b_bool, e_bool =  models_combo
+    
+    
+        if not (abe_bool or ab_bool or a_bool): abe_bool = True
+        if(abe_bool):
+            a, b, e = samplesp
+            am, bm, em = samplesm
+        if(ab_bool):
+            a, b = samplesp
+            am, bm = samplesm
+        if(ae_bool):
+            a, e = samplesp
+            am, em = samplesm
+        if(be_bool):
+            b, e = samplesp
+            bm, em = samplesm
+        if(a_bool):
+            a = samplesp
+            am= samplesm
+        if(b_bool):
+            b = samplesp
+            bm= samplesm
+        if(e_bool):
+            e = samplesp
+            em= samplesm
+
+        res0p = a*rhosp[0] + b*rhosp[2] + e*rhosp[5]
+        res0m = am*rhosm[0] + b*rhosm[2] + e*rhosm[5]
+        
+        res1p = a*rhosp[2] + b*rhosp[1] + e*rhosp[4]
+        res1m = am*rhosm[2] + bm*rhosm[1] + em*rhosm[4]
+        
+        res2p = a*rhosp[5]+ b*rhosp[4] + e*rhosp[3]
+        res2m = am*rhosm[5] + bm*rhosm[4] + em*rhosm[3]
+        
+
+        
+        colors=['red','green','blue','black']
+        pretty_residuals_tomo(axs[0], meanr,tausp[0], np.sqrt(np.diag(covtausp[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[0].plot( meanr,res0p, 'k', color=colors[zbin-1])
+        
+        pretty_residuals_tomo(axs[1], meanr,tausm[0], np.sqrt(np.diag(covtausm[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[1].plot( meanr,res0m, 'k', color=colors[zbin-1])
+        
+        pretty_residuals_tomo(axs[2],  meanr,tausp[1], np.sqrt(np.diag(covtausp[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[2].plot( meanr,res1p, 'k', color=colors[zbin-1])
+        
+        pretty_residuals_tomo(axs[3], meanr,tausm[1], np.sqrt(np.diag(covtausm[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[3].plot( meanr,res1m, 'k', color=colors[zbin-1])
+        
+        pretty_residuals_tomo(axs[4],  meanr,tausp[2], np.sqrt(np.diag(covtausp[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[4].plot( meanr,res2p, 'k', color=colors[zbin-1])
+        
+        pretty_residuals_tomo(axs[5], meanr,tausm[2], np.sqrt(np.diag(covtausm[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[5].plot( meanr,res2m, 'k', color=colors[zbin-1])
+                
+
+    elif(margin and not overall):
+        a = b = e = 0; vara =  varb =  vare = 0; covab = covae = covbe = 0
+        am = bm = em = 0; varam =  varbm =  varem = 0; covabm = covaem = covbem = 0
+        bestpar = bestparameters(samplesp)
+        bestparm = bestparameters(samplesm)
+        #print("Best pars", bestpar)
+        par_matcov = np.cov(samplesp) 
+        if (par_matcov.size==1 ): variances = par_matcov
+        else: variances = np.diagonal(par_matcov)
+        covariances = sum( (par_matcov[i,i+1: ].tolist() for i in range(len(samplesp) - 1)) , [] )
+
+        par_matcovm = np.cov(samplesm) 
+        if (par_matcov.size==1 ): variancesm = par_matcovm
+        else: variancesm = np.diagonal(par_matcovm)
+        covariancesm = sum( (par_matcovm[i,i+1: ].tolist() for i in range(len(samplesm) - 1)) , [] )
+
+        eq, abe_bool, ab_bool,  ae_bool, be_bool, a_bool, b_bool, e_bool =  models_combo
+    
+    
+        if not (abe_bool or ab_bool or a_bool): abe_bool = True
+        if(abe_bool):
+            a, b, e = bestpar
+            vara, varb, vare =  variances
+            covab, covae, covbe =  covariances
+            am, bm, em = bestparm
+            varam, varbm, varem =  variancesm
+            covabm, covaem, covbem =  covariancesm 
+        if(ab_bool):
+            a, b = bestpar
+            vara, varb =  variances
+            covab =  covariances[0]
+            am, bm = bestparm
+            varam, varbm =  variancesm
+            covabm =  covariancesm[0]
+        if(ae_bool):
+            a, e = bestpar
+            vara, vare =  variances
+            covae =  covariances[0]
+            am, em = bestparm
+            varam, varem =  variancesm
+            covaem =  covariancesm[0]
+        if(be_bool):
+            b, e = bestpar
+            varb, vare =  variances
+            covbe =  covariances[0]
+            bm, em = bestparm
+            varbm, varem =  variancesm
+            covbem =  covariancesm[0]
+        if(a_bool):
+            a =  bestpar[0]
+            vara =  variances
+            am =  bestparm[0]
+            varam =  variancesm
+        if(b_bool):
+            b =  bestpar[0]
+            varb =  variances
+            bm =  bestparm[0]
+            varbm =  variancesm
+        if(e_bool):
+            e =  bestpar[0]
+            vare =  variances
+            em =  bestparm[0]
+            varem =  variancesm
+            
+    
+        res0p = a*rhosp[0] + b*rhosp[2] + e*rhosp[5]
+        res0m = am*rhosm[0] + b*rhosm[2] + e*rhosm[5]
+        
+        res1p = a*rhosp[2] + b*rhosp[1] + e*rhosp[4]
+        res1m = am*rhosm[2] + bm*rhosm[1] + em*rhosm[4]
+        
+        res2p = a*rhosp[5]+ b*rhosp[4] + e*rhosp[3]
+        res2m = am*rhosm[5] + bm*rhosm[4] + em*rhosm[3]
+        
+        colors=['red','green','blue','black']
+        pretty_residuals_tomo(axs[0], meanr,tausp[0], np.sqrt(np.diag(covtausp[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[0].plot( meanr,res0p, 'k', color=colors[zbin-1])
+        
+        pretty_residuals_tomo(axs[1], meanr,tausm[0], np.sqrt(np.diag(covtausm[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[1].plot( meanr,res0m, 'k', color=colors[zbin-1])
+        
+        pretty_residuals_tomo(axs[2],  meanr,tausp[1], np.sqrt(np.diag(covtausp[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[2].plot( meanr,res1p, 'k', color=colors[zbin-1])
+        
+        pretty_residuals_tomo(axs[3], meanr,tausm[1], np.sqrt(np.diag(covtausm[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[3].plot( meanr,res1m, 'k', color=colors[zbin-1])
+        
+        pretty_residuals_tomo(axs[4],  meanr,tausp[2], np.sqrt(np.diag(covtausp[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[4].plot( meanr,res2p, 'k', color=colors[zbin-1])
+        
+        pretty_residuals_tomo(axs[5], meanr,tausm[2], np.sqrt(np.diag(covtausm[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        axs[5].plot( meanr,res2m, 'k', color=colors[zbin-1])
+        
+            
+    else:
+        print("Not valid configuration for overall and margin flags")
+    
+    

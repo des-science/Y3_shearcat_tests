@@ -290,8 +290,8 @@ def minimizeCHI2(data, initial_guess, eq=None,  mflags=[True, True, True], xip=T
     result = optimize.minimize(CHI2, initial_guess,args=(data,eq,mflags, xip, xim, moderr), method='Nelder-Mead', tol=1e-6)
 
     npoints = len(data['rhos'][0])
-    print(npoints)
-    if (eq ==  0 or eq==1 or eq==1) :
+    #print(npoints)
+    if (eq ==  0 or eq==1 or eq==2) :
         npoints *=1 
     elif(eq==[1,2] or eq==[0, 2] or eq==[0, 1]):
         npoints *=2
