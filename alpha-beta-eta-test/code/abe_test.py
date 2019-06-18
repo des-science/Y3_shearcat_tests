@@ -1040,9 +1040,9 @@ def main():
                 for i, fig in enumerate(figs):
                     print('Printing', plotspath+'%d_tau_bestfit.png'%(i))
                     axs[i].set_ylabel(ylabels[i])
-                    axs[i].set_title('Alpha-beta-eta')
+                    axs[i].set_title('Alpha-beta')
                     fig.tight_layout()
-                    fig.savefig(plotspath+'%d_tau_bestfit.png'%(i),dpi=200)
+                    fig.savefig(plotspath+'%d_tau_bestfit_ab.png'%(i),dpi=200)
                 
             write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )
 
@@ -1052,3 +1052,7 @@ def main():
     
 if __name__ == "__main__":
     main()
+
+
+
+        
