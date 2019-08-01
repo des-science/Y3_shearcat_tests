@@ -30,6 +30,8 @@ def parse_args():
                         help='If true it substracts the mean to each field before calculate correlations')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
+    parser.add_argument('--filename', default='TAUZ_zbin_n.fits', type=str,
+                        help='filename of the tau output file')
     parser.add_argument('--zbin', default=None,type=int, 
                         help='Run particular tomobin')
     parser.add_argument('--nz_source',
@@ -131,8 +133,8 @@ def main():
         hdul[6].header['QUANT1'] = 'GeR'; hdul[7].header['QUANT1'] = 'GeR'
         hdul[6].header['QUANT2'] = 'PwR'; hdul[7].header['QUANT2'] = 'PwR'
 
-        print("Printin file:", outpath + 'TAUS_zbin_' +str(args.zbin) + '.fits')
-        hdul.writeto(outpath + 'TAUS_zbin_' +str(args.zbin) + '.fits', overwrite=True)
+        print("Printin file:", outpath + args.filename)
+        hdul.writeto(outpath + args.filename, overwrite=True)
                 
     else:
         data_galaxies = read_metacal(args.metacal_cat,  galkeys )
