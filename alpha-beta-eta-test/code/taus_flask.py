@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def parse_args():
     import argparse
-    parser = argparse.ArgumentParser(description='Correlation of reserved stars with galaxies of flask')
+    parser = argparse.ArgumentParser(description='Produce Tau correlations, i.e correlation among galaxies and reserved stars for all Flask realisations')
     
     parser.add_argument('--flask_cat',
                         default='/home2/dfa/sobreira/alsina/catalogs/flask/desy3_6x2pt_lognormal-maskedcats_v2/', 
@@ -17,12 +17,6 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/DESWL/psf/ally3.grizY',
                         #default='/home/dfa/sobreira/alsina/DESWL/psf/testexp',
                         help='list of exposures (in lieu of separate exps)')
-    parser.add_argument('--seed', default=1,  type=int,
-                        help='seed used, useful to run parallel')
-    parser.add_argument('--zbin', default=1 , type=int,
-                        help='zbin used, useful to run parallel')
-    parser.add_argument('--cookie', default=1 , type=int,
-                        help='cookie used, useful to run parallel')
     parser.add_argument('--bands', default='riz', type=str,
                          help='Limit to the given bands')
     parser.add_argument('--use_reserved', default=True,
@@ -33,12 +27,14 @@ def parse_args():
     parser.add_argument('--mod', default=True,
                         action='store_const', const=True,
                         help='If true it substracts the mean to each field before calculate correlations')
+    parser.add_argument('--seed', default=1,  type=int,
+                        help='seed used, useful to run parallel')
+    parser.add_argument('--zbin', default=1 , type=int,
+                        help='zbin used, useful to run parallel')
+    parser.add_argument('--cookie', default=1 , type=int,
+                        help='cookie used, useful to run parallel')
     parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/flask/taus_v2/',
-                        help='location of the output of the files')
-    parser.add_argument('--tomo', default=False,
-                        action='store_const', const=True,
-                        help='Run all tomographic correlations')
-    
+                        help='location of the output of the files')    
     args = parser.parse_args()
 
     return args

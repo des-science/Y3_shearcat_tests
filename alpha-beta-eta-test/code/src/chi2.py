@@ -273,6 +273,7 @@ def CHI2(pars, data, eq=None, mflags=[True, True, True], xip=True, xim=True,  mo
     mcov_mat = modelcov(pars, cov_rhos,  len(rhos[0]),  eq=eq, mflags=mflags, xip=xip, xim=xim)
     val=chi2(mvect, dvect, mcov_mat, dcov_mat, moderr=moderr )
     return val
+
 def chi2(modelvec, datavec,  covmodel, covdata,  moderr=False ):
     import numpy as np
     d =  np.array([modelvec - datavec])
@@ -280,9 +281,11 @@ def chi2(modelvec, datavec,  covmodel, covdata,  moderr=False ):
         cov_inv = np.linalg.inv(covdata + covmodel)
         print("ERROR")
     else:
-        cov_inv = np.linalg.inv(covdata)
+        cov_inv = np.linalg.pinv(covdata,  rcond=1e-10)
         
     chisq = np.dot(np.dot(d,cov_inv), d.T)
+    #print('chisq:', chisq[0][0])
+    #print('np.dot(d,d.T):',  np.dot(d, d.T)[0][0])
     return chisq[0][0]
     
 def minimizeCHI2(data, initial_guess, eq=None,  mflags=[True, True, True], xip=True, xim=False, moderr=False):

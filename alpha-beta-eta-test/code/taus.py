@@ -36,7 +36,7 @@ def parse_args():
                         help='Run particular tomobin')
     parser.add_argument('--nz_source',
                         default='/home2/dfa/sobreira/alsina/catalogs/y3_master/nz_source_zbin.h5',
-                        help='Full Path to the Only stars Piff catalog')
+                        help='Indexes catalog to select galaxies in a particular redshift bin in Metacal')
     args = parser.parse_args()
     return args
 

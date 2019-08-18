@@ -6,12 +6,12 @@ plt.style.use('SVA1StyleSheet.mplstyle')
 
 def parse_args():
     import argparse
-    parser = argparse.ArgumentParser(description='Alpha beta gamma test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
+    parser = argparse.ArgumentParser(description='Alpha beta eta test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
     parser.add_argument('--taus',
                         default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
+                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
                         #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1_v2.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2_v2.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3_v2.fits',
@@ -892,7 +892,7 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
     minimize = True
     eq = models_combo[0]
     print("Using equations: ", eq)
-    print('RUNNING tomobin', zbin)
+    print('Tomobin', zbin)
     i_guess0 = [ -0.01, 1, -1 ] #fiducial values
     i_guess = np.array(i_guess0)[np.array(mflags)].tolist()
     
@@ -1010,10 +1010,14 @@ def main():
                 samplesp, samplesm=RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                   models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
                                                   True, False, args.plots, plotspath,  zbin=(i + 1))
-                mcmcpars = percentiles(samplesp, nsig=nsig) 
-                print( ' mcmc parameters xi+',  'nsig=', nsig, ' percentiles: ',  mcmcpars)
-                mcmcpars = percentiles(samplesm, nsig=nsig) 
-                print( ' mcmc parameters xi-',  'nsig=', nsig, ' percentiles: ',  mcmcpars)
+                mcmcparsp = percentiles(samplesp, nsig=nsig) 
+                mcmcparsm = percentiles(samplesm, nsig=nsig)
+                if args.splitxipxim :
+                    print( ' mcmc parameters xi+',  'nsig=', nsig, ' percentiles: ',  mcmcparsp)
+                    print( ' mcmc parameters xi-',  'nsig=', nsig, ' percentiles: ',  mcmcparsm)
+                else:
+                    print( ' mcmc parameters',  'nsig=', nsig, ' percentiles: ',  mcmcparsp)
+                    
                 samplesp_list.append(samplesp); samplesm_list.append(samplesm)
             write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
 
@@ -1032,11 +1036,14 @@ def main():
                 parsp, chi2p_nu, parsm, chi2m_nu =RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                                  models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
                                                                  False, True, args.plots, plotspath,  zbin=(i + 1), axs=axs)
-                
-                print( 'overall parameters xi+', parsp.tolist()) 
-                print( 'chi2r: ',  chi2p_nu)
-                print( 'overall parameters xi-', parsm.tolist()) 
-                print( 'chi2r: ',  chi2m_nu)
+                if args.splitxipxim :
+                    print( 'overall parameters xi+', parsp.tolist()) 
+                    print( 'chi2r: ',  chi2p_nu)
+                    print( 'overall parameters xi-', parsm.tolist()) 
+                    print( 'chi2r: ',  chi2m_nu)
+                else:
+                    print( 'overall parameters ', parsp.tolist()) 
+                    print( 'chi2r: ',  chi2p_nu)
                 parsp_list.append(parsp); parsm_list.append(parsm)
             if(args.plots):
                 for i, fig in enumerate(figs):
