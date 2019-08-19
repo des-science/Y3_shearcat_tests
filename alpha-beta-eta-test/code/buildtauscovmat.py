@@ -10,17 +10,17 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Correlation of reserved stars')
     
     parser.add_argument('--tausflask',
-                        default='/home2/dfa/sobreira/alsina/catalogs/flask/taus/',
+                        default='/home2/dfa/sobreira/alsina/catalogs/flask/taus_v2/',
                         help='Full Path to the taus measurement of flask catalogs')
     parser.add_argument('--input_tau',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin4_test.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_1.fits',
                         help='Fit file with the taus correlations, and which covariance matrix will be replaced and writen in filename')
     parser.add_argument('--filename',
-                        default='TAUS_FLASK_zbin_4_test.fits',
+                        default='TAUS_FLASK_zbin_1_v2.fits',
                         help='Fit file based on inputfile but now with Flask Covariance matrix')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
-    parser.add_argument('--zbin', default=4 , type=int,
+    parser.add_argument('--zbin', default=1 , type=int,
                         help='seed used, useful to run parallel')
     parser.add_argument('--plots', default=True,
                         action='store_const', const=True, help='Plot correlations functions')
@@ -80,8 +80,8 @@ def main():
     #outdata = np.recarray((nrows, ), dtype=dtype)
     veclist = []
     count = 0; zbin = args.zbin
-    #for seed in range(1, 150 ): #version2
-    for seed in range(200, 401 ): #version1
+    for seed in range(1, 150 ): #version2
+    #for seed in range(200, 401 ): #version1
         for ck in range(1,2):
             name = os.path.join(args.tausflask, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
             exist =  os.path.isfile(name)

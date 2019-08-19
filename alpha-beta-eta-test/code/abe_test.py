@@ -893,7 +893,7 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
     eq = models_combo[0]
     print("Using equations: ", eq)
     print('Tomobin', zbin)
-    i_guess0 = [ -0.01, 1, -1 ] #fiducial values
+    i_guess0 = [ 0, 1, -1 ] #fiducial values
     i_guess = np.array(i_guess0)[np.array(mflags)].tolist()
     
     if splitxipxim:
@@ -928,8 +928,7 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
             plot_samplesdist(auxm1 , auxm2, mflags, nwalkers, nsteps, plotspath +'m_zbin_%d_%s'%(zbin,namemc),plotspath + 'm_zbin_%d_%s'%(zbin,namecont),zbin=zbin )
             plotcovpars(auxp1, namecovmat=plotspath + 'p_zbin_%d'%(zbin) + namecovmat)
             plotcovpars(auxm1, namecovmat=plotspath + 'm_zbin_%d'%(zbin) + namecovmat)
-            #title='zbin %d %s'%(zbin,namebfres[17:-4])
-            #plotbestfitresiduals(auxp1, auxm1, meanr, data, models_combo,  plotspath +'zbin_%d'%(zbin) + namebfres, title=title.replace('_','\_') , margin=margin, overall=overall)
+        
         #samplesp, samplesm
         return auxp1, auxm1 
 
@@ -937,16 +936,20 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
         if (plots):
             if axs is not None:
                 plotbestfit(zbin, axs, auxp1, auxm1, meanr, data, models_combo,  plotspath, margin=margin, overall=overall)
-            
- 
-                    
-#plt.savefig(plotpath, dpi=150)
-            #title='zbin %d %s'%(zbin,namebfres[17:-4])
-            #plotbestfitresiduals(auxp1, auxm1, meanr, data, models_combo,  plotspath +'zbin_%d'%(zbin) + namebfres, title=title.replace('_', '\_'), margin=margin, overall=overall)
-            
+                        
         #parsp,chisqp,parsm,chisqm
         return auxp1, auxp2, auxm1, auxm2
 
+def saveintex(models_combo, margin, overall, parlist, chisq_list, outpath):
+    print('Generating table.tex')
+    eq, abe, ab, ae, be, a, b, e = models_combo
+    if overall:
+        parsbin1, parsbin2,  parsbin3,  parsbin4 =  parlist
+        if abe:
+            with open(os.path.join(outpath,'table_abe_overall.tex'), "w") as file1:
+                file1.write("\begin{center} \centering \begin{tabular}{ |c|c|c|c|c|} \hline & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} $\alpha$ & $%d$ & $%d$ & $%d$ & $%d$\\ \rule{0pt}{3ex} $\beta$ & $%d$ & $%d$ & $%d$ & $%d$ \\ \rule{0pt}{3ex} $\eta$ & $%d$ & $%d$ & $%d$ & $%d$ \\ \hline \rule{0pt}{3ex} $\chi_{\nu}$ & $%d$ & $%d$ & $%d$ & $%d$ \\ \hline \end{tabular} \end{center}"%(parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0], parsbin1[1], parsbin2[1], parsbin3[1], parsbin4[1], parsbin1[2], parsbin2[2], parsbin3[2], parsbin4[2], chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3]))
+    
+    
                         
 def main():
     from src.plot_stats import plotallrhosfits
@@ -1004,6 +1007,7 @@ def main():
         print("STARTING TOMOGRAPHIC ANALYSIS")
         samplesp_list = []; parsp_list = []
         samplesm_list = []; parsm_list = []
+        chisqp_list = []; chisqm_list = []
         
         if args.margin:
             for i,  taufile in enumerate(args.taus):
@@ -1045,6 +1049,7 @@ def main():
                     print( 'overall parameters ', parsp.tolist()) 
                     print( 'chi2r: ',  chi2p_nu)
                 parsp_list.append(parsp); parsm_list.append(parsm)
+                chisqp_list.append(chi2p_nu); chisqm_list.append(chi2m_nu);
             if(args.plots):
                 for i, fig in enumerate(figs):
                     print('Printing', plotspath+'%d_tau_bestfit.png'%(i))
@@ -1052,7 +1057,8 @@ def main():
                     axs[i].set_title('Alpha-beta')
                     fig.tight_layout()
                     fig.savefig(plotspath+'%d_tau_bestfit_ab.png'%(i),dpi=200)
-                
+
+            saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, outpath)
             write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )
 
     

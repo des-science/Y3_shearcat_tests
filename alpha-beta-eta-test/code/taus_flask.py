@@ -1,4 +1,4 @@
-today = '06-06-19_'
+today = '08-19-19_'
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -33,6 +33,12 @@ def parse_args():
                         help='zbin used, useful to run parallel')
     parser.add_argument('--cookie', default=1 , type=int,
                         help='cookie used, useful to run parallel')
+    parser.add_argument('--g1flip', default=False,
+                        action='store_const', const=True,
+                        help='If true invert the sig of g1')
+    parser.add_argument('--g2flip', default=False,
+                        action='store_const', const=True,
+                        help='If true invert the sig of g2')
     parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/flask/taus_v2/',
                         help='location of the output of the files')    
     args = parser.parse_args()
@@ -71,6 +77,7 @@ def main():
  
     bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
+    flip = [args.g1flip, args.g2flip]
     ck=args.cookie
     for seed in range (args.seed, 401):
         for zbin in range(args.zbin, 5):
@@ -83,7 +90,7 @@ def main():
             if not os.path.isfile(inname):
                 print(inname, "does not exist. Skipping")
                 continue
-            data_galaxies =  read_flask(args.flask_cat, seed, zbin, ck)
+            data_galaxies =  read_flask(args.flask_cat, seed, zbin, ck, flip=flip)
             print("Total objects in catalog:", len(data_galaxies))
             tau0, tau2, tau5= measure_tau( data_stars , data_galaxies,
                                            bin_config, mod=args.mod)

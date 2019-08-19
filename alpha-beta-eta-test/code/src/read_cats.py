@@ -424,12 +424,15 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
     return data
 
 
-def read_flask(catpath, seed, zbin, ck):
+def read_flask(catpath, seed, zbin, ck, flip=[False, False]):
     import numpy as np
+    g1flip, g2flip =  flip
     filename = os.path.join(catpath, 'src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
     cat =  fitsio.read(filename)
     inkeys = ['RA','DEC','GAMMA1','GAMMA2']
     outkeys = ['ra','dec','e_1','e_2']
+    if g1flip: cat['e1'] *=-1; print("Applying flip in g1")
+    if g2flip: cat['e2'] *=-1; print("Applying flip in g2")
     
     nrows = len(cat['RA'])
     formats = ['f4', 'f4', 'f4', 'f4']

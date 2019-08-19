@@ -120,9 +120,11 @@
    b) --eq We have defined a set of three equation and then with the
    concatenation of them we solve the fitting problem. We could use
    less equation to track errors. So to see each equation behaviour we
-   can choose a index from 0 to 1. The full right thing is to use the
-   whole system of equations then by default is selecte --eq=4 which
-   represent the whole system
+   can choose a index from 0 to 2. The full right thing is to use the
+   whole system of equations then by default is selected --eq=4 which
+   represent the whole system. There are also the cases of using two
+   equations --eq=10 uses tau0 and tau2, --eq=20 uses tau0 and tau5
+   and --eq=21 uses equations with tau2 and tau5
 
    c) --splitxipxim Calculate independent contamination parameter abe for
    xip and xim tau-stat and rho-stats. The right thing to do is to use

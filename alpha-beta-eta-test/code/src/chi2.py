@@ -52,21 +52,21 @@ def modelvector(pars, rhos, eq=None, mflags=[True, True, True], xip=True, xim=Tr
             return mvec2m
         else:
             return np.concatenate([mvec2p, mvec2m])
-    elif(eq==[0,1]):
+    elif(eq==10):
         if(xip and not xim):
             return np.concatenate([mvec0p, mvec1p])
         elif(xim and not xip):
             return np.concatenate([mvec0m, mvec1m])
         else:
             return np.concatenate([mvec0p, mvec0m, mvec1p, mvec1m])
-    elif(eq==[0,2]):
+    elif(eq==20):
         if(xip and not xim):
             return np.concatenate([mvec0p, mvec2p])
         elif(xim and not xip):
             return np.concatenate([mvec0m, mvec2m])
         else:
             return np.concatenate([mvec0p, mvec0m, mvec2p, mvec2m])
-    elif(eq==[1,2]):
+    elif(eq==12 or eq==21):
         if(xip and not xim):
             return np.concatenate([mvec1p, mvec2p])
         elif(xim and not xip):
@@ -109,7 +109,7 @@ def modelcov(pars, cov_rhos, nrows,  eq =None,mflags=[True, True, True], xip=Tru
             return covmat[5*nrows:6*nrows,5*nrows:6*nrows ]
         else:
             return covmat[4*nrows:6*nrows,4*nrows:6*nrows ] 
-    elif(eq==[0,1]):
+    elif(eq==10):
         if(xip and not xim):
             idx = np.concatenate([np.arange(0,nrows), np.arange(2*nrows, 3*nrows)])
             return covmat[idx,:][:,idx] 
@@ -118,7 +118,7 @@ def modelcov(pars, cov_rhos, nrows,  eq =None,mflags=[True, True, True], xip=Tru
             return covmat[idx,:][:,idx] 
         else:
             return covmat[0:4*nrows,0:4*nrows ] 
-    elif(eq==[0,2]):
+    elif(eq==20):
         if(xip and not xim):
             idx = np.concatenate([np.arange(0, nrows), np.arange(4*nrows, 5*nrows)])
             return covmat[idx,:][:,idx] 
@@ -128,7 +128,7 @@ def modelcov(pars, cov_rhos, nrows,  eq =None,mflags=[True, True, True], xip=Tru
         else:
             idx = np.concatenate([np.arange(0, nrows), np.arange(4*nrows, 6*nrows)])
             return covmat[idx,:][:,idx] 
-    elif(eq==[1,2]):
+    elif(eq==12 or eq==21):
         if(xip and not xim):
             idx = np.concatenate([np.arange(2*nrows, 3*nrows), np.arange(4*nrows, 5*nrows)])
             return covmat[idx,:][:,idx] 
@@ -172,21 +172,21 @@ def datavector( taus, eq=None, xip=True, xim=True):
             return tau5m
         else:
             return np.concatenate([tau5p, tau5m])
-    elif(eq==[0,1]):
+    elif(eq==10):
         if(xip and not xim):
             return np.concatenate([tau0p, tau2p])
         elif(xim and not xip):
             return np.concatenate([tau0m, tau2m])
         else:
             return np.concatenate([tau0p, tau0m, tau2p, tau2m])
-    elif(eq==[0,2]):
+    elif(eq==20):
         if(xip and not xim):
             return np.concatenate([tau0p, tau5p])
         elif(xim and not xip):
             return np.concatenate([tau0m, tau5m])
         else:
             return np.concatenate([tau0p, tau0m, tau5p, tau5m])
-    elif(eq==[1,2]):
+    elif(eq==12 or eq == 21):
         if(xip and not xim):
             return np.concatenate([tau2p, tau5p])
         elif(xim and not xip):
@@ -224,7 +224,7 @@ def datacov(cov_taus, nrows, eq=None, xip=True, xim=True):
             return covmat[5*nrows:6*nrows,5*nrows:6*nrows ]
         else:
             return covmat[4*nrows:6*nrows,4*nrows:6*nrows ] 
-    elif(eq==[0,1]):
+    elif(eq==10):
         if(xip and not xim):
             idx = np.concatenate([np.arange(0,nrows), np.arange(2*nrows, 3*nrows)])
             return covmat[idx,:][:,idx] 
@@ -233,7 +233,7 @@ def datacov(cov_taus, nrows, eq=None, xip=True, xim=True):
             return covmat[idx,:][:,idx] 
         else:
             return covmat[0:4*nrows,0:4*nrows ] 
-    elif(eq==[0,2]):
+    elif(eq==20):
         if(xip and not xim):
             idx = np.concatenate([np.arange(0, nrows), np.arange(4*nrows, 5*nrows)])
             return covmat[idx,:][:,idx] 
@@ -243,7 +243,7 @@ def datacov(cov_taus, nrows, eq=None, xip=True, xim=True):
         else:
             idx = np.concatenate([np.arange(0, 2*nrows), np.arange(4*nrows, 6*nrows)])
             return covmat[idx,:][:,idx] 
-    elif(eq==[1,2]):
+    elif(eq==12 or eq==21):
         if(xip and not xim):
             idx = np.concatenate([np.arange(2*nrows, 3*nrows), np.arange(4*nrows, 5*nrows)])
             return covmat[idx,:][:,idx] 
