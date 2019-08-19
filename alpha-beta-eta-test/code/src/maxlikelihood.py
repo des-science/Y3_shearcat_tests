@@ -50,7 +50,7 @@ def loglike(chisq):
     return -0.5*chisq
 ##Log natural of the posterior
 def logpost(pars, data, eq=None, mflags=[True, True, True], xip=True, xim=False, moderr=False, uwmprior=False):
-    from chi2 import CHI2
+    from src.chi2 import CHI2
     chisq = CHI2(pars, data,eq=eq, mflags=mflags, xip=xip, xim=xim,  moderr=moderr )
     lp = logprior(pars, mflags=mflags, uwmprior=uwmprior)
     if not np.isfinite(lp):
@@ -76,7 +76,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, eq=None,
          uwmprior=False):
     import emcee
     import itertools
-    ndim =  len(list(itertools.compress(xrange(len(mflags)),  mflags)))
+    ndim =  len(list(itertools.compress(range(len(mflags)),  mflags)))
     pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=1,
                                     args=(data, eq, mflags,xip,xim, moderr, uwmprior))

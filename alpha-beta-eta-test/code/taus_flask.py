@@ -8,7 +8,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Produce Tau correlations, i.e correlation among galaxies and reserved stars for all Flask realisations')
     
     parser.add_argument('--flask_cat',
-                        default='/home2/dfa/sobreira/alsina/catalogs/flask/desy3_6x2pt_lognormal-maskedcats_v2/', 
+                        default='/home2/dfa/sobreira/alsina/catalogs/flask/desy3_6x2pt_lognormal-maskedcats/', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
                         default='/home2/dfa/sobreira/alsina/catalogs/y3a1-v29',

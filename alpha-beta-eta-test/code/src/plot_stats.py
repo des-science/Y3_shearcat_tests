@@ -205,7 +205,7 @@ def plotcorrmat(cov):
     
 def plotallrhosfits(stat_file, outpath, title= None, xlim=None, ylims=None):
     import numpy as np
-    from readfits import read_rhos_plots
+    from src.readfits import read_rhos_plots
     ylim0p, ylim0m, ylim1p, ylim1m = [None, None,  None, None]
     if ylims is not None: ylim0p, ylim0m, ylim1p, ylim1m = ylims
     meanr, rhos,  cov_rhos =  read_rhos_plots(stat_file)
@@ -249,7 +249,7 @@ def plotallrhosfits(stat_file, outpath, title= None, xlim=None, ylims=None):
     
 def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zbin=''):
     import numpy as np
-    from readfits import read_taus_plots
+    from src.readfits import read_taus_plots
     import fitsio
     ylim0p, ylim0m = [None, None]
     if ylims is not None: ylim0p, ylim0m = ylims
@@ -464,7 +464,7 @@ def pretty_residuals_tomo(axs,  meanr,res,sig,label='Corr',color='black'):
     #axs.set_yscale('log', nonposy='clip')
 
 def plotbestfitresiduals(samplesp, samplesm,  meanr, data, models_combo, plotname,  margin=False, overall=False):
-    from maxlikelihood import bestparameters
+    from src.maxlikelihood import bestparameters
     import numpy as np
     import matplotlib.gridspec as gridspec
 
@@ -634,7 +634,7 @@ def plotbestfitresiduals(samplesp, samplesm,  meanr, data, models_combo, plotnam
  
   
 def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpath, title=None,  margin=False, overall=False):
-    from maxlikelihood import bestparameters
+    from src.maxlikelihood import bestparameters
     import numpy as np
     import matplotlib.gridspec as gridspec
 

@@ -8,7 +8,7 @@ import os
 import sys
 import numpy as np
 import fitsio
-from toFocal import toFocal
+from src.toFocal import toFocal
 
 def toList(filename):
     if filename != '':
@@ -431,8 +431,8 @@ def read_flask(catpath, seed, zbin, ck, flip=[False, False]):
     cat =  fitsio.read(filename)
     inkeys = ['RA','DEC','GAMMA1','GAMMA2']
     outkeys = ['ra','dec','e_1','e_2']
-    if g1flip: cat['e1'] *=-1; print("Applying flip in g1")
-    if g2flip: cat['e2'] *=-1; print("Applying flip in g2")
+    if g1flip: cat['GAMMA1'] *=-1; print("Applying flip in g1")
+    if g2flip: cat['GAMMA2'] *=-1; print("Applying flip in g2")
     
     nrows = len(cat['RA'])
     formats = ['f4', 'f4', 'f4', 'f4']
