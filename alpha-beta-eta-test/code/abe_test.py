@@ -77,28 +77,6 @@ def parse_args():
 
     return args
                         
-def corrmatrix(cov):
-    import numpy as np
-    cov = np.mat(cov)
-    D = np.diag(np.sqrt(np.diag(cov)))
-    d = np.linalg.inv(D)
-    corr = d*cov*d
-    return corr
-def plotcovpars(samples,namecovmat='covmat_pars.png'):
-    import numpy as np
-    #plot covariance matrix of parameters alpha, beta and eta.
-    par_matcov = np.cov(samples)
-    corr=corrmatrix(par_matcov)
-    cov_vmin=np.min(corr)
-    plt.clf()
-    plt.imshow(corr,cmap='viridis'+'_r', interpolation='nearest',
-               aspect='auto', origin='lower', vmin=cov_vmin,
-               vmax=1.)
-    plt.colorbar()
-    plt.title(r'$\alpha \mid \beta \mid \eta $')
-    plt.tight_layout()
-    print('Printing', namecovmat)
-    plt.savefig(namecovmat, dpi=500)
 def getxibias_margin(samples, datarhos, models_combo, plots=False, nameterms='terms_dxi.png',dxiname='dxi.png'):
     from src.readfits import read_rhos
     from src.maxlikelihood import bestparameters
@@ -115,8 +93,6 @@ def getxibias_margin(samples, datarhos, models_combo, plots=False, nameterms='te
 
     eq, abe_bool, ab_bool,  ae_bool, be_bool, a_bool, b_bool, e_bool =  models_combo
     
-    
-    if not (abe_bool or ab_bool or a_bool): abe_bool = True
     if(abe_bool):
         a, b, e = bestpar
         vara, varb, vare =  variances
@@ -240,7 +216,6 @@ def getxibias_overall(pars, datarhos, models_combo,  plots=False, nameterms='ter
     meanr, rhos, covrhos =  datarhos
     rho0, rho1, rho2, rho3, rho4, rho5 = rhos
     
-    if not (abe_bool or ab_bool or a_bool): abe_bool = True
     if(abe_bool):
         a, b, e = pars
     if(ab_bool):
@@ -336,8 +311,6 @@ def getxibiastomo_margin(samples_i, samples_j, datarhos, models_combo, plots=Fal
 
     eq, abe_bool, ab_bool,  ae_bool, be_bool, a_bool, b_bool, e_bool =  models_combo
     
-    
-    if not (abe_bool or ab_bool or a_bool): abe_bool = True
     if(abe_bool):
         a_i, b_i, e_i = pars_i
         a_j, b_j, e_j = pars_j
@@ -359,19 +332,19 @@ def getxibiastomo_margin(samples_i, samples_j, datarhos, models_combo, plots=Fal
         varb_i ,  vare_i ,  varb_j ,  vare_j = variances
         covb_ie_i , covb_ib_j , covb_ie_j , covb_je_i , cove_ie_j , covb_je_j =  covariances
     if(a_bool):
-        a_i= pars_i
-        a_j= pars_j
+        a_i= pars_i[0]
+        a_j= pars_j[0]
         vara_i ,  vara_j  = variances
         cova_ia_j = covariances[0]
     if(b_bool):
-        b_i = pars_i
-        b_j = pars_j
+        b_i = pars_i[0]
+        b_j = pars_j[0]
         varb_i ,  varb_j  = variances
         covb_ib_j = covariances[0]
     if(e_bool):
-        e_i = pars_i
-        e_j = pars_j
-        vare_i ,  vare_j  , variances
+        e_i = pars_i[0]
+        e_j = pars_j[0]
+        vare_i ,  vare_j =  variances
         cove_ie_j = covariances[0]
 
     meanr, rhos, covrhos =  datarhos
@@ -396,7 +369,7 @@ def getxibiastomo_margin(samples_i, samples_j, datarhos, models_combo, plots=Fal
         xlim = [2., 300.]
         plt.clf()
         i, j = bins
-        plt.title(r'$\delta \xi_{+}$ contributions, zbin: (%d,%d)'%(i,j))
+        plt.title(r'$\delta \xi_{%s}$ contributions, zbin: (%d,%d)'%(nameterms[-5], i,j))
         lfontsize = 7
         varterm0 = ((a_j*rho0)**2)*vara_i + ((a_i*rho0)**2)*vara_j + ((a_i*a_j)**2)*np.diag(cov_rho0) +  2*a_i*a_j*(rho0**2)*cova_ia_j
         varterm1 = ((b_j*rho1)**2)*varb_i + ((b_i*rho1)**2)*varb_j + ((b_i*b_j)**2)*np.diag(cov_rho1) +  2*b_i*b_j*(rho1**2)*covb_ib_j
@@ -444,7 +417,7 @@ def getxibiastomo_margin(samples_i, samples_j, datarhos, models_combo, plots=Fal
             print('Printing', nameterms)
             plt.savefig( nameterms, dpi=200)
         plt.clf()
-        pretty_rho(meanr, dxi, np.sqrt(np.diag(covmat_dxi)) , legend=r"$\delta \xi$",  ylabel=r"$\delta \xi$",  xlim=xlim)
+        pretty_rho(meanr, dxi, np.sqrt(np.diag(covmat_dxi)) , legend=r"$\delta \xi_{%s} zbin: (%d,%d)$"%(dxiname[-5],i, j),  ylabel=r"$\delta \xi_{%s}$"%(dxiname[-5]),  xlim=xlim)
         print('Printing',  dxiname)
         plt.savefig(dxiname, dpi=200)
         
@@ -457,7 +430,6 @@ def getxibiastomo_overall(pars_i, pars_j , datarhos, models_combo, plots=False, 
     meanr, rhos, covrhos =  datarhos
     rho0, rho1, rho2, rho3, rho4, rho5 = rhos
     
-    if not (abe_bool or ab_bool or a_bool): abe_bool = True
     if(abe_bool):
         a_i, b_i, e_i = pars_i
         a_j, b_j, e_j = pars_j
@@ -485,7 +457,7 @@ def getxibiastomo_overall(pars_i, pars_j , datarhos, models_combo, plots=False, 
         xlim = [2., 300.]
         plt.clf()
         i, j = bins
-        plt.title(r'$\delta \xi_{+}$ contributions, zbin: (%d,%d)'%(i,j))
+        plt.title(r'$\delta \xi_{%s}$ contributions, zbin: (%d,%d)'%(nameterms[-5], i,j))
         lfontsize = 7
         if (abe_bool):
             pretty_rho(meanr, a_i*a_j*rho0, None, legend=r'$\alpha^{(%d)}\alpha^{(%d)} \rho_{0}$'%(i, j),lfontsize=lfontsize,  color='red', ylabel='Correlations', xlim=xlim)
@@ -527,93 +499,91 @@ def getxibiastomo_overall(pars_i, pars_j , datarhos, models_combo, plots=False, 
             print('Printing', nameterms)
             plt.savefig( nameterms, dpi=200)
         plt.clf()
-        pretty_rho(meanr, dxi, None , legend=r'zbin: (%d,%d)'%(i,j),  ylabel=r'$\delta \xi$',  xlim=xlim)
+        pretty_rho(meanr, dxi, None , legend=r'$\delta \xi_{%s}$ zbin: (%d,%d)'%(nameterms[-5], i,j),  ylabel=r'$\delta \xi_{%s}$'%(nameterms[-5]),  xlim=xlim)
         print('Printing',  dxiname)
         plt.savefig(dxiname, dpi=200)
-        
             
     return meanr, dxi
 
 def getflagsnames(models_combo):
     eq,  abe, ab,  ae, be, a, b, e =  models_combo    
-    if not (abe or ab or a): abe = True
     ## ALPHA-BETA-ETA
     if(abe):
         print("### Runing alpha, beta and eta test ### ")
         mflags = [True, True, True]
-        namemc = 'mcmc_alpha-beta-eta_eq_' + str(eq) + '.png'
-        namecont = 'contours_alpha-beta-eta_eq_' + str(eq) + '.png'
-        nameterms = 'termsdxi_alpha-beta-eta_eq_' + str(eq) + '.png'
-        namecovmat = 'covmatrix_alpha-beta-eta_eq_' + str(eq) + '.png'
-        namebfres = 'Bestfitresiduals_alpha-beta-eta_eq_' + str(eq) + '.png'
-        namedxip = 'xibias_abe_' + str(eq) + '_.png'
-        filename =  'abe_dxi_eq'+ str(eq) + '.fits'            
+        namemc = 'mcmc_alpha-beta-eta_eq_%i'%(eq)
+        namecont = 'contours_alpha-beta-eta_eq_%i'%(eq)
+        nameterms = 'termsdxi_alpha-beta-eta_eq_%i'%(eq)
+        namecovmat = 'covmatrix_alpha-beta-eta_eq_%i'%(eq)
+        namebfres = 'Bestfitresiduals_alpha-beta-eta_eq_%i'%(eq)
+        namedxip = 'xibias_abe_eq_%i'%(eq)
+        filename =  'abe_dxi_eq_%i'%(eq)          
     ## ALPHA-BETA
     if(ab):
         print("### Runing alpha and beta test ### ")
         mflags = [True, True, False] ##alpha,beta,eta
-        namemc = 'mcmc_alpha-beta_eq_' + str(eq) + '_png'
-        namecont = 'contours_alpha-beta_eq_' + str(eq) + '.png'
-        nameterms = 'termsdxi_alpha-beta_eq_' + str(eq) + '.png'
-        namecovmat = 'covmatrix_alpha-beta_eq_' + str(eq) + '.png'
-        namebfres = 'Bestfitresiduals_alpha-beta_eq_' + str(eq) + '.png'
-        namedxip = 'xibias_ab_' + str(eq) + '.png'
-        filename =  'ab_dxi_eq'+ str(eq) + '.fits'
+        namemc = 'mcmc_alpha-beta_eq_%i'%(eq)
+        namecont = 'contours_alpha-beta_eq_%i'%(eq)
+        nameterms = 'termsdxi_alpha-beta_eq_%i'%(eq)
+        namecovmat = 'covmatrix_alpha-beta_eq_%i'%(eq)
+        namebfres = 'Bestfitresiduals_alpha-beta_eq_%i'%(eq)
+        namedxip = 'xibias_ab_eq%i'%(eq)
+        filename =  'ab_dxi_eq_%i'%(eq)
     ## ALPHA-ETA
     if(ae):
         print("### Runing alpha and eta test ### ")
         mflags = [True, False, True]
-        namemc = 'mcmc_alpha-eta_eq_' + str(eq) + '.png'
-        namecont = 'contours_alpha-eta_eq_' + str(eq) + '.png'
-        nameterms = 'termsdxi_alpha-eta_eq_' + str(eq) + '.png'
-        namecovmat = 'covmatrix_alpha-eta_eq_' + str(eq) + '.png'
-        namebfres = 'Bestfitresiduals_alpha-eta_eq_' + str(eq) + '.png'
-        namedxip = 'xibias_ae_' + str(eq) + '.png'
-        filename =  'ae_dxi_eq'+ str(eq) + '.fits'
+        namemc = 'mcmc_alpha-eta_eq_%i'%(eq)
+        namecont = 'contours_alpha-eta_eq_%i'%(eq)
+        nameterms = 'termsdxi_alpha-eta_eq_%i'%(eq)
+        namecovmat = 'covmatrix_alpha-eta_eq_%i'%(eq)
+        namebfres = 'Bestfitresiduals_alpha-eta_eq_%i'%(eq)
+        namedxip = 'xibias_ae_eq%i'%(eq)
+        filename =  'ae_dxi_eq_%i'%(eq)
     ## BETA-ETA
     if(be):
         print("### Runing beta and eta test ### ")
-        mflags = [True, False, True]
-        namemc = 'mcmc_beta-eta_eq_' + str(eq) + '.png'
-        namecont = 'contours_beta-eta_eq_' + str(eq) + '.png'
-        nameterms = 'termsdxi_beta-eta_eq_' + str(eq) + '.png'
-        namecovmat = 'covmatrix_beta-eta_eq_' + str(eq) + '.png'
-        namebfres = 'Bestfitresiduals_beta-eta_eq_' + str(eq) + '.png'
-        namedxip = 'xibias_be_' + str(eq) + '.png'
-        filename =  'be_dxi_eq'+ str(eq) + '.fits' 
+        mflags = [False, True, True]
+        namemc = 'mcmc_beta-eta_eq_%i'%(eq)
+        namecont = 'contours_beta-eta_eq_%i'%(eq)
+        nameterms = 'termsdxi_beta-eta_eq_%i'%(eq)
+        namecovmat = 'covmatrix_beta-eta_eq_%i'%(eq)
+        namebfres = 'Bestfitresiduals_beta-eta_eq_%i'%(eq)
+        namedxip = 'xibias_be_eq%i'%(eq)
+        filename =  'be_dxi_eq_%i'%(eq)
     ## ALPHA
     if(a):
         print("### Runing alpha test ### ")
         mflags = [True, False, False]
-        namemc = 'mcmc_alpha_eq_' + str(eq) + '.png'
-        namecont = 'contours_alpha_eq_' + str(eq) + '.png'
-        nameterms = 'termsdxi_alpha_eq_' + str(eq) + '.png'
-        namecovmat = 'covmatrix_alpha_eq_' + str(eq) + '.png'
-        namebfres = 'Bestfitresiduals_alpha_eq_' + str(eq) + '.png'
-        namedxip = 'xibias_a_' + str(eq) + '.png'
-        filename =  'a_dxi_eq'+ str(eq) + '.fits'
+        namemc = 'mcmc_alpha_eq_%i'%(eq)
+        namecont = 'contours_alpha_eq_%i'%(eq)
+        nameterms = 'termsdxi_alpha_eq_%i'%(eq)
+        namecovmat = 'covmatrix_alpha_eq_%i'%(eq)
+        namebfres = 'Bestfitresiduals_alpha_eq_%i'%(eq)
+        namedxip = 'xibias_a_eq%i'%(eq)
+        filename =  'a_dxi_eq_%i'%(eq)
     ## Beta
     if(b):
         print("### Runing beta test ### ")
         mflags = [False, True, False] 
-        namemc = 'mcmc_beta_eq_' + str(eq) + '.png'
-        namecont = 'contours_beta_eq_' + str(eq) + '.png'
-        nameterms = 'termsdxi_beta_eq_' + str(eq) + '.png'
-        namecovmat = 'covmatrix_beta_eq_' + str(eq) + '.png'
-        namebfres = 'Bestfitresiduals_beta_eq_' + str(eq) + '.png'
-        namedxip = 'xibias_b_' + str(eq) + '.png'
-        filename =  'b_dxi_eq'+ str(eq) + '.fits'
+        namemc = 'mcmc_beta_eq_%i'%(eq)
+        namecont = 'contours_beta_eq_%i'%(eq)
+        nameterms = 'termsdxi_beta_eq_%i'%(eq)
+        namecovmat = 'covmatrix_beta_eq_%i'%(eq)
+        namebfres = 'Bestfitresiduals_beta_eq_%i'%(eq)
+        namedxip = 'xibias_b_eq%i'%(eq)
+        filename =  'b_dxi_eq_%i'%(eq)
     ## Eta
     if(e):
         print("### Runing eta test ### ")
         mflags = [False, False, True]
-        namemc = 'mcmc_eta_eq_' + str(eq) + '.png'
-        namecont = 'contours_eta_eq_' + str(eq) + '.png'
-        nameterms = 'termsdxi_eta_eq_' + str(eq) + '.png'
-        namecovmat = 'covmatrix_eta_eq_' + str(eq) + '.png'
-        namebfres = 'Bestfitresiduals_eta_eq_' + str(eq) + '.png'
-        namedxip = 'xibias_e_' + str(eq) + '.png'
-        filename =  'e_dxi_eq'+ str(eq) + '.fits'
+        namemc = 'mcmc_eta_eq_%i'%(eq)
+        namecont = 'contours_eta_eq_%i'%(eq)
+        nameterms = 'termsdxi_eta_eq_%i'%(eq)
+        namecovmat = 'covmatrix_eta_eq_%i'%(eq)
+        namebfres = 'Bestfitresiduals_eta_eq_%i'%(eq)
+        namedxip = 'xibias_e_eq%i'%(eq)
+        filename =  'e_dxi_eq_%i'%(eq)
     return [ mflags, namemc, namecont, namecovmat, namebfres, nameterms, namedxip, filename]
 
 def write_singlexip_margin( samplesp, samplesm, rhoscosmo,  models_combo, plots,  outpath,  plotspath):
@@ -625,15 +595,12 @@ def write_singlexip_margin( samplesp, samplesm, rhoscosmo,  models_combo, plots,
     datarhosp =  [meanr, [rhos[2*i] for i in range(6)],  [ covrhos[2*i] for i in range(6)]  ]
     datarhosm =  [meanr, [rhos[2*i+1] for i in range(6)],  [ covrhos[2*i + 1] for i in range(6)] ]
 
-    meanr, xip, covxip = getxibias_margin(samplesp, datarhosp, plots=plots,
-                                          nameterms=plotspath + 'p_' +
-                                          nameterms, dxiname=plotspath +'p_'
-                                          + namedxip)
-    meanr, xim, covxim = getxibias_margin(samplesm, datarhosm,
-                                          nsig=nsig, plots=plots,
-                                          nameterms=plotspath +'m_' +
-                                          nameterms, dxiname=plotspath +'m_'
-                                          + namedxip)
+    meanr, xip, covxip = getxibias_margin(samplesp, datarhosp, models_combo, plots=plots,
+                                          nameterms=os.path.join(plotspath, 'p_%s_.png'%(nameterms)),
+                                          dxiname=os.path.join(plotspath, 'p_%s_.png'%(namedxip)))
+    meanr, xim, covxim = getxibias_margin(samplesm, datarhosm, models_combo, plots=plots,
+                                          nameterms=os.path.join(plotspath, 'm_%s_.png'%(nameterms)),
+                                          dxiname=os.path.join(plotspath, 'm_%s_.png'%(namedxip)))
     
     ##Format of the fit file output
     names=['BIN1', 'BIN2','ANGBIN', 'VALUE', 'ANG']
@@ -659,8 +626,9 @@ def write_singlexip_margin( samplesp, samplesm, rhoscosmo,  models_combo, plots,
     for array, name in zip(array_list, names): outdata[name] = array 
     corrhdu = fits.BinTableHDU(outdata, name='xim')
     hdul.insert(4, corrhdu)
-    hdul.writeto(filename, overwrite=True)
-    print(filename,'Written!')
+    outname = os.path.join(outpath, '%s_%s_%s'%( 'singlexip_margin_', filename,  '.fits'))
+    hdul.writeto(outname, overwrite=True)
+    print(outname,'Written!')
 def write_singlexip_overall( parsp, pasrsm, rhoscosmo,  models_combo,   plots,  outpath,  plotspath):
     import numpy as np
     from src.readfits import read_rhos_plots
@@ -671,13 +639,11 @@ def write_singlexip_overall( parsp, pasrsm, rhoscosmo,  models_combo,   plots,  
     datarhosm =  [meanr, [rhos[2*i+1] for i in range(6)],  [ covrhos[2*i + 1] for i in range(6)] ]
 
     meanr, xip= getxibias_overall(parsp, datarhosp, plots=plots,
-                                  nameterms=plotspath + 'p_' +
-                                  nameterms, dxiname=plotspath
-                                  +'p_' + namedxip)
+                                  nameterms=os.path.join(plotspath, '%s_%s_%s'%('p_', nameterms, '.png')),
+                                  dxiname=os.path.join(plotspath,  '%s_%s_%s'%('p_',namedxip, '.png')))
     meanr, xim = getxibias_overall(parsm, datarhosm, plots=plots,
-                                   nameterms=plotspath +'m_' +
-                                   nameterms, dxiname=plotspath
-                                   +'m_' + namedxip)
+                                   nameterms=os.path.join(plotspath, '%s_%s_%s'%('m_', nameterms, '.png')),
+                                  dxiname=os.path.join(plotspath,  '%s_%s_%s'%('m_',namedxip, '.png')))
     
     ##Format of the fit file output
     names=['BIN1', 'BIN2','ANGBIN', 'VALUE', 'ANG']
@@ -700,8 +666,9 @@ def write_singlexip_overall( parsp, pasrsm, rhoscosmo,  models_combo,   plots,  
     for array, name in zip(array_list, names): outdata[name] = array 
     corrhdu = fits.BinTableHDU(outdata, name='xim')
     hdul.insert(2, corrhdu)
-    hdul.writeto(filename, overwrite=True)
-    print(filename,'Written!')
+    outname = os.path.join(outpath, '%s_%s_%s'%( 'singlexip_overall_', filename,  '.fits'))
+    hdul.writeto(outname, overwrite=True)
+    print(outname,'Written!')
 def write_tomoxip_margin(samplesp_list, samplesm_list, rhoscosmo, models_combo, plots, outpath, plotspath ):
     import itertools
     from src.readfits import read_rhos_plots
@@ -732,11 +699,11 @@ def write_tomoxip_margin(samplesp_list, samplesm_list, rhoscosmo, models_combo, 
         samplesp_j =  samplesp_list[j - 1]; samplesm_j =  samplesm_list[j - 1]
         bins=[i, j]
         meanr, xip, covxip = getxibiastomo_margin( samplesp_i, samplesp_j, datarhosp, models_combo,
-                                                   plots=plots, bins=bins, nameterms= plotspath + binstr+ nameterms, 
-                                                   dxiname=plotspath + binstr+ namedxip )
+                                                   plots=plots, bins=bins, nameterms= os.path.join(plotspath, '%s_%s_xip.png'%( binstr, nameterms)), 
+                                                   dxiname=os.path.join(plotspath, '%s_%s_xip.png'%( binstr,  namedxip )))
         meanr, xim, covxim = getxibiastomo_margin( samplesm_i, samplesm_j ,datarhosm, models_combo,
-                                                   plots=plots, bins=bins, nameterms= plotspath + binstr+ nameterms, 
-                                                   dxiname=plotspath + binstr+ namedxip )
+                                                   plots=plots, bins=bins, nameterms= os.path.join(plotspath, '%s_%s_xim.png'%( binstr,  nameterms )), 
+                                                   dxiname=os.path.join(plotspath, '%s_%s_xim.png'%( binstr,  namedxip )))
         ang_list.append(meanr)
         bin1_list.append(np.array( [i]*len(meanr)))
         bin2_list.append(np.array( [j]*len(meanr)))
@@ -770,8 +737,9 @@ def write_tomoxip_margin(samplesp_list, samplesm_list, rhoscosmo, models_combo, 
     for array, name in zip(array_list, names): outdata[name] = array 
     corrhdu = fits.BinTableHDU(outdata, name='delta_xim')
     hdul.insert(3, corrhdu)
-    hdul.writeto(outpath +'marg_' + filename, overwrite=True)
-    print(outpath + 'marg_' + filename,'Written!')
+    outname = os.path.join(outpath, '%s_%s_%s'%( 'marg_', filename,  '.fits'))
+    hdul.writeto(outname, overwrite=True)
+    print(outname,'Written!')
         
 def write_tomoxip_overall(parsp_list, parsm_list, rhoscosmo, models_combo, plots, outpath, plotspath ):
     import itertools
@@ -800,10 +768,8 @@ def write_tomoxip_overall(parsp_list, parsm_list, rhoscosmo, models_combo, plots
         parsp_j =  parsp_list[j - 1]; parsm_j =  parsm_list[j - 1]
         bins = [i, j]
         binstr = 'overall_zbin:%d_%d_'%(i, j)
-        meanr, xip = getxibiastomo_overall( parsp_i, parsp_j, datarhosp, models_combo, plots=plots, bins=bins, nameterms= plotspath + binstr+ nameterms, 
-                                                   dxiname=plotspath + binstr+ namedxip)
-        meanr, xim = getxibiastomo_overall( parsm_i, parsm_j ,datarhosm, models_combo, plots=plots, bins=bins, nameterms= plotspath + binstr+ nameterms, 
-                                                   dxiname=plotspath + binstr+ namedxip)
+        meanr, xip = getxibiastomo_overall( parsp_i, parsp_j, datarhosp, models_combo, plots=plots, bins=bins, nameterms= os.path.join(plotspath, '%s_%s_%s'%(binstr, nameterms, 'xip.png')),   dxiname=os.path.join(plotspath, '%s_%s_%s'%( binstr, namedxip, 'xip.png')))
+        meanr, xim = getxibiastomo_overall( parsm_i, parsm_j ,datarhosm, models_combo, plots=plots, bins=bins, nameterms= os.path.join(plotspath, '%s_%s_%s'%( binstr, nameterms,'xim.png')),  dxiname=os.path.join(plotspath, '%s_%s_%s'%( binstr, namedxip, 'xim.png')))
         ang_list.append(meanr)
         bin1_list.append(np.array( [i]*len(meanr)))
         bin2_list.append(np.array( [j]*len(meanr)))
@@ -832,8 +798,9 @@ def write_tomoxip_overall(parsp_list, parsm_list, rhoscosmo, models_combo, plots
     for array, name in zip(array_list, names): outdata[name] = array 
     corrhdu = fits.BinTableHDU(outdata, name='delta_xim')
     hdul.insert(2, corrhdu)
-    hdul.writeto(outpath + 'overall_' + filename, overwrite=True)
-    print(outpath + 'overall_' + filename,'Written!')
+    outname = os.path.join(outpath ,  'overall_%s_%s'%(filename, '.fits'))
+    hdul.writeto(outname, overwrite=True)
+    print(outname ,'Written!')
     
 def RUNTEST(i_guess, data, nwalkers, nsteps, eq='All', mflags=[True, True, True], xip=True, xim=False, moderr=False, uwmprior=False, minimize=True, margin=True, overall=False ):
     from src.chi2 import minimizeCHI2
@@ -870,7 +837,7 @@ def RUNTEST(i_guess, data, nwalkers, nsteps, eq='All', mflags=[True, True, True]
 def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers, nsteps,  uwmprior, splitxipxim, margin, overall,  plots,  plotspath, zbin=0, axs=None):
     import numpy as np
     from src.readfits import  read_rhos, read_taus
-    from src.plot_stats import plotallrhosfits, plotalltausfits, plot_samplesdist, plotbestfit, plotbestfitresiduals
+    from src.plot_stats import plotallrhosfits, plotalltausfits, plot_samplesdist, plotbestfit, plotbestfitresiduals,  plotcovmat
 
     if (plots):
         xlim = [1, 300.]
@@ -924,10 +891,15 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
         
     if (margin and not overall):
         if(plots):
-            plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, plotspath +'p_zbin_%d_%s'%(zbin,namemc),plotspath + 'p_zbin_%d_%s'%(zbin,namecont),zbin=zbin )
-            plot_samplesdist(auxm1 , auxm2, mflags, nwalkers, nsteps, plotspath +'m_zbin_%d_%s'%(zbin,namemc),plotspath + 'm_zbin_%d_%s'%(zbin,namecont),zbin=zbin )
-            plotcovpars(auxp1, namecovmat=plotspath + 'p_zbin_%d'%(zbin) + namecovmat)
-            plotcovpars(auxm1, namecovmat=plotspath + 'm_zbin_%d'%(zbin) + namecovmat)
+            if (splitxipxim):
+                plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, os.path.join(plotspath,'%s_zbin_%d_p_.png'%(namemc, zbin)), os.path.join(plotspath, '%s_zbin_%d_p_.png'%(namecont, zbin )), zbin=zbin )
+                plot_samplesdist(auxm1 , auxm2, mflags, nwalkers, nsteps, os.path.join(plotspath,'%s_zbin_%d_m_.png'%(namemc, zbin)), os.path.join(plotspath, '%s_zbin_%d_m_.png'%(namecont, zbin)), zbin=zbin )
+                plotcovmat(auxp1, mflags, os.path.join(plotspath, '%s_zbin_%d_p_.png'%(namecovmat, zbin)))
+                plotcovmat(auxm1, mflags, os.path.join(plotspath, '%s_zbin_%d_m_.png'%(namecovmat, zbin)))
+            else:
+                plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, os.path.join(plotspath, '%s_zbin_%d_.png'%(namemc, zbin)),  os.path.join(plotspath, '%s_zbin_%d_.png'%(namecont, zbin)), zbin=zbin )
+                plotcovmat(auxp1, mflags, os.path.join(plotspath, '%s_zbin_%d_.png'%(namecovmat, zbin)))
+                
         
         #samplesp, samplesm
         return auxp1, auxm1 
@@ -946,14 +918,73 @@ def saveintex(models_combo, margin, overall, parlist, chisq_list, outpath):
     if overall:
         parsbin1, parsbin2,  parsbin3,  parsbin4 =  parlist
         if abe:
-            with open(os.path.join(outpath,'table_abe_overall.tex'), "w") as file1:
-                file1.write("\begin{center} \centering \begin{tabular}{ |c|c|c|c|c|} \hline & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} $\alpha$ & $%d$ & $%d$ & $%d$ & $%d$\\ \rule{0pt}{3ex} $\beta$ & $%d$ & $%d$ & $%d$ & $%d$ \\ \rule{0pt}{3ex} $\eta$ & $%d$ & $%d$ & $%d$ & $%d$ \\ \hline \rule{0pt}{3ex} $\chi_{\nu}$ & $%d$ & $%d$ & $%d$ & $%d$ \\ \hline \end{tabular} \end{center}"%(parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0], parsbin1[1], parsbin2[1], parsbin3[1], parsbin4[1], parsbin1[2], parsbin2[2], parsbin3[2], parsbin4[2], chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3]))
-    
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $\alpha$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $\beta$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \rule{0pt}{3ex} %s $\eta$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n',  parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n',  parsbin1[1], parsbin2[1], parsbin3[1], parsbin4[1], '\n', parsbin1[2], parsbin2[2], parsbin3[2], parsbin4[2],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+            #np.savetxt(os.path.join(outpath, 'table_abe_overall.tex'), text)
+            print(text[1:-1], file=open(os.path.join(outpath, 'table_abe_overall.tex'), "w"))
+            print(os.path.join(outpath, 'table_abe_overall.tex'),  'written!')
+        if ab or ae or be:
+            if ab: name1 = r'\alpha'; name2 = r'\beta'
+            if ae: name1 = r'\alpha'; name2 = r'\eta'
+            if be: name1 = r'\beta'; name2 = r'\eta'
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name1, parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n', name2,  parsbin1[1], parsbin2[1], parsbin3[1], parsbin4[1], '\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+            if ab:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('ab')
+            if ae:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('ae')
+            if be:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('be')
+            print(text[1:-1], file=open(filename, "w"))
+            print(filename ,  'written!')
+        if a or b or e:
+            if a: name = r'\alpha'
+            if b: name = r'\beta'
+            if e: name = r'\eta'
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name, parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+            if a:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('a')
+            if b:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('b')
+            if e:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('e')
+            print(text[1:-1], file=open(filename, "w"))
+            print(filename ,  'written!')
+        
+ 
+
+    if margin:
+        parsbin1, parsbin2,  parsbin3,  parsbin4 =  parlist
+        if abe:
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $\alpha$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$\\ \rule{0pt}{3ex} %s $\beta$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ \\ \rule{0pt}{3ex} %s $\eta$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ \\ \hline \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n',  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n',  parsbin1[1][0],parsbin1[1][1],parsbin1[1][2], parsbin2[1][0],parsbin2[1][1],parsbin2[1][2], parsbin3[1][0],parsbin3[1][1],parsbin3[1][2],parsbin4[1][0],parsbin4[1][1],parsbin4[1][2], '\n', parsbin1[2][0],parsbin1[2][1],parsbin1[2][2],parsbin2[2][0],parsbin2[2][1],parsbin2[2][2], parsbin3[2][0],parsbin3[2][1],parsbin3[2][2],parsbin4[2][0],parsbin4[2][1],parsbin4[2][2],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+      
+            print(text[1:-1], file=open(os.path.join(outpath, 'table_abe_margin.tex'), "w"))
+            print(os.path.join(outpath, 'table_abe_margin.tex'),  'written!')
+        if ab or ae or be:
+            if ab: name1 = r'\alpha'; name2 = r'\beta'
+            if ae: name1 = r'\alpha'; name2 = r'\eta'
+            if be: name1 = r'\beta'; name2 = r'\eta'
+
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$\\ \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ \\ \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name1,  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n', name2,  parsbin1[1][0],parsbin1[1][1],parsbin1[1][2], parsbin2[1][0],parsbin2[1][1],parsbin2[1][2], parsbin3[1][0],parsbin3[1][1],parsbin3[1][2],parsbin4[1][0],parsbin4[1][1],parsbin4[1][2], '\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+
+            if ab:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('ab')
+            if ae:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('ae')
+            if be:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('be')
+            print(text[1:-1], file=open(filename, "w"))
+            print(filename ,  'written!')
+        if a or b or e:
+            if a: name = r'\alpha'
+            if b: name = r'\beta'
+            if e: name = r'\eta'
+
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$ & $%.3f_{%.3f}^{%.3f}$\\ \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name,  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+
+            if a:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('a')
+            if b:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('b')
+            if e:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('e')
+            print(text[1:-1], file=open(filename, "w"))
+            print(filename ,  'written!')
+        
+        
     
                         
 def main():
     from src.plot_stats import plotallrhosfits
-    from src.maxlikelihood import percentiles
+    from src.maxlikelihood import percentiles, bestparameters
+    from src.readfits import  read_rhos, read_taus
+    from src.chi2 import chi2nu
     import numpy as np
 
     args = parse_args()
@@ -979,13 +1010,14 @@ def main():
         rhostitle = ''
         plotallrhosfits(args.rhos, outpath=plotspath, title=rhostitle, xlim=xlim, ylims=ylims)
 
+    if not (args.abe or args.ab or args.ae or args.be or args.a or args.b or args.e): args.abe = True
     models_combo = [args.eq, args.abe, args.ab, args.ae, args.be, args.a, args.b, args.e]
     eq = args.eq
     nsig = args.nsig
     nwalkers,  nsteps = args.nwalkers, args.nsteps
 
-    if args.singletau is not None:
-        if args.margin:
+    if args.margin:
+        if args.singletau is not None:
             print("STARTING single tau ANALYSIS",  arg.singletau)
             samplesp, samplesm =RUNTEST_PERTAU(args.rhos,args.singletau, args.minscale, args.maxscale,
                                                models_combo ,nwalkers,nsteps, args.uwmprior,
@@ -995,21 +1027,17 @@ def main():
             mcmcpars = percentiles(samplesm, nsig=nsig) 
             print( ' mcmc parameters xi-',  'nsig=', nsig, ' percentiles: ',  mcmcpars)
             write_singlexip_margin(samplesp, samplesm, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
-        if args.overall:
-            parsp, chi2p_nu, parsm, chi2m_nu = RUNTEST_PERTAU(args.rhos,args.singletau, args.minscale, args.maxscale,
-                                               models_combo ,nwalkers,nsteps, args.uwmprior,
-                                               args.splitxipxim, False, True, args.plots, plotspath)
-            print( ' overall likelihood best fit xi+',  parsp, 'chi2_reduced', chi2p_nu)
-            print( ' overall likelihood best fit xi+',  parsm, 'chi2_reduced', chi2m_nu)
-            write_singlexip_overall(parsp, parsm, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
+
+        else:
+            print("STARTING TOMOGRAPHIC ANALYSIS")
+            data = {}
+            data['rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[1]
+            data['cov_rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[2]
+
+            samplesp_list = []; parsp_list = []
+            samplesm_list = []; parsm_list = []
+            chisqp_list = []; chisqm_list = []
         
-    else:
-        print("STARTING TOMOGRAPHIC ANALYSIS")
-        samplesp_list = []; parsp_list = []
-        samplesm_list = []; parsm_list = []
-        chisqp_list = []; chisqm_list = []
-        
-        if args.margin:
             for i,  taufile in enumerate(args.taus):
                 samplesp, samplesm=RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                   models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
@@ -1021,11 +1049,31 @@ def main():
                     print( ' mcmc parameters xi-',  'nsig=', nsig, ' percentiles: ',  mcmcparsm)
                 else:
                     print( ' mcmc parameters',  'nsig=', nsig, ' percentiles: ',  mcmcparsp)
-                    
+                
                 samplesp_list.append(samplesp); samplesm_list.append(samplesm)
+                parsp_list.append(mcmcparsp); parsm_list.append(mcmcparsm)
+                data['taus'] = read_taus(taufile, minscale=args.minscale, maxscale=args.maxscale)[1]
+                data['cov_taus'] = read_taus(taufile, minscale=args.minscale, maxscale=args.maxscale)[2]
+                chisqp_list.append(chi2nu(bestparameters(samplesp),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True)) 
+                
+            saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, outpath)
             write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
 
-        if args.overall:
+    if args.overall:
+        if args.singletau is not None:
+            parsp, chi2p_nu, parsm, chi2m_nu = RUNTEST_PERTAU(args.rhos,args.singletau, args.minscale, args.maxscale,
+                                               models_combo ,nwalkers,nsteps, args.uwmprior,
+                                               args.splitxipxim, False, True, args.plots, plotspath)
+            print( ' overall likelihood best fit xi+',  parsp, 'chi2_reduced', chi2p_nu)
+            print( ' overall likelihood best fit xi+',  parsm, 'chi2_reduced', chi2m_nu)
+            write_singlexip_overall(parsp, parsm, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
+        
+        else:
+            print("STARTING TOMOGRAPHIC ANALYSIS")
+            samplesp_list = []; parsp_list = []
+            samplesm_list = []; parsm_list = []
+            chisqp_list = []; chisqm_list = []
+        
             fig1, ax1 = plt.subplots()
             fig2, ax2 = plt.subplots()
             fig3, ax3 = plt.subplots()

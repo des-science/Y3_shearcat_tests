@@ -190,19 +190,7 @@ def pretty_tau2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, mla
     plt.yscale('log', nonposy='clip')
     if title is not None: plt.title(title)
     plt.tight_layout()
-
-def plotcorrmat(cov):
-    import numpy as np
-    cov = np.mat(cov)
-    D = np.diag(np.sqrt(np.diag(cov)))
-    d = np.linalg.inv(D)
-    corr = d*cov*d
-    cov_vmin=np.min(corr)
-    plt.imshow(corr,cmap='viridis'+'_r', interpolation='nearest',
-               aspect='auto', origin='lower', vmin=cov_vmin, vmax=1.)
-    plt.colorbar()
-    plt.tight_layout()
-    
+ 
 def plotallrhosfits(stat_file, outpath, title= None, xlim=None, ylims=None):
     import numpy as np
     from src.readfits import read_rhos_plots
@@ -244,7 +232,7 @@ def plotallrhosfits(stat_file, outpath, title= None, xlim=None, ylims=None):
         plt.clf()
         plt.title(titles[i])
         plotcorrmat(covmat)
-        plt.savefig(outpath + names[i], dpi=500)
+        plt.savefig(outpath + names[i], dpi=150)
         print(outpath +names[i], 'Printed!')
     
 def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zbin=''):
@@ -282,7 +270,7 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
         plt.clf()
         plt.title(titles[i])
         plotcorrmat(covmat)
-        plt.savefig(outpath + names[i], dpi=500)
+        plt.savefig(outpath + names[i], dpi=150)
         print(outpath +names[i], 'Printed!')
     '''
 
@@ -300,7 +288,7 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
         plt.axhline(y=line, c='k', lw=1, ls='-')
     plt.tight_layout()
     filename = outpath + 'CovariancematrixTaus' + zbin + '.png'
-    plt.savefig(filename, dpi=500)
+    plt.savefig(filename, dpi=150)
     print(filename, 'Printed!')
 
 def plotalltauscorrmatfits(filenames, outpath):
@@ -312,28 +300,78 @@ def plotalltauscorrmatfits(filenames, outpath):
         plt.clf()
         plotcorrmat(covmat)
         plt.title(titles[i])
-        plt.savefig(outpath + names[i], dpi=500)
+        plt.savefig(outpath + names[i], dpi=150)
         print(outpath +names[i], 'Printed!')
 def corner_plot(samples, labels, filename, title=None):
     import corner
     import numpy as np
+    import matplotlib.ticker as ticker
     #burn = 5000
     plt.clf()
     #butning 20% of start data
     samples= np.c_[[par[int(0.2 * len(par)):] for par in samples]].T
-    fig = corner.corner(samples, labels=labels,
+    fig = corner.corner(samples, labels=labels, 
                         quantiles=[0.16, 0.5, 0.84],  #-1sigma,0sigma,1sigma
                         levels=(1-np.exp(-0.5), 1-np.exp(-2), 1-np.exp(-9./2)), #1sigma, 2sigma and 3sigma contours
-                        show_titles=True, title_kwargs={"fontsize": 12}, title_fmt= '.4f', 
-                        smooth1d=None, plot_contours=True,  
-                        no_fill_contours=False, plot_density=True, use_math_text=True, )
-    print("Printing file:",  filename)
+                        show_titles=True, title_kwargs={"fontsize": 16}, title_fmt= '.4f', 
+                        smooth1d=None, plot_contours=True, 
+                        no_fill_contours=False, plot_density=True, use_math_text=True)
+    for i in range(len(fig.axes)):
+        fig.axes[i].locator_params(axis='x', nbins=2)
+        fig.axes[i].locator_params(axis='y', nbins=2)
+        fig.axes[i].tick_params(axis='x', rotation =0, labelsize=16)
+        fig.axes[i].tick_params(axis='y', rotation =90, labelsize=16)
+        fig.axes[i].xaxis.set_major_formatter(ticker.FormatStrFormatter('%0.2f'))
+        fig.axes[i].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.2f'))
+  
     if title is not None:
-        plt.suptitle(title)
-    plt.tight_layout()
-    plt.savefig(filename)
+        plt.suptitle(title,  fontsize=24,  color='blue', x=0.8  )
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    print("Printing file:",  filename)
+    plt.savefig(filename,  dpi=150)
     plt.close(fig)
     print(title, "Printed")
+def plotcorrmat(cov,  title=None):
+    import numpy as np
+    cov = np.mat(cov)
+    D = np.diag(np.sqrt(np.diag(cov)))
+    d = np.linalg.inv(D)
+    corr = d*cov*d
+    cov_vmin=np.min(corr)
+    plt.imshow(corr,cmap='viridis'+'_r', interpolation='nearest',
+               aspect='auto', origin='lower', vmin=cov_vmin, vmax=1.)
+    plt.colorbar()
+    if title is not None: plt.title(title)
+ 
+def plotcovmat(samples, mflags, namecovmat):
+    import numpy as np
+    plt.clf()
+    aflag, bflag, eflag =  mflags
+    ndim =  len(samples)        
+    if(ndim ==1):
+        if( aflag and (not bflag) and (not eflag)):
+            title = r'$\alpha$'
+        elif( (not aflag) and bflag and (not eflag)):
+            title = r'$\beta$'
+        elif( (not aflag) and (not bflag) and eflag):
+            title = r'$\eta$'
+    elif(ndim ==2):
+        if( aflag and bflag and (not eflag)):
+            title = r'$\alpha \mid \beta$'
+        elif(aflag and (not bflag) and eflag ):
+            labels = r'$\alpha \mid \eta$'
+        elif( (not aflag) and bflag and eflag ):
+            labels = r'$\beta \mid \eta$'
+    else:
+        if( aflag and bflag and eflag): 
+            title = r'$\alpha \mid \beta \mid \eta$'
+        
+    covmat = np.cov(samples)
+    plotcorrmat(covmat, title=title)
+    plt.tight_layout()
+    plt.savefig(namecovmat, dpi=150)
+    print('Printing', namecovmat)
+    
 def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont, zbin=0):
     import numpy as np
     import emcee
