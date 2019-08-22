@@ -1,5 +1,3 @@
-#TODO contaminte xim
-
 import os
 
 def parse_args():
@@ -10,15 +8,41 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/pipeline/2pt_sim_1110_baseline_Y3cov.fits',
                         help='File containing xip to be modified')
     parser.add_argument('--contaminant',
-                        default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/ab_dxi.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/marg__ab_dxi_eq_4_.fits',
                         help='Path for the outputs of this code')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/', help='location of the output of the files')
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/pipeline/', help='location of the output of the files')
+    parser.add_argument('--sup', default=False, 
+                        action='store_const', const=True, help='Use the superior limit of the error bar of deltaxip to contaminate')
+    parser.add_argument('--inf', default=True, 
+                        action='store_const', const=True, help='Use the inferior limit of the error bar of deltaxip to contaminate')
     parser.add_argument('--filename',
-                        default='2pt_sim_1110_baseline_Y3cov_contaminated.fits',
+                        default='2pt_sim_1110_baseline_Y3cov_contaminated_inf.fits',
                         help='Path for the outputs of this code')  
     
     args = parser.parse_args()
     return args
+
+
+def get_error(covmatrix, lengths, name):
+    import numpy as np
+    if name is not None:
+        if (name=='xip'):
+            start = 0
+            end =start + lengths[0]
+        elif (name=='xim'):
+            start = lengths[0]
+            end =start + lengths[1]
+        elif (name=='gammat'):
+            start = lengths[0] + lengths[1]
+            end =start + lengths[2]
+        elif (name=='wtheta'):
+            start = lengths[0] + lengths[1]+ lengths[2]
+            end =start + lengths[3]
+        return np.diagonal(covmatrix)[start:end]**0.5
+    else:
+        print("Correlation function no defined")
+        return None
+
 
 def main():
     import fitsio
@@ -39,17 +63,23 @@ def main():
         if not os.path.exists(outpath): raise
         
     
-    fiducialfit = args.original
-    covmatrixfit_ori=fitsio.read(fiducialfit,ext=1)
-    xipfit_ori=fitsio.read(fiducialfit,ext=2)
-    ximfit_ori=fitsio.read(fiducialfit,ext=3)
+    covmatrixfit_ori=fitsio.read(args.original,ext=1)
+    xipfit_ori=fitsio.read(args.original,ext=2)
+    ximfit_ori=fitsio.read(args.original,ext=3)
 
-    contaminantfit = args.contaminant
-    xipfit_cont=fitsio.read(contaminantfit,ext=3)
-    ximfit_cont=fitsio.read(contaminantfit,ext=4)
+    covmatrixfit_cont=fitsio.read(args.contaminant,ext=1)
+    xipfit_cont=fitsio.read(args.contaminant,ext=2)
+    ximfit_cont=fitsio.read(args.contaminant,ext=3)
     dxipbin = xipfit_cont['VALUE']
     dximbin = ximfit_cont['VALUE']
-    #print(fitcontable)
+
+    lengths = [len(xipfit_cont), len(ximfit_cont)]
+    if args.sup:
+        dxipbin += get_error(covmatrixfit_cont, lengths, 'xip')
+        dximbin += get_error(covmatrixfit_cont, lengths, 'xim')
+    if args.inf:
+        dxipbin -= get_error(covmatrixfit_cont, lengths, 'xip')
+        dximbin -= get_error(covmatrixfit_cont, lengths, 'xim')
 
     nrows = 20
     nbins=4
@@ -61,10 +91,10 @@ def main():
     for i,j in bin_pairs:
         binp = (xipfit_ori['BIN1']==i)&(xipfit_ori['BIN2']==j)
         binm = (ximfit_ori['BIN1']==i)&(ximfit_ori['BIN2']==j)
-        idxbinsp =  list(itertools.compress(xrange(len(binp)),  binp))
-        idxbinsm =  list(itertools.compress(xrange(len(binm)),  binm))
-        if (len(idxbinsp)!=0): xipfit_ori['VALUE'][binp] -=dxipbin
-        if (len(idxbinsm)!=0): ximfit_ori['VALUE'][binm] -=dxipbin
+        idxbinsp =  list(itertools.compress(range(len(binp)),  binp))
+        idxbinsm =  list(itertools.compress(range(len(binm)),  binm))
+        if (len(idxbinsp)!=0): xipfit_ori['VALUE'][binp] -=dxipbin[binp]
+        if (len(idxbinsm)!=0): ximfit_ori['VALUE'][binm] -=dxipbin[binm]
 
     hdulist = fits.open(args.original)
     #delete all xip but saving header
@@ -78,7 +108,9 @@ def main():
     hdulist.insert(3, ximhdu)
     hdulist[2].header = oldheaders[0]
     hdulist[3].header = oldheaders[1]
-    hdulist.writeto(outpath + args.filename, clobber=True)
+    filename = os.path.join(outpath, args.filename) 
+    hdulist.writeto(filename, overwrite=True)
+    print(filename, 'written')
     
 if __name__ == "__main__":
     main()

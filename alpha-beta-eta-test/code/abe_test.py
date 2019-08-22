@@ -737,7 +737,7 @@ def write_tomoxip_margin(samplesp_list, samplesm_list, rhoscosmo, models_combo, 
     for array, name in zip(array_list, names): outdata[name] = array 
     corrhdu = fits.BinTableHDU(outdata, name='delta_xim')
     hdul.insert(3, corrhdu)
-    outname = os.path.join(outpath, '%s_%s_%s'%( 'marg_', filename,  '.fits'))
+    outname = os.path.join(outpath, 'marg_%s_.fits'%(filename))
     hdul.writeto(outname, overwrite=True)
     print(outname,'Written!')
         
@@ -768,8 +768,8 @@ def write_tomoxip_overall(parsp_list, parsm_list, rhoscosmo, models_combo, plots
         parsp_j =  parsp_list[j - 1]; parsm_j =  parsm_list[j - 1]
         bins = [i, j]
         binstr = 'overall_zbin:%d_%d_'%(i, j)
-        meanr, xip = getxibiastomo_overall( parsp_i, parsp_j, datarhosp, models_combo, plots=plots, bins=bins, nameterms= os.path.join(plotspath, '%s_%s_%s'%(binstr, nameterms, 'xip.png')),   dxiname=os.path.join(plotspath, '%s_%s_%s'%( binstr, namedxip, 'xip.png')))
-        meanr, xim = getxibiastomo_overall( parsm_i, parsm_j ,datarhosm, models_combo, plots=plots, bins=bins, nameterms= os.path.join(plotspath, '%s_%s_%s'%( binstr, nameterms,'xim.png')),  dxiname=os.path.join(plotspath, '%s_%s_%s'%( binstr, namedxip, 'xim.png')))
+        meanr, xip = getxibiastomo_overall( parsp_i, parsp_j, datarhosp, models_combo, plots=plots, bins=bins, nameterms= os.path.join(plotspath, '%s_%s_xip.png'%(binstr, nameterms)),   dxiname=os.path.join(plotspath, '%s_%s_xip.png'%( binstr, namedxip)))
+        meanr, xim = getxibiastomo_overall( parsm_i, parsm_j ,datarhosm, models_combo, plots=plots, bins=bins, nameterms= os.path.join(plotspath, '%s_%s_xim.png'%( binstr, nameterms)),  dxiname=os.path.join(plotspath, '%s_%s_xim.png'%( binstr, namedxip)))
         ang_list.append(meanr)
         bin1_list.append(np.array( [i]*len(meanr)))
         bin2_list.append(np.array( [j]*len(meanr)))
@@ -798,7 +798,7 @@ def write_tomoxip_overall(parsp_list, parsm_list, rhoscosmo, models_combo, plots
     for array, name in zip(array_list, names): outdata[name] = array 
     corrhdu = fits.BinTableHDU(outdata, name='delta_xim')
     hdul.insert(2, corrhdu)
-    outname = os.path.join(outpath ,  'overall_%s_%s'%(filename, '.fits'))
+    outname = os.path.join(outpath ,  'overall_%s_.fits'%(filename))
     hdul.writeto(outname, overwrite=True)
     print(outname ,'Written!')
     
