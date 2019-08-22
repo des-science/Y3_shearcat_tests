@@ -5,8 +5,8 @@ def parse_args():
     
     parser.add_argument('--samplesfile_contaminated', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/samples/forecast2.txt', help='txt file with the samples contaminated after running cosmosis')
     parser.add_argument('--samplesfile_forecast', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/samples/forecast3.txt', help='txt file with the samples after running cosmosis')
-    parser.add_argument('--out',
-                        default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/',
+    parser.add_argument('--outpath',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/',
                         help='path where output will be send') 
     
     args = parser.parse_args()
@@ -24,7 +24,7 @@ def main():
     import numpy as np
     import pandas as pd
     args = parse_args()
-    out = os.path.expanduser(args.out)
+    out = os.path.expanduser(args.outpath)
     out = os.path.join(out,'plots')
     if not os.path.isdir(out):
         os.makedirs(out)
@@ -47,6 +47,8 @@ def main():
                         labels=usedlabels, weights=usedweights , loglikes=usedpost,
                         label='Forecast' )
     samples.removeBurn(remove=0.1)
+    filename = os.path.join(out,'fiducial.tex')
+    print(samples.getTable().tableTex(), file=open(filename, "w"))
 
     nsample_cont =  get_nsample(args.samplesfile_contaminated)
     allsamplestable_cont = np.loadtxt(args.samplesfile_contaminated)
@@ -58,6 +60,9 @@ def main():
                              names=usednames, labels=usedlabels, weights=usedweights_cont ,loglikes=usedpost_cont,
                              label='PSF contamination' )
     samples_cont.removeBurn(remove=0.1)
+    filename = os.path.join(out,'fiducial_contaminated.tex')
+    print(samples_cont.getTable().tableTex(), file=open(filename, "w"))
+
 
 
 
@@ -65,7 +70,8 @@ def main():
     g = plots.getSubplotPlotter()
     g.triangle_plot([samples, samples_cont], filled_compare=True, contour_colors=['green','darkblue'])
     #g.add_legend(legend_labels=[legend_name], fontsize=36, legend_loc=(-3.5,7))
-    g.export("getdistplot.png")
+    filename = os.path.join(out,'getdistplot.png')
+    g.export(filename, dpi=200)
   
     
 
