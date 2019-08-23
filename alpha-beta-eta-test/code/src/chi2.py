@@ -251,7 +251,7 @@ def datacov(cov_taus, nrows, eq=None, xip=True, xim=True):
             idx = np.concatenate([np.arange(3*nrows, 4*nrows), np.arange(5*nrows, 6*nrows)])
             return covmat[idx,:][:,idx] 
         else:
-            return covmat[2:6*nrows,2:6*nrows ]   
+            return covmat[2*nrows:6*nrows,2*nrows:6*nrows ]   
     else:
         if(xip and not xim):
             idx = np.concatenate([np.arange(0, nrows), np.arange(2*nrows, 3*nrows), np.arange(4*nrows, 5*nrows)])
@@ -281,7 +281,8 @@ def chi2(modelvec, datavec,  covmodel, covdata,  moderr=False ):
         cov_inv = np.linalg.inv(covdata + covmodel)
         print("ERROR")
     else:
-        cov_inv = np.linalg.pinv(covdata,  rcond=1e-10)
+        #cov_inv = np.linalg.pinv(covdata,  rcond=1e-10)
+        cov_inv = np.linalg.pinv(covdata)
         
     chisq = np.dot(np.dot(d,cov_inv), d.T)
     #print('chisq:', chisq[0][0])

@@ -3,8 +3,8 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Sofware to plot all quantities after running WL-pipeline')
     
-    parser.add_argument('--samplesfile_contaminated', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/samples/forecast2.txt', help='txt file with the samples contaminated after running cosmosis')
-    parser.add_argument('--samplesfile_forecast', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/samples/forecast3.txt', help='txt file with the samples after running cosmosis')
+    parser.add_argument('--samplesfile_contaminated', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/samples/forecast2.txt', help='txt file with the samples contaminated after running cosmosis')
+    parser.add_argument('--samplesfile_forecast', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/samples/forecast3.txt', help='txt file with the samples after running cosmosis')
     parser.add_argument('--outpath',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/',
                         help='path where output will be send') 
@@ -22,7 +22,6 @@ def main():
     import getdist
     from getdist import plots, MCSamples,  loadMCSamples
     import numpy as np
-    import pandas as pd
     args = parse_args()
     out = os.path.expanduser(args.outpath)
     out = os.path.join(out,'plots')
@@ -71,8 +70,8 @@ def main():
     g.triangle_plot([samples, samples_cont], filled_compare=True, contour_colors=['green','darkblue'])
     #g.add_legend(legend_labels=[legend_name], fontsize=36, legend_loc=(-3.5,7))
     filename = os.path.join(out,'getdistplot.png')
-    g.export(filename, dpi=200)
-  
+    g.export(filename)
+
     
 
 
