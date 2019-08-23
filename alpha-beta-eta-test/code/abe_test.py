@@ -31,7 +31,7 @@ def parse_args():
                         help='Fits file containing all rho stats used to estimate dxip, the contaminant to be used in cosmosis')
     parser.add_argument('--splitxipxim', default=False,
                         action='store_const', const=True,
-                        help='Instead of use only one set of contamination parameter for both xip and xim, treat xip and axim independently')
+                        help='Instead of use only one set of contamination parameter for both xip and xim, treat xip and xim independently')
     parser.add_argument('--maxscale', default=None, type=float, 
                         help='Limit the analysis to certain maximum scale, units are determined by .json file with the correlations')
     parser.add_argument('--minscale', default=None, type=float, 

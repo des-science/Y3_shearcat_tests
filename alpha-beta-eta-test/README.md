@@ -146,6 +146,35 @@
    e to the size residuals.
    
 
-## In the folder /tests there are some basic test, to validate the catalogs.
+   ### In the folder code/tests there are some basic test, to validate the
+   catalogs and the code
 
-   a) python tests/plotallflasktaus.py
+   a) jk_scaletest.py: run a JK in 4 patches and compare alpha, beta and eta
+   obtained solving the fitting problem up to a maximum scale. The scale where
+   there is a strong divergence among parameters is where sample variance
+   became significant.
+   b) overlap_cats.py: stars catalogs areas must be the same that flask catalogs. Plotting the
+   areas to compare.
+   c) plotallflasktaus.py: dispersion plot of all flask cats and comparison
+   with the mean and metacal results.
+   d) taus_v1v2.py: compare the mean of correlation functions of  two version of taus flask
+   e) covmat_v1v2.py: compare the covariances matrix and inverses of two version of taus flask
+
+ ## In the folder forecast there are some scripts to contaminate, test
+    contamination of fiducial cosmology and plot contours plots using the
+    generated samples after running pipeline.
+
+    a) contaminate.py: contaminate tomographycally the fiducial
+    cosmology. THere three usage options: by default use the central values of
+    the bias, use the --sup of the error bars or use the --inf of the error
+    bars
+
+    b) testcontamination.py: plot fiducial, contaminated fiducial and
+    contaminant data vector and covariances matrix to test the contamination
+    was done properly.
+
+    c) plotmarginalised_fidvscont.py: plot marginalised posteriors and
+    contours plots of the samples obtainied after running cosmosis chains with
+    datavectors coming from fiducial and contaminated fiducial cosmology
+
+    ### In the folder forecas/pipeline are thte used pipelines to run in cosmosis
