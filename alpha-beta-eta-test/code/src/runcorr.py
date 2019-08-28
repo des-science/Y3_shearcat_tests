@@ -151,3 +151,45 @@ def measure_rho(data, bin_config,  prefix='piff', mod=True,  obs=False,  cosmobi
         results.append(rho)
 
     return results
+
+def measure_xi(data_galaxies, bin_config, mod=True):
+    """Compute the xi statistics
+    """
+    import numpy as np
+    import treecorr
+    
+    e1gal = data_galaxies['e_1']
+    e2gal = data_galaxies['e_2']
+    
+    #Modified ellipticities reserved stars and galaxies
+    if(mod):
+        e1gal = e1gal - np.array(np.mean(e1gal))
+        e2gal = e2gal - np.array(np.mean(e2gal))
+
+    ragal = data_galaxies['ra']
+    decgal = data_galaxies['dec']
+    print('ragal = ',ragal)
+    print('decgal = ',decgal)
+    
+ 
+    egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
+    egal_cat.name = 'egal_cat'
+
+   
+    
+    results = []
+
+    for (cat1, cat2) in [(egal_cat, egal_cat)]:
+        print('Doing correlation of %s vs %s'%(cat1.name, cat2.name))
+
+        rho = treecorr.GGCorrelation(bin_config, verbose=3)
+
+        if cat1 is cat2:
+            rho.process(cat1)
+        else:
+            rho.process(cat1, cat2)
+        print('mean xi+ = ',rho.xip.mean())
+        print('mean xi- = ',rho.xim.mean())
+        results.append(rho)
+    print('All correlations done sucessfully')
+    return results

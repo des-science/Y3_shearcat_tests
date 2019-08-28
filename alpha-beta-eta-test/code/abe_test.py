@@ -8,10 +8,10 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Alpha beta eta test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
     parser.add_argument('--taus',
-                        default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_g1f_zbin_1.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_g1f_zbin_2.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_g1f_zbin_3.fits',
-                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_g1f_zbin_4.fits'],
+                        default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
+                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
                         #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1_v2.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2_v2.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3_v2.fits',
@@ -1100,11 +1100,11 @@ def main():
                 chisqp_list.append(chi2p_nu); chisqm_list.append(chi2m_nu);
             if(args.plots):
                 for i, fig in enumerate(figs):
-                    print('Printing', plotspath+'%d_tau_bestfit.png'%(i))
+                    print('Printing', plotspath+'tau%d_bestfit.png'%(i))
                     axs[i].set_ylabel(ylabels[i])
                     axs[i].set_title('Alpha-beta')
                     fig.tight_layout()
-                    fig.savefig(plotspath+'%d_tau_bestfit_ab.png'%(i),dpi=200)
+                    fig.savefig(plotspath+'tau%d_bestfit_ab.png'%(i),dpi=200)
 
             saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, outpath)
             write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )

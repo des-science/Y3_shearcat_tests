@@ -811,7 +811,7 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
             
     
         res0p = a*rhosp[0] + b*rhosp[2] + e*rhosp[5]
-        res0m = am*rhosm[0] + b*rhosm[2] + e*rhosm[5]
+        res0m = am*rhosm[0] + bm*rhosm[2] + em*rhosm[5]
         
         res1p = a*rhosp[2] + b*rhosp[1] + e*rhosp[4]
         res1m = am*rhosm[2] + bm*rhosm[1] + em*rhosm[4]

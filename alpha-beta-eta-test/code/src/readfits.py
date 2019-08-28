@@ -136,3 +136,33 @@ def read_taus(stat_file, minscale=None, maxscale=None):
             taus[i] = taus[i][idx:]
     return  meanr, taus,  covmat
 
+def read_xis(stat_file, minscale=None, maxscale=None):
+    import numpy as np
+    import fitsio
+    covmat =  fitsio.read(stat_file, ext=1)
+    XIP =  fitsio.read(stat_file, ext=2); xip =  XIP['VALUE']
+    XIM =  fitsio.read(stat_file, ext=3); xim =  XIM['VALUE']
+    
+    meanr = XIP['ANG']
+    xis = [xip, xim]
+    nxis = len(xis)
+    if maxscale is not None:
+        meanr = meanr[meanr<maxscale]
+        idx = len(meanr)
+        ind =  np.arange(idx); size = int(len(covmat)/nxis)
+        indxs = np.concatenate([ind + i*size for i in range(nxis) ] )
+        covmat = covmat[indxs,: ][:,indxs]   
+        for i in range(nxis):
+            xis[i] = xis[i][:idx]
+
+    if minscale is not None:
+        idx = len(meanr[meanr<minscale])
+        meanr = meanr[idx:]
+        ind =  np.arange(idx, idx + len(meanr)); size = int(len(covmat)/nxis)
+        indxs = np.concatenate([ind + i*size for i in range(nxis) ] )
+        covmat = covmat[indxs,: ][:,indxs]   
+        for i in range(len(xis)):
+            xis[i] = xis[i][idx:]
+    return  meanr, xis,  covmat
+
+

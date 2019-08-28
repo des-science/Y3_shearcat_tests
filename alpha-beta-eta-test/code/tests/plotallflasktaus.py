@@ -12,7 +12,7 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_4.fits',
                         help='Full Path to the taus measurement of metcal')
     parser.add_argument('--tausflask',
-                        default='/home2/dfa/sobreira/alsina/catalogs/flask/taus/',
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_g1g2flip/',
                         help='Full Path to the taus measurement of flask catalogs')
     parser.add_argument('--zbin', default=4 , type=int,
                         help='seed used, useful to run parallel')
@@ -163,14 +163,15 @@ def plotflask(tausmetacal, zbin, tausflask, plotspath):
     print(filename, 'Printed!')
     
 def main():
+    import sys; sys.path.append(".")
+    from src.readfits import read_taus
+    from src.plot_stats import pretty_rho
     import fitsio
     from fitsio import FITS,FITSHDR
     from astropy.io import fits
     import itertools
     import numpy as np
-    from src.readfits import read_taus
-    from src.plot_stats import pretty_rho
-    
+        
     args = parse_args()
 
     plotspath = os.path.expanduser(args.plotspath)

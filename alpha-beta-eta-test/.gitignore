@@ -115,6 +115,7 @@ cosmosis/
 test_output_d_l/
 plots/
 untrack/
+measured_correlations/
 
 *.txt
 *.json
