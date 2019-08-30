@@ -11,7 +11,7 @@ def parse_args():
                         default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
-                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
                         #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1_v2.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2_v2.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3_v2.fits',
@@ -912,36 +912,26 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
         #parsp,chisqp,parsm,chisqm
         return auxp1, auxp2, auxm1, auxm2
 
-def saveintex(models_combo, margin, overall, parlist, chisq_list, outpath):
+def saveintex(models_combo, margin, overall, parlist, chisq_list, filename):
     print('Generating table.tex')
     eq, abe, ab, ae, be, a, b, e = models_combo
     if overall:
         parsbin1, parsbin2,  parsbin3,  parsbin4 =  parlist
         if abe:
             text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $\alpha$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $\beta$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \rule{0pt}{3ex} %s $\eta$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n',  parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n',  parsbin1[1], parsbin2[1], parsbin3[1], parsbin4[1], '\n', parsbin1[2], parsbin2[2], parsbin3[2], parsbin4[2],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
-            #np.savetxt(os.path.join(outpath, 'table_abe_overall.tex'), text)
-            print(text[1:-1], file=open(os.path.join(outpath, 'table_abe_overall.tex'), "w"))
-            print(os.path.join(outpath, 'table_abe_overall.tex'),  'written!')
         if ab or ae or be:
             if ab: name1 = r'\alpha'; name2 = r'\beta'
             if ae: name1 = r'\alpha'; name2 = r'\eta'
             if be: name1 = r'\beta'; name2 = r'\eta'
             text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name1, parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n', name2,  parsbin1[1], parsbin2[1], parsbin3[1], parsbin4[1], '\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
-            if ab:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('ab')
-            if ae:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('ae')
-            if be:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('be')
-            print(text[1:-1], file=open(filename, "w"))
-            print(filename ,  'written!')
         if a or b or e:
             if a: name = r'\alpha'
             if b: name = r'\beta'
             if e: name = r'\eta'
             text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name, parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
-            if a:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('a')
-            if b:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('b')
-            if e:  filename = os.path.join(outpath, 'table_%s_overall.tex')%('e')
-            print(text[1:-1], file=open(filename, "w"))
-            print(filename ,  'written!')
+        
+        print(text[1:-1], file=open(filename, "w"))
+        print(filename ,  'written!')
         
  
 
@@ -950,8 +940,6 @@ def saveintex(models_combo, margin, overall, parlist, chisq_list, outpath):
         if abe:
             text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $\alpha$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$\\ \rule{0pt}{3ex} %s $\beta$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ \\ \rule{0pt}{3ex} %s $\eta$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ \\ \hline \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n',  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n',  parsbin1[1][0],parsbin1[1][1],parsbin1[1][2], parsbin2[1][0],parsbin2[1][1],parsbin2[1][2], parsbin3[1][0],parsbin3[1][1],parsbin3[1][2],parsbin4[1][0],parsbin4[1][1],parsbin4[1][2], '\n', parsbin1[2][0],parsbin1[2][1],parsbin1[2][2],parsbin2[2][0],parsbin2[2][1],parsbin2[2][2], parsbin3[2][0],parsbin3[2][1],parsbin3[2][2],parsbin4[2][0],parsbin4[2][1],parsbin4[2][2],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
       
-            print(text[1:-1], file=open(os.path.join(outpath, 'table_abe_margin.tex'), "w"))
-            print(os.path.join(outpath, 'table_abe_margin.tex'),  'written!')
         if ab or ae or be:
             if ab: name1 = r'\alpha'; name2 = r'\beta'
             if ae: name1 = r'\alpha'; name2 = r'\eta'
@@ -959,11 +947,6 @@ def saveintex(models_combo, margin, overall, parlist, chisq_list, outpath):
 
             text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$\\ \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ \\ \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name1,  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n', name2,  parsbin1[1][0],parsbin1[1][1],parsbin1[1][2], parsbin2[1][0],parsbin2[1][1],parsbin2[1][2], parsbin3[1][0],parsbin3[1][1],parsbin3[1][2],parsbin4[1][0],parsbin4[1][1],parsbin4[1][2], '\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
 
-            if ab:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('ab')
-            if ae:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('ae')
-            if be:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('be')
-            print(text[1:-1], file=open(filename, "w"))
-            print(filename ,  'written!')
         if a or b or e:
             if a: name = r'\alpha'
             if b: name = r'\beta'
@@ -971,11 +954,8 @@ def saveintex(models_combo, margin, overall, parlist, chisq_list, outpath):
 
             text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$\\ \rule{0pt}{3ex} %s $\chi_{\nu}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name,  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
 
-            if a:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('a')
-            if b:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('b')
-            if e:  filename = os.path.join(outpath, 'table_%s_margin.tex')%('e')
-            print(text[1:-1], file=open(filename, "w"))
-            print(filename ,  'written!')
+        print(text[1:-1], file=open(filename, "w"))
+        print(filename ,  'written!')
         
         
     
@@ -1036,7 +1016,9 @@ def main():
 
             samplesp_list = []; parsp_list = []
             samplesm_list = []; parsm_list = []
-            chisqp_list = []; chisqm_list = []
+            chisqp_list = []; chisqm_list = []; chisq_list = []
+
+            _list = []
         
             for i,  taufile in enumerate(args.taus):
                 samplesp, samplesm=RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
@@ -1054,9 +1036,25 @@ def main():
                 parsp_list.append(mcmcparsp); parsm_list.append(mcmcparsm)
                 data['taus'] = read_taus(taufile, minscale=args.minscale, maxscale=args.maxscale)[1]
                 data['cov_taus'] = read_taus(taufile, minscale=args.minscale, maxscale=args.maxscale)[2]
-                chisqp_list.append(chi2nu(bestparameters(samplesp),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True)) 
-                
-            saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, outpath)
+                if args.splitxipxim:
+                    chisqp_list.append(chi2nu(bestparameters(samplesp),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=False))
+                    chisqm_list.append(chi2nu(bestparameters(samplesm),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=False, xim=True))
+                else:
+                    chisq_list.append(chi2nu(bestparameters(samplesp),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True))
+
+            eq, abe, ab, ae, be, a, b, e = models_combo
+            if abe:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('abe', eq)
+            if ab:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('ab', eq)
+            if ae:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('ae', eq)
+            if be:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('be', eq)
+            if a:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('a', eq)
+            if b:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('b', eq)
+            if e:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('e', eq)
+            if args.splitxipxim:
+                saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex')
+                saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
+            else:
+                saveintex(models_combo, args.margin, args.overall, parsp_list, chisq_list, filename + '.tex')
             write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
 
     if args.overall:
@@ -1105,8 +1103,20 @@ def main():
                     axs[i].set_title('Alpha-beta')
                     fig.tight_layout()
                     fig.savefig(plotspath+'tau%d_bestfit_ab.png'%(i),dpi=200)
-
-            saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, outpath)
+                    
+            eq, abe, ab, ae, be, a, b, e = models_combo
+            if abe:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('abe', eq)
+            if ab:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('ab', eq)
+            if ae:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('ae', eq)
+            if be:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('be', eq)
+            if a:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('a', eq)
+            if b:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('b', eq)
+            if e:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('e', eq)
+            if args.splitxipxim:
+                saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex')
+                saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
+            else:
+                saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'.tex')
             write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )
 
     

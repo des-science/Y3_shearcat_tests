@@ -8,7 +8,7 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Comparing xis for different flips')
     parser.add_argument('--xisflask1',
-                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/xis_g1flip/',
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/xis_g1g2flip/',
                         help='Full Path to the taus measurement with flask version 1')
     parser.add_argument('--xisflask2',
                         default='/home/dfa/sobreira/alsina/catalogs/FLASK/xis_g2flip/',
@@ -59,7 +59,7 @@ def plotflask(axs, zbin, xisflask, plotspath, color, label):
     ximeans = [xipmean,ximmean ]
     sig_xis = [sig_xip,sig_xim ]
 
-    ylabels = [r'$\xi_{0+}$', r'$\xi_{0-}$']
+    ylabels = [r'$\xi_{+}$', r'$\xi_{-}$']
     for i, ax in enumerate(axs):
         ax.errorbar(meanr,ximeans[i],yerr=sig_xis[i],color=color, ls='', marker='.', capsize=2, label=label)
         ax.legend(loc='best', fontsize=10)
@@ -90,8 +90,8 @@ def main():
         filenames.append(os.path.join(plotspath,'%s_flask_zbin%d%s'%(names[i], args.zbin, '.png') ))
 
         
-    plotflask(axs, args.zbin, args.xisflask1, args.plotspath, 'red', 'XIS flask g1flip')
-    plotflask(axs, args.zbin, args.xisflask2, args.plotspath, 'blue', 'XIS flask g1g2flip')
+    plotflask(axs, args.zbin, args.xisflask1, args.plotspath, 'red', 'flask g1g2flip')
+    plotflask(axs, args.zbin, args.xisflask2, args.plotspath, 'blue', 'flask g2flip')
 
     for i, fig in enumerate(figs):
         fig.tight_layout()
