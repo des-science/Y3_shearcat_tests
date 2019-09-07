@@ -9,7 +9,8 @@ def parse_args():
     
     parser.add_argument('--metacal_cat',
                         #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3fullmaster/Y3_mastercat_v2_6_20_18.h5', 
+                        #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3fullmaster/Y3_mastercat_v2_6_20_18.h5',
+                        default='/home/dfa/sobreira/alsina/catalogs/Y3_mastercat_7_24/Y3_mastercat_7_24_19.h5',
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
                         default='/home2/dfa/sobreira/alsina/catalogs/y3a1-v29',
@@ -23,19 +24,21 @@ def parse_args():
     parser.add_argument('--use_reserved', default=True,
                         action='store_const', const=True,
                         help='just use the objects with the RESERVED flag')
-    parser.add_argument('--frac', default=1., type=float,
+    parser.add_argument('--frac', default=1.,
+                        type=float,
                         help='Choose a random fraction of the input stars')
     parser.add_argument('--mod', default=True,
                         action='store_const', const=True,
                         help='If true it substracts the mean to each field before calculate correlations')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
-    parser.add_argument('--filename', default='TAUZ_zbin_n.fits', type=str,
+    parser.add_argument('--filename', default='TAUS_zbin_n.fits', type=str,
                         help='filename of the tau output file')
     parser.add_argument('--zbin', default=None,type=int, 
                         help='Run particular tomobin')
     parser.add_argument('--nz_source',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/nz_source_zbin.h5',
+                        #default='/home/dfa/sobreira/alsina/catalogs/y3_master/nz_source_zbin.h5',
+                        default='/home/dfa/sobreira/alsina/catalogs/y3_master/nz_source_zbin.h5',
                         help='Indexes catalog to select galaxies in a particular redshift bin in Metacal')
     args = parser.parse_args()
     return args
