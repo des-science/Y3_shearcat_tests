@@ -249,12 +249,12 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
     sig_tau5p =  np.sqrt(np.diag(cov5p)); sig_tau5m =  np.sqrt(np.diag(cov5m))
 
     plt.clf()
-    pretty_tau2(meanr, tau0p, sig_tau0p, tau2p, sig_tau2p, tau5p, sig_tau5p, mlabel=True, title=title, xlim=xlim, ylim=ylim0p)
+    pretty_tau2(meanr, tau0p, sig_tau0p, tau2p, sig_tau2p, tau5p, sig_tau5p, mlabel=False, title=title, xlim=xlim, ylim=ylim0p)
     name = outpath +'taup_all_rsrs' + zbin +  '.png'
     print("Printing file: ", name)
     plt.savefig(name)
     plt.clf()
-    pretty_tau2(meanr, tau0m, sig_tau0m, tau2m, sig_tau2m, tau5m, sig_tau5m, mlabel=False, title=title, xlim=xlim, ylim=ylim0m)
+    pretty_tau2(meanr, tau0m, sig_tau0m, tau2m, sig_tau2m, tau5m, sig_tau5m, mlabel=True, title=title, xlim=xlim, ylim=ylim0m)
     name = outpath +'taum_all_rsrs' + zbin +  '.png'
     print("Printing file: ", name)
     plt.savefig(name)

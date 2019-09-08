@@ -10,17 +10,17 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Correlation of reserved stars')
     
     parser.add_argument('--tausflask',
-                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_g1g2flip/',
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus/',
                         help='Full Path to the taus measurement of flask catalogs')
     parser.add_argument('--input_tau',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_1.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_4.fits',
                         help='Fit file with the taus correlations, and which covariance matrix will be replaced and writen in filename')
     parser.add_argument('--filename',
-                        default='TAUS_FLASK_g1g2f_zbin_1.fits',
+                        default='TAUS_FLASK_zbin_4.fits',
                         help='Fit file based on inputfile but now with Flask Covariance matrix')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
-    parser.add_argument('--zbin', default=1 , type=int,
+    parser.add_argument('--zbin', default=4 , type=int,
                         help='seed used, useful to run parallel')
     parser.add_argument('--plots', default=True,
                         action='store_const', const=True, help='Plot correlations functions')
