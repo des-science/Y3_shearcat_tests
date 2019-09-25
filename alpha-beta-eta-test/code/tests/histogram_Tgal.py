@@ -105,10 +105,10 @@ def main():
         ratio = Tgal/Tpsf
         
         print('Len Tgal', len(Tgal), 'Min Tgal:',  min(Tgal), 'Max Tgal', max(Tgal) )
-        #Tgal = Tgal[Tgal<100]
+        Tgal = Tgal[Tgal<100]
         print('Len Tgal', len(Tgal), 'after selecting only Tgal<4')
         plt.clf()
-        nbins = 10000000
+        nbins = 10000
         if zbin is not None: label = 'zbin:%d'%(zbin)
         else: label = None
         plt.hist(Tgal, bins=np.linspace(min(Tgal), max(Tgal), nbins), label=label )
@@ -135,7 +135,7 @@ def main():
         plt.clf()
         
         print('Len ratio', len(ratio), 'Min ratio:',  min(ratio), 'Max ratio', max(ratio) )
-        #ratio = ratio[ratio<200]
+        ratio = ratio[ratio<200]
         print('Len ratio', len(ratio), 'after cutting ratio>10')
         plt.clf()
         #plt.title('ratio zbin:%d'%(zbin))

@@ -333,7 +333,6 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
 
     return data, bands, tiling
 
-
 def read_data_stars(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=False, frac=1.,  verbose=False):
     data_stars, bands, tilings = read_data(exps, work , keys,
                                            limit_bands=limit_bands,
@@ -345,6 +344,7 @@ def read_data_stars(exps, work, keys, limit_bands=None, prefix='piff', use_reser
     print("Objects with magnitude <20",  len(data_stars))
     data_stars['mag'] = None
     return data_stars
+
 
 def read_h5(filename, folder, keys):
     import h5py as h

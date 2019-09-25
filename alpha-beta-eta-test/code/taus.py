@@ -13,10 +13,10 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/catalogs/Y3_mastercat_7_24/Y3_mastercat_7_24_19.h5',
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3a1-v29',
+                        default='/home/dfa/sobreira/alsina/catalogs/y3a1-v29',
                         help='Full Path to the Only stars Piff catalog')
     parser.add_argument('--exps_file',
-                        default='/home/dfa/sobreira/alsina/DESWL/psf/ally3.grizY',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/code/ally3.grizY',
                         #default='/home/dfa/sobreira/alsina/DESWL/psf/testexp',
                         help='list of exposures (in lieu of separate exps)')
     parser.add_argument('--bands', default='riz', type=str,
@@ -30,6 +30,8 @@ def parse_args():
     parser.add_argument('--mod', default=True,
                         action='store_const', const=True,
                         help='If true it substracts the mean to each field before calculate correlations')
+    parser.add_argument('--bin_config', default=None,
+                        help='bin_config file for running taus')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
     parser.add_argument('--filename', default='TAUS_zbin_n.fits', type=str,
@@ -47,6 +49,7 @@ def main():
     from src.read_cats import read_data_stars, toList, read_metacal
     from src.runcorr import measure_tau
     from astropy.io import fits
+    import treecorr
  
     
     args = parse_args()
@@ -67,9 +70,13 @@ def main():
     data_stars = read_data_stars(toList(args.exps_file),args.piff_cat, keys,limit_bands=args.bands,use_reserved=args.use_reserved)
     
    
-
-    bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
-    #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
+    if args.bin_config is not None:
+        print("Using external bin config")
+        bin_config = treecorr.read_config(args.bin_config)
+        print(bin_config)
+    else:
+        bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
+        #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
     
     
 

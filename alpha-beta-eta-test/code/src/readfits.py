@@ -64,7 +64,7 @@ def read_taus_plots(stat_file, minscale=None, maxscale=None):
             covmats[i] = covmats[i][idx:,idx:]
     return  meanr, taus,  covmats
 
-def read_rhos(stat_file, minscale=None, maxscale=None):
+def read_rhos(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None):
     import numpy as np
     import fitsio
     covmat =  fitsio.read(stat_file, ext=1)
@@ -85,7 +85,7 @@ def read_rhos(stat_file, minscale=None, maxscale=None):
     rhos = [rho0p, rho0m, rho1p, rho1m, rho2p, rho2m, rho3p, rho3m,
             rho4p, rho4m, rho5p, rho5m]
     nrhos = len(rhos)
-    if maxscale is not None:
+    if maxscale is not None and maxbin is None:
         meanr = meanr[meanr<maxscale]
         idx = int(len(meanr))
         ind =  np.arange(idx); size = int(len(covmat)/nrhos)
@@ -93,7 +93,7 @@ def read_rhos(stat_file, minscale=None, maxscale=None):
         covmat = covmat[indxs,: ][:,indxs]
         for i in range(len(rhos)):
             rhos[i] = rhos[i][:idx]
-    if minscale is not None:
+    if minscale is not None and minbin is None:
         idx = len(meanr[meanr<minscale])
         meanr = meanr[idx:]
         ind =  np.arange(idx, idx + len(meanr)); size = int(len(covmat)/nrhos)
@@ -101,9 +101,26 @@ def read_rhos(stat_file, minscale=None, maxscale=None):
         covmat = covmat[indxs,: ][:,indxs]
         for i in range(len(rhos)):
             rhos[i] = rhos[i][idx:]
+    if minbin is not None:
+        idx = minbin
+        meanr = meanr[idx:]
+        ind =  np.arange(idx, idx + len(meanr)); size = int(len(covmat)/nrhos)
+        indxs = np.concatenate([ind + i*size for i in range(nrhos) ] )
+        covmat = covmat[indxs,: ][:,indxs]
+        for i in range(len(rhos)):
+            rhos[i] = rhos[i][idx:]
+    if maxbin is not None:
+        idx = maxbin
+        meanr = meanr[:idx]
+        ind =  np.arange(idx); size = int(len(covmat)/nrhos)
+        indxs = np.concatenate([ind + i*size for i in range(nrhos) ] )
+        covmat = covmat[indxs,: ][:,indxs]
+        for i in range(len(rhos)):
+            rhos[i] = rhos[i][:idx]
+        
     return  meanr, rhos,  covmat
 
-def read_taus(stat_file, minscale=None, maxscale=None):
+def read_taus(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None):
     import numpy as np
     import fitsio
     covmat =  fitsio.read(stat_file, ext=1)
@@ -134,6 +151,24 @@ def read_taus(stat_file, minscale=None, maxscale=None):
         covmat = covmat[indxs,: ][:,indxs]   
         for i in range(len(taus)):
             taus[i] = taus[i][idx:]
+
+    if minbin is not None:
+        idx = minbin
+        meanr = meanr[idx:]
+        ind =  np.arange(idx, idx + len(meanr)); size = int(len(covmat)/ntaus)
+        indxs = np.concatenate([ind + i*size for i in range(ntaus) ] )
+        covmat = covmat[indxs,: ][:,indxs]
+        for i in range(ntaus):
+            taus[i] = taus[i][idx:]
+
+    if maxbin is not None:
+        idx = maxbin
+        meanr = meanr[:idx]
+        ind =  np.arange(idx); size = int(len(covmat)/ntaus)
+        indxs = np.concatenate([ind + i*size for i in range(ntaus) ] )
+        covmat = covmat[indxs,: ][:,indxs]
+        for i in range(ntaus):
+            taus[i] = taus[i][:idx]
     return  meanr, taus,  covmat
 
 def read_xis(stat_file, minscale=None, maxscale=None):

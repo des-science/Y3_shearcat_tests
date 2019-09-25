@@ -10,7 +10,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Correlation of reserved stars')
     
     parser.add_argument('--tausflask',
-                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus/',
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_v3/',
                         help='Full Path to the taus measurement of flask catalogs')
     parser.add_argument('--input_tau',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_4.fits',
@@ -80,8 +80,7 @@ def main():
     #outdata = np.recarray((nrows, ), dtype=dtype)
     veclist = []
     count = 0; zbin = args.zbin
-    for seed in range(1, 450 ): #version2
-    #for seed in range(200, 401 ): #version1
+    for seed in range(1, 701 ): #version2
         for ck in range(1,2):
             name = os.path.join(args.tausflask, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
             exist =  os.path.isfile(name)

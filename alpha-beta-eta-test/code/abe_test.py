@@ -1017,8 +1017,6 @@ def main():
             samplesp_list = []; parsp_list = []
             samplesm_list = []; parsm_list = []
             chisqp_list = []; chisqm_list = []; chisq_list = []
-
-            _list = []
         
             for i,  taufile in enumerate(args.taus):
                 samplesp, samplesm=RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,

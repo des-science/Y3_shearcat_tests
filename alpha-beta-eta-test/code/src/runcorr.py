@@ -193,3 +193,43 @@ def measure_xi(data_galaxies, bin_config, mod=True):
         results.append(rho)
     print('All correlations done sucessfully')
     return results
+
+def measure_npairs(data_stars, data_galaxies, bin_config, prefix='piff', mod=True):
+    import numpy as np
+    import treecorr
+
+    p_e1 = data_stars[prefix+'_e1']
+    p_e2 = data_stars[prefix+'_e2']   
+
+    e1gal = data_galaxies['e_1']
+    e2gal = data_galaxies['e_2']
+   
+        
+    ra = data_stars['ra']
+    dec = data_stars['dec']
+    print('ra = ',ra)
+    print('dec = ',dec)
+    ragal = data_galaxies['ra']
+    decgal = data_galaxies['dec']
+    print('ragal = ',ragal)
+    print('decgal = ',decgal)
+    
+    ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
+    egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
+    ecat.name = 'ecat'
+    egal_cat.name = 'egal_cat'
+
+    results = []
+
+    for (cat1, cat2) in [(egal_cat, ecat)]:
+        print('Doing correlation of %s vs %s'%(cat1.name, cat2.name))
+
+        rho = treecorr.GGCorrelation(bin_config, verbose=3)
+
+        if cat1 is cat2:
+            rho.process(cat1)
+        else:
+            rho.process(cat1, cat2)
+        results.append(rho)
+    print('All correlations done sucessfully')
+    return results

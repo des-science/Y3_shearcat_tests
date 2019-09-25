@@ -724,7 +724,7 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
         res2m = am*rhosm[5] + bm*rhosm[4] + em*rhosm[3]
         
 
-        
+        #if zbin == 2 or zbin == 3: return
         colors=['red','green','blue','black']
         pretty_residuals_tomo(axs[0], meanr,tausp[0], np.sqrt(np.diag(covtausp[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[0].plot( meanr,res0p, 'k', color=colors[zbin-1])
@@ -822,13 +822,13 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
         colors=['red','green','blue','black']
         pretty_residuals_tomo(axs[0], meanr,tausp[0], np.sqrt(np.diag(covtausp[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[0].plot( meanr,res0p, 'k', color=colors[zbin-1])
-        
+            
         pretty_residuals_tomo(axs[1], meanr,tausm[0], np.sqrt(np.diag(covtausm[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
-        axs[1].plot( meanr,res0m, 'k', color=colors[zbin-1])
+        axsp[1].lot( meanr,res0m, 'k', color=colors[zbin-1])
         
         pretty_residuals_tomo(axs[2],  meanr,tausp[1], np.sqrt(np.diag(covtausp[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[2].plot( meanr,res1p, 'k', color=colors[zbin-1])
-        
+            
         pretty_residuals_tomo(axs[3], meanr,tausm[1], np.sqrt(np.diag(covtausm[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[3].plot( meanr,res1m, 'k', color=colors[zbin-1])
         

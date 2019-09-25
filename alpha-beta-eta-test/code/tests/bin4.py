@@ -6,7 +6,7 @@ plt.style.use('SVA1StyleSheet.mplstyle')
 
 def parse_args():
     import argparse
-    parser = argparse.ArgumentParser(description='Alpha beta eta test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
+    parser = argparse.ArgumentParser(description='plotting bestfit  manually varying alpha and beta')
     parser.add_argument('--taus',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits',
                         help='Fits file containing all tau stats used to estimate abe')
