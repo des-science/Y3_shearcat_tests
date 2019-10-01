@@ -23,9 +23,9 @@ def parse_args():
                         help='nwalkers of MCMC')
     parser.add_argument('--eq', default=10, type=int, 
                         help='Select equations to be used for istance --eq=0, 4 represent the whole system of equations')
-    parser.add_argument('--abe', default=True,
+    parser.add_argument('--abe', default=False,
                         action='store_const', const=True, help='Run alpha, beta and eta test.')
-    parser.add_argument('--ab', default=False,
+    parser.add_argument('--ab', default=True,
                         action='store_const', const=True, help='Run alpha and beta test.')
     parser.add_argument('--ae', default=False,
                         action='store_const', const=True, help='Run alpha and eta test.')
@@ -37,7 +37,9 @@ def parse_args():
                         action='store_const', const=True, help='Run only beta test.')
     parser.add_argument('--e', default=False,
                         action='store_const', const=True, help='Run only eta test.')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
+                        help='location of the output of the files')
+    parser.add_argument('--plotspath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/plots/',
                         help='location of the output of the files')
     parser.add_argument('--filename', default='scaletest.fits', help='Name of the fit file where the info of the jkscaletest will be saved ')
 
@@ -77,12 +79,11 @@ def fillparlists(al, ac, ar, bl, bc, br, el, ec, er, mcmcpars,  mflags):
         bl.append(-999); bc.append(-999);br.append(-999)
         al.append(-999); ac.append(-999);ar.append(-999)  
 
-def read_pars(filename,  ijk, mflags):
+def read_pars(filename,  ext, mflags):
     import fitsio
     #print("Reading file",  filename)
     aflag, bflag, eflag =  mflags
-    alldata =  fitsio.read(filename, ext=1)
-    alldata = alldata[alldata['JKR']==ijk]
+    alldata =  fitsio.read(filename, ext=ext)
     meanr = alldata['THETA']
     al = alldata['a_l']; ac = alldata['a_c']; ar = alldata['a_r']
     bl = alldata['b_l']; bc = alldata['b_c']; br = alldata['b_r']
@@ -103,35 +104,36 @@ def read_pars(filename,  ijk, mflags):
         return meanr, el, ec,er
                 
        
-def plotlineal( outpath, filename, mflags, njk):
+def plotlineal( filename, outpath, mflags):
     import numpy as np
     import itertools
     ylabels = [r'$\alpha$', r'$\beta$', r'$\eta$']
-    ylims =  [[ - 0.1, 0.1],[ - 30, 30],[ -600, 600] ] 
+    ylims =  [[ - 0.07, 0.07],[ 0 , 5],[ -600, 600] ] 
     outputnames = ['alpha_quadrants.png', 'beta_quadrants.png', 'eta_quadrants.png']
     colors = ['black', 'green', 'blue', 'red', 'gray', 'pink']
-    ndim =  len(list(itertools.compress(xrange(len(mflags)),  mflags))) 
+    ndim =  len(list(itertools.compress(range(len(mflags)),  mflags))) 
     for t in range(ndim):
         plt.clf()
-        for ijk in range(njk):
-            lists = read_pars(filename, ijk, mflags)
+        for ext in range(4):
+            lists = read_pars(filename, ext+1, mflags)
             meanr = lists[0]
             al = lists[1 + 3*t]; ac = lists[2 + 3*t]; ar = lists[3+3*t]
-            label = "P" + str(ijk) 
+            label = 'zbin%d'%(ext + 1) 
             plt.figure(t)
-            plt.scatter(meanr,ac,color=colors[ijk],label=label,marker='o',s=10)
-            plt.errorbar(meanr,ac,yerr=[-np.array(al),np.array(ar)], color=colors[ijk],capsize=0, linestyle='')
+            plt.scatter(meanr,ac,color=colors[ext],label=label,marker='o',s=10)
+            plt.errorbar(meanr,ac,yerr=[-np.array(al),np.array(ar)], color=colors[ext],capsize=0, linestyle='')
             
         plt.figure(t)
         plt.legend(loc='best', fontsize=10)
         plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
         plt.ylabel(ylabels[t], fontsize=24)
         plt.xscale('log')
-        #plt.xlim( [ 2, 300] )
+        plt.xlim( [ 0.9, 400] )
         plt.ylim(ylims[t] )
         plt.tight_layout()
-        print("Printing :", outpath + outputnames[t])
-        plt.savefig(outpath +outputnames[t],  dpi=200)
+        filenameout = os.path.join(outpath, outputnames[t] )
+        print("Printing :", filenameout)
+        plt.savefig(filenameout,  dpi=200)
   
 
 
@@ -166,7 +168,7 @@ def getmflags(models_combo):
         mflags = [False, False, True]
     return mflags
         
-def run_allscales(args):
+def run_allscales(args, outpath):
     import numpy as np
     import sys; sys.path.append(".")
     from abe_test import RUNTEST
@@ -194,6 +196,7 @@ def run_allscales(args):
     
     i_guess0 = [ 0, 1, -1 ] #fiducial values
     i_guess = np.array(i_guess0)[np.array(mflags)].tolist()
+    meanr = read_rhos(rhosfile, maxbin=20)[0]
 
     for i,  taufile in enumerate(taus):
         zbinarr =  np.array([i]*nrows)
@@ -201,7 +204,7 @@ def run_allscales(args):
         bc = []; bl = []; br = []
         ec = []; el = []; er = []
         data = {}
-        for i in range(20):
+        for i in range(1, 21):
             data['rhos'] = read_rhos(rhosfile, maxbin=i)[1]
             data['cov_rhos'] = read_rhos(rhosfile, maxbin = i)[2]
             data['taus'] = read_taus(taufile, maxbin = i)[1]
@@ -212,25 +215,21 @@ def run_allscales(args):
                              moderr=False, uwmprior=False,
                              minimize= True, margin=True,
                                  overall=False)
-            mcmcpars = percentiles(samplesp, nsig=nsig)
+            mcmcpars = percentiles(samples, nsig=nsig)
             fillparlists(al, ac, ar, bl, bc, br, el, ec, er, mcmcpars, mflags)
-        array_list = [zbinarr, read_rhos(rhosfile, maxbin=i)[0], np.array(al), np.array(ac), np.array(ar),
+        array_list = [zbinarr, meanr, np.array(al), np.array(ac), np.array(ar),
                       np.array(bl), np.array(bc), np.array(br), np.array(el), np.array(ec), np.array(er)]
         for array, name in zip(array_list, names): outdata[name] = array
-        corrhdu = fits.BinTableHDU(outdata, name='zbin%d'%(zbin))
+        corrhdu = fits.BinTableHDU(outdata, name='zbin%d'%(i))
         hdul.insert(i, corrhdu)
 
     filename = os.path.join(outpath, args.filename)
     print("Printin file:", filename)
     hdul.writeto(filename, overwrite=True)
 
-def main():
-    import os
-    import sys
-    sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
-    
-    
+def main():    
     args = parse_args()
+
     outpath = os.path.expanduser(args.outpath)
     try:
         if not os.path.exists(outpath):
@@ -238,10 +237,17 @@ def main():
     except OSError:
         if not os.path.exists(outpath): raise
 
-    run_allscales(args)
+    plotspath = os.path.expanduser(args.plotspath)
+    try:
+        if not os.path.exists(plotspath):
+            os.makedirs(plotspath)
+    except OSError:
+        if not os.path.exists(plotspath): raise
 
-    run_parspatch(outpath, args.filename, args.rhos, args.taus, nsig=nsig,  njk=njk, mflags=mflags)
-    plotlineal('', outpath + args.filename,mflags, njk)
+    #run_allscales(args, outpath)
+    
+    mflags = getmflags([args.abe, args.ab, args.ae, args.be, args.a, args.b, args.e])
+    plotlineal(os.path.join(outpath, args.filename), plotspath,  mflags)
     
 
 

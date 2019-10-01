@@ -87,7 +87,7 @@ def main():
 
         ##Format of the fit file output
         names=['ANG', 'NPAIRS']
-        forms = ['f8',  'i4']
+        forms = ['f8',  'i8']
         dtype = dict(names = names, formats=forms)
         nrows = len(results.npairs)
         outdata = np.recarray((nrows, ), dtype=dtype)

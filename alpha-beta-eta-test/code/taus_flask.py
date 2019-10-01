@@ -90,6 +90,9 @@ def main():
             if not os.path.isfile(inname):
                 print(inname, "does not exist. Skipping")
                 continue
+            #creating tempfile to avoid repeation when running different cpus 
+            new_file = open(outname, "w")
+            
             data_galaxies =  read_flask(args.flask_cat, seed, zbin, ck, flip=flip)
             print("Total objects in catalog:", len(data_galaxies))
             tau0, tau2, tau5= measure_tau( data_stars , data_galaxies,

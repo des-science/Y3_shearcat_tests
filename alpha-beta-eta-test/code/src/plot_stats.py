@@ -49,7 +49,7 @@ def pretty_rho0(meanr, rho, sig, title= None,  xlim=None, ylim=None):
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
     if title is not None: plt.title(title)
-   #plt.tight_layout()
+    plt.tight_layout()
 
 def pretty_rho1(meanr, rho, sig, rho3=None, sig3=None, rho4=None, sig4=None, mlabel=False,  title= None,xlim=None, ylim=None):
     fsize = 24
@@ -76,14 +76,14 @@ def pretty_rho1(meanr, rho, sig, rho3=None, sig3=None, rho4=None, sig4=None, mla
 
     if mlabel:
         plt.legend([rho1_line, rho3_line, rho4_line],
-                   [r'$\rho_{1-}(\theta)$', r'$\rho_{3-}(\theta)$',
-                    r'$\rho_{4-}(\theta)$'], loc='upper right',
+                   [r'$\rho_{1-}$', r'$\rho_{3-}$',
+                    r'$\rho_{4-}$'], loc='best',
                    fontsize=fsize)
         plt.ylabel(r'$\rho_{-}(\theta)$', fontsize=fsize)
     else:
         plt.legend([rho1_line, rho3_line, rho4_line],
-                   [r'$\rho_{1+}(\theta)$', r'$\rho_{3+}(\theta)$',
-                    r'$\rho_{4+}(\theta)$'], loc='upper right',
+                   [r'$\rho_{1+}$', r'$\rho_{3+}$',
+                    r'$\rho_{4+}$'], loc='best',
                    fontsize=fsize)
         plt.ylabel(r'$\rho_{+}(\theta)$', fontsize=fsize)
 
@@ -123,14 +123,14 @@ def pretty_rho2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, mla
 
     if mlabel:
         plt.legend([rho0_line, rho2_line, rho5_line],
-                   [r'$\rho_{0-}(\theta)$', r'$\rho_{2-}(\theta)$',
-                    r'$\rho_{5-}(\theta)$'], loc='upper right',
+                   [r'$\rho_{0-}$', r'$\rho_{2-}$',
+                    r'$\rho_{5-}$'], loc='best',
                    fontsize=fsize)
         plt.ylabel(r'$\rho_{-}(\theta)$', fontsize=fsize)
     else:
         plt.legend([rho0_line, rho2_line, rho5_line],
-                   [r'$\rho_{0+}(\theta)$', r'$\rho_{2+}(\theta)$',
-                    r'$\rho_{5+}(\theta)$'], loc='upper right',
+                   [r'$\rho_{0+}$', r'$\rho_{2+}$',
+                    r'$\rho_{5+}$'], loc='best',
                    fontsize=fsize)
         plt.ylabel(r'$\rho_{+}(\theta)$', fontsize=fsize)
 
@@ -141,7 +141,7 @@ def pretty_rho2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, mla
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
     if title is not None: plt.title(title)
-    #plt.tight_layout()
+    plt.tight_layout()
 
 def pretty_tau2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, mlabel=False, title= None, xlim=None, ylim=None):
     fsize = 24
@@ -168,20 +168,18 @@ def pretty_tau2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, mla
 
     if mlabel:
         plt.legend([rho0_line, rho2_line, rho5_line],
-                   [r'$\tau_{0-}(\theta)$', r'$\tau_{2-}(\theta)$',
-                    r'$\tau_{5-}(\theta)$'], loc='upper right',
+                   [r'$\tau_{0-}$', r'$\tau_{2-}$',
+                    r'$\tau_{5-}$'], loc='upper right',
                    fontsize=fsize)
         plt.ylabel(r'$\tau_{-}(\theta)$', fontsize=fsize)
     else:
         plt.legend([rho0_line, rho2_line, rho5_line],
-                   [r'$\tau_{0+}(\theta)$', r'$\tau_{2+}(\theta)$',
-                    r'$\tau_{5+}(\theta)$'], loc='upper right',
+                   [r'$\tau_{0+}$', r'$\tau_{2+}$',
+                    r'$\tau_{5+}$'], loc='upper right',
                    fontsize=fsize)
         plt.ylabel(r'$\tau_{+}(\theta)$', fontsize=fsize)
 
     
-
-
     plt.tick_params(axis='both', which='major', labelsize=24)
     if ylim is not None: plt.ylim( ylim )
     if xlim is not None: plt.xlim(xlim)

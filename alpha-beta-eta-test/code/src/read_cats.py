@@ -424,7 +424,7 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
     return data
 
 
-def read_flask(catpath, seed, zbin, ck, flip=[False, False]):
+def read_flask(catpath, seed, zbin, ck, keys=None, flip=[False, False]):
     import numpy as np
     g1flip, g2flip =  flip
     filename = os.path.join(catpath, 'src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
@@ -435,8 +435,17 @@ def read_flask(catpath, seed, zbin, ck, flip=[False, False]):
     if g2flip: cat['GAMMA2'] *=-1; print("Applying flip in g2")
     
     nrows = len(cat['RA'])
-    formats = ['f4', 'f4', 'f4', 'f4']
-    data = np.recarray(shape=(nrows,), formats=formats, names=outkeys)
-    for i in range(4):  data[outkeys[i]] = np.array(cat[inkeys[i]])    
+    
+    
+    if keys is not None:
+        formats = []
+        for key in keys: formats.append('f4')
+        data = np.recarray(shape=(nrows,), formats=formats, names=keys)
+        for key in keys:
+            data[key] = np.array(cat[key]) 
+    else:
+        formats = ['f4', 'f4', 'f4', 'f4']
+        data = np.recarray(shape=(nrows,), formats=formats, names=outkeys)
+        for i in range(4):  data[outkeys[i]] = np.array(cat[inkeys[i]])    
     print('made recarray')
     return data

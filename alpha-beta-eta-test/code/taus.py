@@ -143,8 +143,9 @@ def main():
         hdul[6].header['QUANT1'] = 'GeR'; hdul[7].header['QUANT1'] = 'GeR'
         hdul[6].header['QUANT2'] = 'PwR'; hdul[7].header['QUANT2'] = 'PwR'
 
-        print("Printin file:", outpath + args.filename)
-        hdul.writeto(outpath + args.filename, overwrite=True)
+        filename = os.path.join(outpath, args.filename)
+        print("Printin file:", filename)
+        hdul.writeto(filename, overwrite=True)
                 
     else:
         data_galaxies = read_metacal(args.metacal_cat,  galkeys )
@@ -208,8 +209,9 @@ def main():
         hdul[6].header['QUANT1'] = 'GeR'; hdul[7].header['QUANT1'] = 'GeR'
         hdul[6].header['QUANT2'] = 'PwR'; hdul[7].header['QUANT2'] = 'PwR'
 
-        print("Printin file:", outpath + 'TAUS.fits' )
-        hdul.writeto(outpath + 'TAUS.fits', overwrite=True)
+        filename = os.path.join(outpath, 'TAUS.fits')
+        print("Printin file:", filename)
+        hdul.writeto(filename, overwrite=True)
     
 if __name__ == "__main__":
     main()

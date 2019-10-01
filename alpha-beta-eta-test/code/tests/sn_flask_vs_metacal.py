@@ -50,12 +50,12 @@ def main():
         if not os.path.exists(plotspath):
             os.makedirs(plotspath)
     except OSError:
-        if not os.path.exists(outpath): raise
+        if not os.path.exists(plotspath): raise
 
     galkeys = ['ra','dec','e_1','e_2','R11','R22','T', 'psf_T']
+    
     for zbin in [1, 2, 3, 4]:
     #for zbin in [None]:
-        
         print('Plotting histogram for zbin=', zbin)
         data_galaxies = read_metacal(args.metacal_cat, galkeys, zbin=zbin,nz_source_file=args.nz_source)
         data_gal_flask = read_flask(args.flask_cats,  args.seed, zbin=zbin, ck=1)
@@ -64,15 +64,54 @@ def main():
         e2_met = data_galaxies['e_2']; e2_flask = data_gal_flask['e_2']
         e_met = np.sqrt(e1_met**2 +  e2_met**2); e_flask = np.sqrt(e1_flask**2 +  e2_flask**2)
         ee_met = e1_met**2 +  e2_met**2; ee_flask = e1_flask**2 +  e2_flask**2
-
-        
-        plt.clf()
+    
         nbins = 10000; xmin = -2; xmax = 2  
         if zbin is not None:
             label = 'zbin:%d metacal'%(zbin)
             label2 = 'zbin:%d flask'%(zbin)
         else: label = None
 
+        plt.clf()
+        samps_met = np.column_stack((e1_met, e2_met))
+        names_metcal = ['e1', 'e2']
+        labels = [r'$e_{1}$', r'$e_{2}$']
+        samples_metacal = MCSamples(samples=samps_met,names = names_metcal, labels = labels,  label=r'M%d $\langle e^{2} \rangle$=%.3f'%(zbin, np.mean(ee_met)))
+        samps_flask = np.column_stack((e1_flask, e2_flask))
+        samples_flask = MCSamples(samples=samps_flask,names = names_metcal, labels = labels,  label=r'F%d $\langle e^{2} \rangle$=%.3f'%(zbin, np.mean(ee_flask)))
+        #g = plots.getSinglePlotter(width_inch=4, ratio=1)
+        #g.plot_2d([samples_metacal, samples_metacal], 'e1', 'e2', filled=True)
+        #g.add_legend(['metacal 1', 'metacal 2'], colored_text=True)
+        g = plots.getSubplotPlotter()
+        g.triangle_plot([samples_metacal, samples_flask], filled_compare=True, contour_colors=['green','darkblue'])
+        if zbin is not None: filename = os.path.join(plotspath,'ee_zbin%d.png'%(zbin))
+        else: filename =  os.path.join(plotspath,'ee.png')
+        plt.savefig(filename, dpi=200)
+        print('printed', filename)
+
+
+        ##WITHOUT SHAPENOISE
+        '''
+        flaskeys = ['GAMMA1_TRUE', 'GAMMA2_TRUE']
+        data_gal_flask_t = read_flask(args.flask_cats,  args.seed, zbin=zbin, ck=1,  keys=flaskeys)
+        e1_flask_t = data_gal_flask_t['GAMMA1_TRUE']
+        e2_flask_t = data_gal_flask_t['GAMMA2_TRUE']
+        ee_flask_t = e1_flask_t**2 +  e2_flask_t**2
+        
+        plt.clf()
+        samps_met = np.column_stack((e1_met, e2_met))
+        names_metcal = ['e1', 'e2']
+        labels = [r'$e_{1}$', r'$e_{2}$']
+        samples_metacal = MCSamples(samples=samps_met,names = names_metcal, labels = labels,  label=r'M%d $\langle e^{2} \rangle$=%.3f'%(zbin, np.mean(ee_met)))
+        samps_flask = np.column_stack((e1_flask_t, e2_flask_t))
+        samples_flask = MCSamples(samples=samps_flask,names = names_metcal, labels = labels,  label=r'F%d $\langle e^{2} \rangle$=%.3f'%(zbin, np.mean(ee_flask_t)))
+        g = plots.getSubplotPlotter()
+        g.triangle_plot([samples_metacal, samples_flask], filled_compare=True, contour_colors=['green','darkblue'])
+        if zbin is not None: filename = os.path.join(plotspath,'ee_zbin%d_true.png'%(zbin))
+        else: filename =  os.path.join(plotspath,'ee_true.png')
+        plt.savefig(filename, dpi=200)
+        '''
+
+        
         '''
         print('Len e1_met', len(e1_met), 'Min e1_met:',  min(e1_met), 'Max e1_met', max(e1_met), 'Mean e1_met', np.mean(e1_met) )
         plt.hist(e1_met, bins=np.linspace(xmin, xmax, nbins), label=label,  weights=np.ones(len(e1_met))/len(e1_met) )
@@ -139,21 +178,6 @@ def main():
         plt.savefig(filename)
         '''
         
-        plt.clf()
-        samps_met = np.column_stack((e1_met, e2_met))
-        names_metcal = ['e1', 'e2']
-        labels = [r'$e_{1}$', r'$e_{2}$']
-        samples_metacal = MCSamples(samples=samps_met,names = names_metcal, labels = labels,  label=r'M%d $\langle e^{2} \rangle$=%.3f'%(zbin, np.mean(ee_met)))
-        samps_flask = np.column_stack((e1_flask, e2_flask))
-        samples_flask = MCSamples(samples=samps_flask,names = names_metcal, labels = labels,  label=r'F%d $\langle e^{2} \rangle$=%.3f'%(zbin, np.mean(ee_flask)))
-        #g = plots.getSinglePlotter(width_inch=4, ratio=1)
-        #g.plot_2d([samples_metacal, samples_metacal], 'e1', 'e2', filled=True)
-        #g.add_legend(['metacal 1', 'metacal 2'], colored_text=True)
-        g = plots.getSubplotPlotter()
-        g.triangle_plot([samples_metacal, samples_flask], filled_compare=True, contour_colors=['green','darkblue'])
-        if zbin is not None: filename = os.path.join(plotspath,'ee_zbin%d.png'%(zbin))
-        else: filename =  os.path.join(plotspath,'ee.png')
-        plt.savefig(filename, dpi=200)
         
         '''
         fig = plt.figure(figsize = (6, 6))

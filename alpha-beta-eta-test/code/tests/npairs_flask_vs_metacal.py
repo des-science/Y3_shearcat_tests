@@ -11,7 +11,7 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/npairstaus_metacal.fits',
                         help='Full Path to the Metacalibration npairs file')
     parser.add_argument('--npairstaus_flask',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/npairstaus_flask_seed1.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/npairstausflask_seed1.fits',
                         help='Full Path to the flask npairs file')
     parser.add_argument('--plotspath',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/plots/',
@@ -43,18 +43,29 @@ def main():
         meanr_flask =  flask_pairs_data['ANG']
         npairs_flask = flask_pairs_data['NPAIRS']
         plt.clf()
-        plt.plot( meanr_metacal, npairs_metacal, color='red', label='Metacal zbin%d'%(zbin))
-        plt.plot( meanr_flask, npairs_flask, color='blue', label='Flask zbin%d'%(zbin))
-        plt.legend(loc='best', fontsize=lfontsize)
+        plt.plot( meanr_metacal, npairs_metacal, color='red', label='Metacal zbin%d'%(zbin), marker='o')
+        plt.plot( meanr_flask, npairs_flask, color='blue', label='Flask zbin%d'%(zbin), marker='o')
+        plt.legend(loc='best', fontsize=24)
         plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
         plt.ylabel('N pairs', fontsize=24)
         plt.xscale('log')
         plt.yscale('log', nonposy='clip')
         plt.tight_layout()
         filename = os.path.join(plotspath, 'npairs_zbin%d.png'%(zbin))
-        print('Printing :' filename)
+        print('Printing :',  filename)
         plt.savefig(filename)
-        
+        plt.clf()
+        plt.plot( meanr_metacal, npairs_flask/npairs_metacal, color='red', label='zbin%d'%(zbin), marker='o')
+        plt.ylim([0.5, 2])
+        plt.legend(loc='best', fontsize=24)
+        plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
+        plt.ylabel('Npairs ratio', fontsize=24)
+        plt.xscale('log')
+        #plt.yscale('log', nonposy='clip')
+        plt.tight_layout()
+        filename = os.path.join(plotspath, 'ratio_npairs_zbin%d.png'%(zbin))
+        print('Printing :',  filename)
+        plt.savefig(filename)
       
         
 

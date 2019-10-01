@@ -9,14 +9,14 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Correlation of reserved stars')
     parser.add_argument('--taus',
-                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
-                        default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/taus_zbin1_large_scales.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/taus_zbin2_large_scales.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/taus_zbin3_large_scales.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/taus_zbin4_large_scales.fits'], 
+                        default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
+                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/taus_zbin1_large_scales.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/taus_zbin2_large_scales.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/taus_zbin3_large_scales.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/taus_zbin4_large_scales.fits'], 
                         help='Ordered list of fits TAUS, containing all tau stats used to estimate abe')
     parser.add_argument('--plotspath',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/plots/',
@@ -88,6 +88,11 @@ def main():
        pretty_tau_ax(ax4,  meanr, tau2m, tau2msig, legend='Bin %d'%(i + 1), lfontsize=14, color=colors[i], marker='o', ylabel=r'$\tau_{2-}$')
        pretty_tau_ax(ax5,  meanr, tau5p, tau5psig, legend='Bin %d'%(i + 1), lfontsize=14, color=colors[i], marker='o', ylabel=r'$\tau_{5+}$')
        pretty_tau_ax(ax6,  meanr, tau5m, tau5msig, legend='Bin %d'%(i + 1), lfontsize=14, color=colors[i], marker='o', ylabel=r'$\tau_{5-}$')
+
+    ylims = [[1.e-8, 6.e-4], [1.e-9, 3.e-5], [5.e-11, 1.e-5], [5.e-11, 1.e-5], [1.e-11, 5.e-7], [6.e-12, 5.e-7]]
+    for ax, ylim  in zip([ax1, ax2, ax3, ax4, ax5, ax6], ylims):
+        ax.set_ylim(ylim)
+        
     exts = ['tau0p', 'tau0m', 'tau2p', 'tau2m', 'tau5p', 'tau5m']
     for i, fig  in enumerate([fig1, fig2, fig3, fig4, fig5, fig6]):
         fig.tight_layout()

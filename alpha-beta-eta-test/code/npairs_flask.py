@@ -8,7 +8,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Produce Tau correlations, i.e correlation among galaxies and reserved stars for all Flask realisations')
     
     parser.add_argument('--flask_cat',
-                        default='/home/dfa/sobreira/alsina/catalogs/flask/desy3_6x2pt_lognormal-maskedcats_v3/', 
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_6x2pt_lognormal-maskedcats_v3/', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
                         default='/home/dfa/sobreira/alsina/catalogs/y3a1-v29',
@@ -31,7 +31,7 @@ def parse_args():
                         help='seed used, useful to run parallel')
     parser.add_argument('--cookie', default=1 , type=int,
                         help='cookie used, useful to run parallel')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/flask/taus_v3/',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')    
     args = parser.parse_args()
 
@@ -40,7 +40,7 @@ def parse_args():
 def main():
     from astropy.io import fits
     import numpy as np
-    from src.runcorr import measure_tau
+    from src.runcorr import measure_npairs
     from src.read_cats import read_data, toList, read_flask
     import h5py as h
     
@@ -70,7 +70,9 @@ def main():
     bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
     ck=args.cookie
-    for seed in range (args.seed, 701):
+    hdu = fits.PrimaryHDU()
+    hdul = fits.HDUList([hdu])
+    for seed in range (1, 2):
         for zbin in range(1, 5):
             #SKIP ALREADY PROCESS OR missing flask cats
             outname = os.path.join(outpath, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
@@ -86,12 +88,12 @@ def main():
 
             ##Format of the fit file output
             names=['ANG', 'NPAIRS']
-            forms = ['f8',  'i4']
+            forms = ['f8',  'i8']
             dtype = dict(names = names, formats=forms)
             nrows = len(results.npairs)
             outdata = np.recarray((nrows, ), dtype=dtype)
       
-            angarray = np.exp(tau0.meanlogr)
+            angarray = np.exp(results.meanlogr)
             array_list = [angarray, np.array(results.npairs)  ]
             for array, name in zip(array_list, names): outdata[name] = array
             corrhdu = fits.BinTableHDU(outdata, name='NPAIRS%d'%(zbin))
