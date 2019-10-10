@@ -407,17 +407,20 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
         print("Reading only data from bin",  zbin)
         n = h.File(nz_source_file, 'r')
         zbin_array = np.array(n['nofz/zbin'])
-        ind = np.where( zbin_array==zbin )[0]
-        ind_1p = np.where(np.array(n['nofz/zbin_1p'])==zbin)
-        ind_1m = np.where(np.array(n['nofz/zbin_1m'])==zbin)
-        ind_2p = np.where(np.array(n['nofz/zbin_2p'])==zbin)
-        ind_2m = np.where(np.array(n['nofz/zbin_2m'])==zbin)
+        ind = np.where( zbin_array==zbin-1 )[0]
+        ind_1p = np.where(np.array(n['nofz/zbin_1p'])==zbin - 1)
+        ind_1m = np.where(np.array(n['nofz/zbin_1m'])==zbin - 1)
+        ind_2p = np.where(np.array(n['nofz/zbin_2p'])==zbin - 1)
+        ind_2m = np.where(np.array(n['nofz/zbin_2m'])==zbin - 1)
         R11s = (data['e_1'][select_1p][ind_1p].mean() - data['e_1'][select_1m][ind_1m].mean() )/dgamma
         R22s = (data['e_2'][select_2p][ind_2p].mean() - data['e_2'][select_2m][ind_2m].mean() )/dgamma
         data = data[select][ind]
         
     data['e_1'] = data['e_1']/(R11s + np.mean(data['R11']))
     data['e_2'] = data['e_2']/(R22s + np.mean(data['R22']))
+    if zbin is not None: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]  bin%d:'%(zbin))
+    else: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]')
+    print(R11s + np.mean(data['R11']), R22s + np.mean(data['R22']))
     print('Metal read sucesfully',  len(data),  'objects')
     #del f, cat
     #gc.collect()
@@ -445,6 +448,29 @@ def read_flask(catpath, seed, zbin, ck, keys=None, flip=[False, False]):
             data[key] = np.array(cat[key]) 
     else:
         formats = ['f4', 'f4', 'f4', 'f4']
+        data = np.recarray(shape=(nrows,), formats=formats, names=outkeys)
+        for i in range(4):  data[outkeys[i]] = np.array(cat[inkeys[i]])    
+    print('made recarray')
+    return data
+def read_jk(filename,  keys=None):
+    import numpy as np
+    cat =  fitsio.read(filename)
+    inkeys = ['RA','DEC','GAMMA1','GAMMA2', 'JKID']
+    outkeys = ['ra','dec','e_1','e_2', 'JKID']
+     
+    nrows = len(cat['RA'])
+    
+    
+    if keys is not None:
+        formats = []
+        for key in keys:
+            if key == 'JKID': formats.append('i4')
+        else: formats.append('f4')
+        data = np.recarray(shape=(nrows,), formats=formats, names=keys)
+        for key in keys:
+            data[key] = np.array(cat[key]) 
+    else:
+        formats = ['f4', 'f4', 'f4', 'f4', 'i4']
         data = np.recarray(shape=(nrows,), formats=formats, names=outkeys)
         for i in range(4):  data[outkeys[i]] = np.array(cat[inkeys[i]])    
     print('made recarray')

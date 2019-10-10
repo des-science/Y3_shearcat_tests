@@ -12,9 +12,9 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_4.fits',
                         help='Full Path to the taus measurement of metcal')
     parser.add_argument('--tausflask',
-                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_g1g2flip/',
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_mysp/',
                         help='Full Path to the taus measurement of flask catalogs')
-    parser.add_argument('--zbin', default=4 , type=int,
+    parser.add_argument('--zbin', default=2 , type=int,
                         help='seed used, useful to run parallel')
     parser.add_argument('--plots', default=True,
                         action='store_const', const=True, help='Plot correlations functions')
@@ -64,9 +64,13 @@ def plotflask(tausmetacal, zbin, tausflask, plotspath):
             name = os.path.join(tausflask, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
             exist =  os.path.isfile(name)
             if exist:
-                meanr, taus, covtaus = read_taus(name)
+                try:
+                    meanr, taus, covtaus = read_taus(name)
+                except:
+                    print(name, 'exist but not readable probably a temporary file')
+                    continue
                 if (np.count_nonzero(taus) == 0):
-                    print("Warning, weird measurement, skipping", name)
+                    print("Warning, weird measurement all zero, skipping", name)
                 else:
                     ax1.plot(meanr, taus[0], 'k',  color='blue', alpha=0.15)
                     ax1.set_ylabel(r'$\tau_{0+}$')

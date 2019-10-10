@@ -8,7 +8,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Produce Tau correlations, i.e correlation among galaxies and reserved stars for all Flask realisations')
     
     parser.add_argument('--flask_cat',
-                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_6x2pt_lognormal-maskedcats_v3/', 
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_mysp2/', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
                         default='/home/dfa/sobreira/alsina/catalogs/y3a1-v29',
@@ -72,36 +72,36 @@ def main():
     ck=args.cookie
     hdu = fits.PrimaryHDU()
     hdul = fits.HDUList([hdu])
-    for seed in range (1, 2):
-        for zbin in range(1, 5):
-            #SKIP ALREADY PROCESS OR missing flask cats
-            outname = os.path.join(outpath, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
-            inname = os.path.join(args.flask_cat, 'src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
-            if os.path.isfile(outname):
-                print(outname, "Already exist. Skipping")
-                continue
-            if not os.path.isfile(inname):
-                print(inname, "does not exist. Skipping")
-                continue
-            data_galaxies =  read_flask(args.flask_cat, seed, zbin, ck)
-            results = measure_npairs( data_stars , data_galaxies, bin_config, mod=args.mod)[0]
+    seed = args.seed
+    for zbin in range(1, 5):
+        #SKIP ALREADY PROCESS OR missing flask cats
+        outname = os.path.join(outpath, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
+        inname = os.path.join(args.flask_cat, 'src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
+        if os.path.isfile(outname):
+            print(outname, "Already exist. Skipping")
+            continue
+        if not os.path.isfile(inname):
+            print(inname, "does not exist. Skipping")
+            continue
+        data_galaxies =  read_flask(args.flask_cat, seed, zbin, ck)
+        results = measure_npairs( data_stars , data_galaxies, bin_config, mod=args.mod)[0]
 
-            ##Format of the fit file output
-            names=['ANG', 'NPAIRS']
-            forms = ['f8',  'i8']
-            dtype = dict(names = names, formats=forms)
-            nrows = len(results.npairs)
-            outdata = np.recarray((nrows, ), dtype=dtype)
+        ##Format of the fit file output
+        names=['ANG', 'NPAIRS']
+        forms = ['f8',  'i8']
+        dtype = dict(names = names, formats=forms)
+        nrows = len(results.npairs)
+        outdata = np.recarray((nrows, ), dtype=dtype)
       
-            angarray = np.exp(results.meanlogr)
-            array_list = [angarray, np.array(results.npairs)  ]
-            for array, name in zip(array_list, names): outdata[name] = array
-            corrhdu = fits.BinTableHDU(outdata, name='NPAIRS%d'%(zbin))
-            hdul.insert(zbin, corrhdu)
+        angarray = np.exp(results.meanlogr)
+        array_list = [angarray, np.array(results.npairs)  ]
+        for array, name in zip(array_list, names): outdata[name] = array
+        corrhdu = fits.BinTableHDU(outdata, name='NPAIRS%d'%(zbin))
+        hdul.insert(zbin, corrhdu)
         
-        filename = os.path.join(outpath, 'npairstausflask_seed%d.fits'%(seed) )
-        print("Printing file:", filename)
-        hdul.writeto(filename, overwrite=True)
+    filename = os.path.join(outpath, 'npairstausflask_seed%d.fits'%(seed) )
+    print("Printing file:", filename)
+    hdul.writeto(filename, overwrite=True)
             
 
 if __name__ == "__main__":

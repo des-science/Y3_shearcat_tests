@@ -33,8 +33,6 @@ def parse_args():
                         help='bin_config file for running taus')
     parser.add_argument('--njks', default=4,type=int, 
                         help='Number of patches to divide footprint')
-    parser.add_argument('--zbin', default=None,type=int, 
-                        help='Run particular tomobin')
     parser.add_argument('--nz_source',
                         default='/home/dfa/sobreira/alsina/catalogs/Y3_mastercat_7_24/nz_source_zbin.h5',
                         help='Full Path to the Only stars Piff catalog')    
@@ -123,10 +121,10 @@ def main():
     else:
         bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
     
-    if args.zbin is not None:
-        print('Starting measurement for zbin', args.zbin)
+    for zbin in range(1, 5):
+        print('Starting measurement for zbin', zbin)
         
-        data_gal = read_metacal(args.metacal_cat,  galkeys,  zbin=args.zbin,  nz_source_file=args.nz_source)
+        data_gal = read_metacal(args.metacal_cat,  galkeys,  zbin=zbin,  nz_source_file=args.nz_source)
         njk = args.njks
         ##TODO generate km first an later finnearest,
         jkindexes_gals = jk_kmeans(data_sam['ra'], data_sam['dec'], data_gal['ra'], data_gal['dec'],njk)
@@ -194,7 +192,7 @@ def main():
             hdul[6].header['QUANT1'] = 'GeR'; hdul[7].header['QUANT1'] = 'GeR'
             hdul[6].header['QUANT2'] = 'PwR'; hdul[7].header['QUANT2'] = 'PwR'
 
-            filename = os.path.join(outpath, 'taus_jk%d_z%d.fits'%(jkidx, args.zbin))
+            filename = os.path.join(outpath, 'taus_jk%d_z%d.fits'%(jkidx, zbin))
             
             print("Printing file:", filename)
             hdul.writeto(filename, overwrite=True)

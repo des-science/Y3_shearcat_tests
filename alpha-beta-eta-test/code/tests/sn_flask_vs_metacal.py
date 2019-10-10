@@ -12,7 +12,7 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/catalogs/Y3_mastercat_7_24/Y3_mastercat_7_24_19.h5',
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--flask_cats',
-                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_6x2pt_lognormal-maskedcats_v3/',
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_mysp2/',
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--seed', default=1, type=int, 
                         help='Selecting a particular seed')

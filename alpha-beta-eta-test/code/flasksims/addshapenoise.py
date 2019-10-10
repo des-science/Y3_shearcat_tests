@@ -13,7 +13,7 @@ def parse_args():
     parser.add_argument('--metacal_cat',
                         default='/home/dfa/sobreira/alsina/catalogs/Y3_mastercat_7_24/Y3_mastercat_7_24_19.h5', 
                         help='Full Path to the Metacalibration catalog')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_mysp',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_mysp2',
                         help='location of the output of the files')
     parser.add_argument('--sigma_e1', default=0, type=float,
                         help='shapenoise first component')
@@ -68,7 +68,7 @@ def main():
     flaskeys = ['RA','DEC','GAMMA1_TRUE', 'GAMMA2_TRUE']
     
     ck=args.cookie
-    for seed in range (args.seed, 1000):
+    for seed in range (575, 1000):
         for zbin in range(args.zbin, 5):
             #SKIP ALREADY PROCESS OR missing flask cats
             inname = os.path.join(args.flask_cat, 'src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))

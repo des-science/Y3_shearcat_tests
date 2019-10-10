@@ -1,7 +1,6 @@
 today = '08-19-19_'
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 
 def parse_args():
     import argparse
@@ -14,7 +13,7 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/catalogs/y3a1-v29',
                         help='Full Path to the Only stars Piff catalog')
     parser.add_argument('--exps_file',
-                        default='/home/dfa/sobreira/alsina/DESWL/psf/ally3.grizY',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/code/ally3.grizY',
                         #default='/home/dfa/sobreira/alsina/DESWL/psf/testexp',
                         help='list of exposures (in lieu of separate exps)')
     parser.add_argument('--bands', default='riz', type=str,
@@ -39,7 +38,7 @@ def parse_args():
     parser.add_argument('--g2flip', default=False,
                         action='store_const', const=True,
                         help='If true invert the sig of g2')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/flask/taus_v3/',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_flask_0.1-1/',
                         help='location of the output of the files')    
     args = parser.parse_args()
 
@@ -75,11 +74,12 @@ def main():
     data_stars = data_stars[data_stars['mag']<20]
     print("Objects with magnitude <20",  len(data_stars))
  
-    bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
+    bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 1.0, nbins = 10,)
+    #bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
     flip = [args.g1flip, args.g2flip]
     ck=args.cookie
-    for seed in range (args.seed, 701):
+    for seed in range (args.seed, 1000):
         for zbin in range(args.zbin, 5):
             #SKIP ALREADY PROCESS OR missing flask cats
             outname = os.path.join(outpath, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))

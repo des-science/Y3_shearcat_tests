@@ -12,10 +12,10 @@ def parse_args():
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
-                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1_v2.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2_v2.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3_v2.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4_v2.fits'],
+                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_1.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_2.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_3.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_4.fits'],
                         help='Ordered list of fits TAUS, containing all tau stats used to estimate abe')
     parser.add_argument('--singletau',
                         default=None, 
@@ -1080,6 +1080,7 @@ def main():
             axs=[ax1,ax2,ax3,ax4,ax5,ax6,ax7]
             figs=[fig1,fig2,fig3,fig4,fig5,fig6]
             ylabels=[r'$\tau_{0+}$',r'$\tau_{0-}$',r'$\tau_{2+}$',r'$\tau_{2-}$',r'$\tau_{5+}$',r'$\tau_{5-}$']
+            eq, abe, ab, ae, be, a, b, e = models_combo
             for i,  taufile in enumerate(args.taus):
                 parsp, chi2p_nu, parsm, chi2m_nu =RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                                  models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
@@ -1098,11 +1099,13 @@ def main():
                 for i, fig in enumerate(figs):
                     print('Printing', plotspath+'tau%d_bestfit.png'%(i))
                     axs[i].set_ylabel(ylabels[i])
-                    axs[i].set_title('Alpha-beta')
+                    if abe: axs[i].set_title('Alpha-beta-eta')
+                    if ab: axs[i].set_title('Alpha-beta')
                     fig.tight_layout()
-                    fig.savefig(plotspath+'tau%d_bestfit_ab.png'%(i),dpi=200)
+                    if ab: fig.savefig(plotspath+'tau%d_bestfit_ab.png'%(i),dpi=200)
+                    if abe: fig.savefig(plotspath+'tau%d_bestfit_abe.png'%(i),dpi=200)
                     
-            eq, abe, ab, ae, be, a, b, e = models_combo
+            
             if abe:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('abe', eq)
             if ab:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('ab', eq)
             if ae:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('ae', eq)

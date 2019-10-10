@@ -46,6 +46,7 @@ def parse_args():
     return args
 
 def main():
+    import sys; sys.path.append(".")
     from src.read_cats import read_data_stars, toList, read_metacal
     from src.runcorr import measure_tau
     from astropy.io import fits
