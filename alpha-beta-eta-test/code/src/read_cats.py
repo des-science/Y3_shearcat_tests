@@ -372,7 +372,7 @@ def read_h5(filename, folder, keys):
 
 def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
     import h5py as h
-    #import gc
+  
     dgamma = 2*0.01
     
     f = h.File(filename, 'r')
@@ -399,8 +399,8 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
     select_2p = np.array(f['index/select_2p'])
     select_2m = np.array(f['index/select_2m']) 
     if zbin is None:
-        R11s = (data['e_1'][select_1p].mean() - data['e_1'][select_1m].mean() )/dgamma
-        R22s = (data['e_2'][select_2p].mean() - data['e_2'][select_2m].mean() )/dgamma
+        if 'e_1' in keys: R11s = (data['e_1'][select_1p].mean() - data['e_1'][select_1m].mean() )/dgamma
+        if 'e_2' in keys: R22s = (data['e_2'][select_2p].mean() - data['e_2'][select_2m].mean() )/dgamma
         data = data[select]
         
     else:
@@ -412,18 +412,18 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
         ind_1m = np.where(np.array(n['nofz/zbin_1m'])==zbin - 1)
         ind_2p = np.where(np.array(n['nofz/zbin_2p'])==zbin - 1)
         ind_2m = np.where(np.array(n['nofz/zbin_2m'])==zbin - 1)
-        R11s = (data['e_1'][select_1p][ind_1p].mean() - data['e_1'][select_1m][ind_1m].mean() )/dgamma
-        R22s = (data['e_2'][select_2p][ind_2p].mean() - data['e_2'][select_2m][ind_2m].mean() )/dgamma
+        if 'e_1' in keys: R11s = (data['e_1'][select_1p][ind_1p].mean() - data['e_1'][select_1m][ind_1m].mean() )/dgamma
+        if 'e_2' in keys: R22s = (data['e_2'][select_2p][ind_2p].mean() - data['e_2'][select_2m][ind_2m].mean() )/dgamma
         data = data[select][ind]
         
-    data['e_1'] = data['e_1']/(R11s + np.mean(data['R11']))
-    data['e_2'] = data['e_2']/(R22s + np.mean(data['R22']))
-    if zbin is not None: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]  bin%d:'%(zbin))
-    else: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]')
-    print(R11s + np.mean(data['R11']), R22s + np.mean(data['R22']))
+    if 'e_1' in keys: data['e_1'] = data['e_1']/(R11s + np.mean(data['R11']))
+    if 'e_2' in keys: data['e_2'] = data['e_2']/(R22s + np.mean(data['R22']))
+    if 'e_1' and 'e_2' in keys:
+        if zbin is not None: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]  bin%d:'%(zbin))
+        else: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]')
+        print(R11s + np.mean(data['R11']), R22s + np.mean(data['R22']))
     print('Metal read sucesfully',  len(data),  'objects')
-    #del f, cat
-    #gc.collect()
+
     return data
 
 

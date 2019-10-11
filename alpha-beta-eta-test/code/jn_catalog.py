@@ -1,7 +1,10 @@
 import numpy as np
 import os
 import kmeans_radec
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+plt.style.use('SVA1StyleSheet.mplstyle')
 
 def parse_args():
     import argparse
@@ -17,6 +20,8 @@ def parse_args():
                         help='location of the output of the files')
     parser.add_argument('--njks', default=1000,type=int, 
                         help='Number of patches to divide footprint')
+    parser.add_argument('--plot', default=False,
+                        action='store_const', const=True, help='Plot jkmeans')
        
     
     args = parser.parse_args()
@@ -24,19 +29,7 @@ def parse_args():
     return args
 
 def jk_kmeans(ra_sam, dec_sam, ra,dec,njk,plot=False):
-    '''
-    Function that takes RA and Dec from a given catalog and computes JK regions using kmeans_radec module by Erin Sheldon.
-    
-    Parameters
-    ----------
-    ra, dec : numpy arrays of RA and Dec. len(ra) = len(dec) = number of galaxies.
-    njk : number of JK regions.
-    
-    Returns
-    -------
-    jk = JK region for each galaxy: integer ranging from 0 to njk-1. It is numpy array with the same length as ra and dec. 
-
-    '''
+ 
     print("Running kmeans")
     from astropy.coordinates import SkyCoord, Angle
     from astropy import units
@@ -44,10 +37,18 @@ def jk_kmeans(ra_sam, dec_sam, ra,dec,njk,plot=False):
     radec[:,0] = ra; radec_sam[:,0] = ra_sam
     radec[:,1] = dec; radec_sam[:,1] = dec_sam
     km = kmeans_radec.kmeans_sample(radec_sam,njk,maxiter=100,tol=1e-05)
-    jk = km.find_nearest(radec)
-    if not km.converged:
-        print('k means did not converge')
     if plot:
+        jk_sam = km.find_nearest(radec_sam)
+        coords = SkyCoord(ra=ra_sam, dec=dec_sam, unit='degree')
+        ra_sam = coords.ra.wrap_at(180 * units.deg)
+        dec_sam = coords.dec
+        plt.figure()
+        plt.scatter(ra_sam,dec_sam,c=jk_sam,lw=0,cmap='Paired',rasterized=True)
+        plt.xlabel(r'RA',fontsize=12)
+        plt.ylabel(r'Dec',fontsize=12)
+        plt.tight_layout()
+        plt.savefig('jk_kmeans.png', dpi=200)
+        '''
         coords = SkyCoord(ra=ra, dec=dec, unit='degree')
         ra = coords.ra.wrap_at(180 * units.deg)
         dec = coords.dec
@@ -57,6 +58,12 @@ def jk_kmeans(ra_sam, dec_sam, ra,dec,njk,plot=False):
         plt.ylabel(r'Dec',fontsize=12)
         plt.tight_layout()
         plt.savefig('jk_kmeans.png')
+        '''
+    
+    jk = km.find_nearest(radec)
+    if not km.converged:
+        print('k means did not converge')
+
     print("kmeans finished!")
     return jk
 
@@ -83,27 +90,25 @@ def main():
     names=['RA', 'DEC', 'GAMMA1', 'GAMMA2', 'JKID']
     forms = ['f4', 'f4', 'f4',  'f4', 'i4']
     dtype = dict(names = names, formats=forms)
-    
-  
  
-    galkeys = ['ra','dec','e_1','e_2','R11','R22']
-    data_sam = read_metacal(args.metacal_cat,  galkeys)
-    frac = 0.0001
-    nobjs = len(data_sam['ra'])
-    print('Initial number of objects', nobjs)
+    
+    
+    nobjs = len(read_metacal(args.metacal_cat,  ['ra']))
     mask = np.array( [True]*nobjs)
     mask = np.where(mask)[0]
-    mask = np.random.choice(mask, int(frac*nobjs) , replace=False)
-    data_sam=data_sam[mask]
+    mask = np.random.choice(mask, 100000 , replace=False)
+    data_sam=read_metacal(args.metacal_cat,  ['ra', 'dec'])[mask]
+   
     print('sampling jk regions number of objs', len(data_sam))
 
+    galkeys = ['ra','dec','e_1','e_2','R11','R22']
     for zbin in range(1, 5):
         print('Starting measurement for zbin', zbin)
         
         data_gal = read_metacal(args.metacal_cat,  galkeys,  zbin=zbin,  nz_source_file=args.nz_source)
         njk = args.njks
         ##TODO generate km first an later finnearest,
-        jkindexes_gals = jk_kmeans(data_sam['ra'], data_sam['dec'], data_gal['ra'], data_gal['dec'],njk)
+        jkindexes_gals = jk_kmeans(data_sam['ra'], data_sam['dec'], data_gal['ra'][:3000000], data_gal['dec'][: 3000000],njk,  plot=args.plot)
         
         nrows = len(data_gal['ra'])
         outdata = np.recarray((nrows, ), dtype=dtype)
