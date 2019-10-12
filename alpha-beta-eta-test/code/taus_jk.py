@@ -30,7 +30,7 @@ def parse_args():
                         help='If true it substracts the mean to each field before calculate correlations')
     parser.add_argument('--jkidx', default=1,  type=int,
                         help='seed used, useful to run parallel')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_jk_0.1-1/',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/JK/taus_jk_0.1-1/',
                         help='location of the output of the files')    
     args = parser.parse_args()
 
@@ -88,10 +88,9 @@ def main():
         new_file = open(outname, "w")
         
         booljk = [ data_galaxies['JKID']!=jkidx ] 
-        print("Total objects in patch%d: %d"%(jkidx,len(data_galaxies[booljk]))
+        print("Total objects in patch%d: %d"%(jkidx,len(data_galaxies[booljk])))
         
-        tau0, tau2, tau5= measure_tau( data_stars , data_galaxies[booljk],
-                                       bin_config, mod=args.mod)
+        tau0, tau2, tau5= measure_tau( data_stars , data_galaxies[booljk], bin_config, mod=args.mod)
         tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
         tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
         taus = [tau0parr,tau0marr, tau2parr, tau2marr, tau5parr, tau5marr]

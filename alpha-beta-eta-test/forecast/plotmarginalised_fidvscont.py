@@ -1,3 +1,8 @@
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+plt.style.use('SVA1StyleSheet.mplstyle')
+
 import os
 def parse_args():
     import argparse
@@ -30,8 +35,9 @@ def main():
 
     allnames = np.array(['Om','h0','Ob','ns','a_s','Onuh2','b1','b2','b3','b4','b5','m1','m2','m3','m4','ia_a','ia_alpha', 'wpz_b1','wpz_b2','wpz_b3','wpz_b4','lpz_b1','lpz_bin2','lpz_bin3','lpz_bin4','lpz_bin5','s8','like','post','weight'])
     alllabels = np.array(['\Omega_m', 'h', '\Omega_b', 'n_s','a_s', r'\Omega_{\nu}','b1','b2','b3','b4','b5','m1','m2','m3','m4','ia_a','ia_alpha', 'wpz_b1','wpz_b2','wpz_b3','wpz_b4','lpz_b1','lpz_bin2','lpz_bin3','lpz_bin4','lpz_bin5',r'\sigma_{8}','like','post','weight'])
-    #useindex = [0, 1, 2, 3, 4, 5,- 4]
     useindex = [0, 1, 2, 3, 4, 5,- 4]
+    #Only change this indixes to selec particular parameters
+    #useindex = [0, - 4]
     usednames = allnames[useindex]
     usedlabels = alllabels[useindex]
 
@@ -70,7 +76,9 @@ def main():
     g.triangle_plot([samples, samples_cont], filled_compare=True, contour_colors=['green','darkblue'])
     #g.add_legend(legend_labels=[legend_name], fontsize=36, legend_loc=(-3.5,7))
     filename = os.path.join(out,'getdistplot.png')
-    g.export(filename)
+    plt.savefig(filename, dpi=500)
+    #g.export(filename)
+    
 
     
 
