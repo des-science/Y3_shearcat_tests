@@ -108,13 +108,15 @@ def main():
         data_gal = read_metacal(args.metacal_cat,  galkeys,  zbin=zbin,  nz_source_file=args.nz_source)
         njk = args.njks
         ##TODO generate km first an later finnearest,
-        jkindexes_gals = jk_kmeans(data_sam['ra'], data_sam['dec'], data_gal['ra'][:3000000], data_gal['dec'][: 3000000],njk,  plot=args.plot)
+        jkindexes_gals = jk_kmeans(data_sam['ra'], data_sam['dec'], data_gal['ra'][:1000000], data_gal['dec'][: 1000000],njk,  plot=args.plot)
         
         nrows = len(data_gal['ra'])
         outdata = np.recarray((nrows, ), dtype=dtype)
         array_list = [data_gal['ra'], data_gal['dec'], data_gal['e_1'], data_gal['e_2'], jkindexes_gals]
         for array, name in zip(array_list, names): outdata[name] = array 
-    
+
+        hdu = fits.PrimaryHDU()
+        hdul = fits.HDUList([hdu])
         corrhdu = fits.BinTableHDU(outdata, name='METACAL_JK_z%d'%(zbin) )
         hdul.insert(1, corrhdu)
 
