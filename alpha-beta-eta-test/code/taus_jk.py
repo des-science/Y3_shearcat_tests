@@ -55,6 +55,7 @@ def main():
     
   
     #Reading Mike stars catalog
+
     keys = ['ra', 'dec','obs_e1', 'obs_e2', 'obs_T',
             'piff_e1', 'piff_e2', 'piff_T', 'mag']
  
@@ -66,6 +67,7 @@ def main():
     data_stars = data_stars[data_stars['mag']<20]
     print("Objects with magnitude <20",  len(data_stars))
  
+ 
     bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 1.0, nbins = 10,)
     #bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
@@ -76,19 +78,16 @@ def main():
     
     for jkidx in range (args.jkidx, 1000):
         #SKIP ALREADY PROCESS OR missing flask cats
-        outname = os.path.join(outpath, 'taus_src-cat_jk%d_z%.fits'%(jkidx,zbin ))
-        inname = os.path.join(args.flask_cat, 'src-cat_jk%d_z%d.fits'%(jkidx,zbin ))
+        outname = os.path.join(outpath, 'taus_src-cat_jk%d_z%d.fits'%(jkidx,zbin ))
         if os.path.isfile(outname):
             print(outname, "Already exist. Skipping")
             continue
-        if not os.path.isfile(inname):
-            print(inname, "does not exist. Skipping")
-            continue
+        
         #creating tempfile to avoid repeation when running different cpus 
         new_file = open(outname, "w")
         
-        booljk = [ data_galaxies['JKID']!=jkidx ] 
-        print("Total objects in patch%d: %d"%(jkidx,len(data_galaxies[booljk])))
+        booljk = (data_galaxies['JKID']!=jkidx)
+        print("Total objects in patch%d: %d"%(jkidx,len(data_galaxies[booljk]) ))
         
         tau0, tau2, tau5= measure_tau( data_stars , data_galaxies[booljk], bin_config, mod=args.mod)
         tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
@@ -139,7 +138,6 @@ def main():
         hdul[6].header['QUANT1'] = 'GeR'; hdul[7].header['QUANT1'] = 'GeR'
         hdul[6].header['QUANT2'] = 'PwR'; hdul[7].header['QUANT2'] = 'PwR'
         
-        outname = os.path.join(outpath, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
         hdul.writeto(outname, overwrite=True)
             
 if __name__ == "__main__":

@@ -472,6 +472,6 @@ def read_jk(filename,  keys=None):
     else:
         formats = ['f4', 'f4', 'f4', 'f4', 'i4']
         data = np.recarray(shape=(nrows,), formats=formats, names=outkeys)
-        for i in range(4):  data[outkeys[i]] = np.array(cat[inkeys[i]])    
+        for i in range(len(outkeys)):  data[outkeys[i]] = np.array(cat[inkeys[i]])    
     print('made recarray')
     return data
