@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def parse_args():
     import argparse
-    parser = argparse.ArgumentParser(description='Correlation of reserved stars')
+    parser = argparse.ArgumentParser(description='Measuring taus while JK')
     
     parser.add_argument('--metacal_cat',
                         default='/home/dfa/sobreira/alsina/catalogs/Y3_mastercat_7_24/Y3_mastercat_7_24_19.h5', 

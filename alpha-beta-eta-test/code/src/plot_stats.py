@@ -488,10 +488,11 @@ def pretty_residuals_tomo(axs,  meanr,res,sig,label='Corr',color='black'):
     #axs.plot(meanr, -res, color=color, ls=':')
     axs.errorbar(meanr, res, yerr=sig, color=color, ls='', marker='.',  capsize=2, label=label)
     #axs.errorbar(meanr[res>0], res[res>0], yerr=sig[res>0], color=color, ls='', marker='.',  capsize=2)
-    #axs.errorbar(meanr[res<0], -res[res<0], yerr=sig[res<0], color=color, ls='', marker='.',  capsize=2)   
+    #axs.errorbar(meanr[res<0], -res[res<0], yerr=sig[res<0], color=color, ls='', marker='.',  capsize=2)
+    #axs.set_yscale('log')
     #axs.errorbar( -meanr, res, yerr=sig, color=color,  marker='^',  capsize=2)
     #axs.errorbar( -meanr,-res, yerr=sig, color=color,  marker='^', ls=':', capsize=2)
-    axs.legend(loc='best', fontsize=5) 
+    axs.legend(loc='best', fontsize=15) 
     axs.tick_params(axis='both', which='major', labelsize=15)
     axs.set_xlabel(r'$\theta$ (arcmin)', fontsize=17)
     #axs.set_ylim(-3.e-6,6.e-6 )
@@ -654,12 +655,12 @@ def plotbestfitresiduals(samplesp, samplesm,  meanr, data, models_combo, plotnam
         v2m= np.diag(covtausm[2]) + (rhosm[5]**2)*varam +(rhosm[4]**2)*varbm + (rhosm[3]**2)*varem + 2*(rhosm[5]*rhosm[4]*covabm+rhosm[3]*rhosm[4]*covbem+rhosm[5]*rhosm[3]*covaem) + (am**2)*np.diag(covrhosm[5]) + (bm**2)*np.diag(covrhosm[4]) + (e**2)*np.diag(covrhosm[3])
 
         plt.clf()
-        pretty_rho(meanr, res0p, np.sqrt(v0p),  legend=r'$\delta \tau_{0+}$', lfontsize=14, color='red', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
-        pretty_rho(meanr, res0m, np.sqrt(v0m),  legend=r'$\delta \tau_{0-}$', lfontsize=14, color='blue', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
-        pretty_rho(meanr, res1p, np.sqrt(v1p),  legend=r'$\delta \tau_{2+}$', lfontsize=14, color='green', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
-        pretty_rho(meanr, res1m, np.sqrt(v1m),  legend=r'$\delta \tau_{2-}$', lfontsize=14, color='pink', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
-        pretty_rho(meanr, res2p, np.sqrt(v2p),  legend=r'$\delta \tau_{5+}$', lfontsize=14, color='gray', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
-        pretty_rho(meanr, res2m, np.sqrt(v2m),  legend=r'$\delta \tau_{5-}$', lfontsize=14, color='black', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res0p, np.sqrt(v0p),  legend=r'$\delta \tau_{0+}$', lfontsize=20, color='red', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res0m, np.sqrt(v0m),  legend=r'$\delta \tau_{0-}$', lfontsize=20, color='blue', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res1p, np.sqrt(v1p),  legend=r'$\delta \tau_{2+}$', lfontsize=20, color='green', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res1m, np.sqrt(v1m),  legend=r'$\delta \tau_{2-}$', lfontsize=20, color='pink', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res2p, np.sqrt(v2p),  legend=r'$\delta \tau_{5+}$', lfontsize=20, color='gray', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
+        pretty_rho(meanr, res2m, np.sqrt(v2m),  legend=r'$\delta \tau_{5-}$', lfontsize=20, color='black', marker='o', ylabel=r'Residuals',title=None,  xlim=None,  ylim=None)
             
     else:
         print("Not valid configuration for overall and margin flags")
@@ -726,21 +727,29 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
         colors=['red','green','blue','black']
         pretty_residuals_tomo(axs[0], meanr,tausp[0], np.sqrt(np.diag(covtausp[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[0].plot( meanr,res0p, 'k', color=colors[zbin-1])
+        #axs[0].plot( meanr, -res0p, 'k', color=colors[zbin-1])
         
         pretty_residuals_tomo(axs[1], meanr,tausm[0], np.sqrt(np.diag(covtausm[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[1].plot( meanr,res0m, 'k', color=colors[zbin-1])
+        #axs[1].plot( meanr, -res0m, 'k', color=colors[zbin-1])
         
         pretty_residuals_tomo(axs[2],  meanr,tausp[1], np.sqrt(np.diag(covtausp[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[2].plot( meanr,res1p, 'k', color=colors[zbin-1])
+        #axs[2].plot( meanr, -res1p, 'k', color=colors[zbin-1])
         
         pretty_residuals_tomo(axs[3], meanr,tausm[1], np.sqrt(np.diag(covtausm[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[3].plot( meanr,res1m, 'k', color=colors[zbin-1])
+        #axs[3].plot( meanr, -res1m, 'k', color=colors[zbin-1])
         
         pretty_residuals_tomo(axs[4],  meanr,tausp[2], np.sqrt(np.diag(covtausp[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[4].plot( meanr,res2p, 'k', color=colors[zbin-1])
+        #axs[4].plot( meanr, -res2p, 'k', color=colors[zbin-1])
         
         pretty_residuals_tomo(axs[5], meanr,tausm[2], np.sqrt(np.diag(covtausm[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[5].plot( meanr,res2m, 'k', color=colors[zbin-1])
+        #axs[5].plot( meanr, -res2m, 'k', color=colors[zbin-1])
+        
+        
                 
 
     elif(margin and not overall):
@@ -820,21 +829,28 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
         colors=['red','green','blue','black']
         pretty_residuals_tomo(axs[0], meanr,tausp[0], np.sqrt(np.diag(covtausp[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[0].plot( meanr,res0p, 'k', color=colors[zbin-1])
-            
+        axs[0].plot( meanr, -res0p, 'k', color=colors[zbin-1])
+         
         pretty_residuals_tomo(axs[1], meanr,tausm[0], np.sqrt(np.diag(covtausm[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axsp[1].lot( meanr,res0m, 'k', color=colors[zbin-1])
+        axsp[1].lot( meanr, -res0m, 'k', color=colors[zbin-1])
         
         pretty_residuals_tomo(axs[2],  meanr,tausp[1], np.sqrt(np.diag(covtausp[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[2].plot( meanr,res1p, 'k', color=colors[zbin-1])
+        axs[2].plot( meanr, -res1p, 'k', color=colors[zbin-1])
             
         pretty_residuals_tomo(axs[3], meanr,tausm[1], np.sqrt(np.diag(covtausm[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[3].plot( meanr,res1m, 'k', color=colors[zbin-1])
+        axs[3].plot( meanr, -res1m, 'k', color=colors[zbin-1])
         
         pretty_residuals_tomo(axs[4],  meanr,tausp[2], np.sqrt(np.diag(covtausp[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[4].plot( meanr,res2p, 'k', color=colors[zbin-1])
+        axs[4].plot( meanr, -res2p, 'k', color=colors[zbin-1])
         
         pretty_residuals_tomo(axs[5], meanr,tausm[2], np.sqrt(np.diag(covtausm[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[5].plot( meanr,res2m, 'k', color=colors[zbin-1])
+        axs[5].plot( meanr, -res2m, 'k', color=colors[zbin-1])
+        
         
             
     else:

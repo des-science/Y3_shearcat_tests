@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument('--g2flip', default=False,
                         action='store_const', const=True,
                         help='If true invert the sig of g2')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_flask_0.1-1/',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_flask_0.1-250/',
                         help='location of the output of the files')    
     args = parser.parse_args()
 
@@ -73,8 +73,9 @@ def main():
     print("Objects",  len(data_stars))
     data_stars = data_stars[data_stars['mag']<20]
     print("Objects with magnitude <20",  len(data_stars))
- 
-    bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 1.0, nbins = 10,)
+
+    bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 250, nbins = 20,)
+    #bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 1.0, nbins = 10,)
     #bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
     flip = [args.g1flip, args.g2flip]

@@ -6,7 +6,7 @@ plt.style.use('SVA1StyleSheet.mplstyle')
 
 def parse_args():
     import argparse
-    parser = argparse.ArgumentParser(description='Correlation of reserved stars')
+    parser = argparse.ArgumentParser(description='Comparing errors of data with error of model i.é rho errors versus tau errors')
     parser.add_argument('--rhos',
                         #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/rhos_large_scales.fits',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS.fits',

@@ -8,7 +8,7 @@ plt.style.use('SVA1StyleSheet.mplstyle')
 
 def parse_args():
     import argparse
-    parser = argparse.ArgumentParser(description='Correlation of reserved stars')
+    parser = argparse.ArgumentParser(description='When the catalog is too big we need to assing objects splitting the catalogs. This code does the splitting for the assignation of JK regions to galaxies ')
     
     parser.add_argument('--metacal_cat',
                         default='/home/dfa/sobreira/alsina/catalogs/Y3_mastercat_7_24/Y3_mastercat_7_24_19.h5', 
@@ -28,14 +28,13 @@ def parse_args():
 
     return args
 
-def jk_kmeans(ra_sam, dec_sam, ra,dec,njk,plot=False):
- 
-    print("Running kmeans")
+def find_regions(ra_sam, dec_sam, njk,plot=False):
+    print("Finding Region")
     from astropy.coordinates import SkyCoord, Angle
     from astropy import units
-    radec = np.zeros((len(ra),2)); radec_sam = np.zeros((len(ra_sam),2))
-    radec[:,0] = ra; radec_sam[:,0] = ra_sam
-    radec[:,1] = dec; radec_sam[:,1] = dec_sam
+    radec_sam = np.zeros((len(ra_sam),2))
+    radec_sam[:,0] = ra_sam
+    radec_sam[:,1] = dec_sam
     km = kmeans_radec.kmeans_sample(radec_sam,njk,maxiter=100,tol=1e-05)
     if plot:
         jk_sam = km.find_nearest(radec_sam)
@@ -48,24 +47,33 @@ def jk_kmeans(ra_sam, dec_sam, ra,dec,njk,plot=False):
         plt.ylabel(r'Dec',fontsize=12)
         plt.tight_layout()
         plt.savefig('jk_kmeans.png', dpi=200)
-        '''
+    print(njk, 'regions were produced')
+    return km
+def find_index(km, ra, dec, plot=False):
+    print("Finding Region")
+    from astropy.coordinates import SkyCoord, Angle
+    from astropy import units
+    radec = np.zeros((len(ra),2))
+    radec[:,0] = ra
+    radec[:,1] = dec
+    jk = km.find_nearest(radec)
+    print(len(ra), 'indexes were assigned')
+    if plot:
+        jk = km.find_nearest(radec)
         coords = SkyCoord(ra=ra, dec=dec, unit='degree')
+        name = ra[0]
         ra = coords.ra.wrap_at(180 * units.deg)
         dec = coords.dec
-        plt.figure()
+        plt.clf()
         plt.scatter(ra,dec,c=jk,lw=0,cmap='Paired',rasterized=True)
         plt.xlabel(r'RA',fontsize=12)
         plt.ylabel(r'Dec',fontsize=12)
+        plt.ylim([ - 70, 10])
+        plt.xlim([ - 70, 110])
         plt.tight_layout()
-        plt.savefig('jk_kmeans.png')
-        '''
-    
-    jk = km.find_nearest(radec)
-    if not km.converged:
-        print('k means did not converge')
-
-    print("kmeans finished!")
+        plt.savefig('jk_kmeans%.3f.png'%(name), dpi=200)
     return jk
+    
 
 
 def main():
@@ -92,24 +100,36 @@ def main():
     dtype = dict(names = names, formats=forms)
  
     
+    nsamples = 10000
+    nguests = 1000000
+
     
     nobjs = len(read_metacal(args.metacal_cat,  ['ra']))
     mask = np.array( [True]*nobjs)
     mask = np.where(mask)[0]
-    mask = np.random.choice(mask, 100000 , replace=False)
+    mask = np.random.choice(mask, nsamples , replace=False)
     data_sam=read_metacal(args.metacal_cat,  ['ra', 'dec'])[mask]
    
     print('sampling jk regions number of objs', len(data_sam))
+    njk = args.njks
+    km = find_regions(data_sam['ra'], data_sam['dec'], njk,plot=args.plot)
 
     galkeys = ['ra','dec','e_1','e_2','R11','R22']
     for zbin in range(1, 5):
         print('Starting measurement for zbin', zbin)
         
         data_gal = read_metacal(args.metacal_cat,  galkeys,  zbin=zbin,  nz_source_file=args.nz_source)
-        njk = args.njks
-        ##TODO generate km first an later finnearest,
-        jkindexes_gals = jk_kmeans(data_sam['ra'], data_sam['dec'], data_gal['ra'][:1000000], data_gal['dec'][: 1000000],njk,  plot=args.plot)
+        ngals = len(data_gal['ra'])
         
+        jkindexes_gals = []
+        for i in range(ngals//nguests + 1):
+            inf = i*nguests
+            sup = (i + 1)*nguests
+            if sup == ngals//nguests: sup = None
+            jkindexes_gals += find_index( km, data_gal['ra'][inf:sup], data_gal['dec'][inf:sup]).tolist()
+
+
+        print(ngals, len(jkindexes_gals))
         nrows = len(data_gal['ra'])
         outdata = np.recarray((nrows, ), dtype=dtype)
         array_list = [data_gal['ra'], data_gal['dec'], data_gal['e_1'], data_gal['e_2'], jkindexes_gals]

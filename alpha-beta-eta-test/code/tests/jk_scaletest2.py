@@ -41,7 +41,7 @@ def parse_args():
                         help='location of the output of the files')
     parser.add_argument('--plotspath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/plots/',
                         help='location of the output of the files')
-    parser.add_argument('--filename', default='scaletest_z2.fits', help='Name of the fit file where the info of the jkscaletest will be saved ')
+    parser.add_argument('--filename', default='scaletest_z4.fits', help='Name of the fit file where the info of the jkscaletest will be saved ')
 
     args = parser.parse_args()
 
@@ -107,7 +107,7 @@ def read_pars(filename,  ext, mflags):
 def plotlineal( filename, outpath, mflags):
     import numpy as np
     import itertools
-    ylabels = [r'$\alpha$', r'$\beta$', r'$\eta$']
+    ylabels = [r'$\alpha^{(4)}$', r'$\beta^{(4)}$', r'$\eta^{(4)}$']
     ylims =  [[ - 0.07, 0.07],[ 0 , 5],[ -600, 600] ] 
     outputnames = ['alpha_quadrants.png', 'beta_quadrants.png', 'eta_quadrants.png']
     colors = ['black', 'green', 'blue', 'red', 'gray', 'pink']

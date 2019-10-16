@@ -30,7 +30,7 @@ def parse_args():
                         help='If true it substracts the mean to each field before calculate correlations')
     parser.add_argument('--jkidx', default=1,  type=int,
                         help='seed used, useful to run parallel')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/JK/taus_jk_0.1-1/',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/JK/taus_jk_1-250/',
                         help='location of the output of the files')    
     args = parser.parse_args()
 
@@ -67,8 +67,8 @@ def main():
     data_stars = data_stars[data_stars['mag']<20]
     print("Objects with magnitude <20",  len(data_stars))
  
- 
-    bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 1.0, nbins = 10,)
+    bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 250, nbins = 20,)
+    #bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 1.0, nbins = 10,)
     #bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
 

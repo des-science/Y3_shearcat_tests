@@ -83,7 +83,8 @@ def main():
         print(bin_config)
     else:
         #BINING FOR ESTIMATING ABE
-        bin_config = dict(sep_units = 'arcmin', nbins = 20, min_sep = 1.0, max_sep = 250,)
+        bin_config = dict(sep_units = 'arcmin', nbins = 20, min_sep = 0.1, max_sep = 250,)
+        #bin_config = dict(sep_units = 'arcmin', nbins = 20, min_sep = 1.0, max_sep = 250,)
         #bin_config = dict(sep_units = 'arcmin', bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
 
     rho0, rho1, rho2, rho3, rho4, rho5 = measure_rho(data,bin_config,
@@ -188,9 +189,13 @@ def main():
 
     
     if args.cosmobin:
-        hdul.writeto(outpath + 'RHOS_Y3.fits', overwrite=True)
+        filename = os.path.join(outpath, 'RHOS_Y3.fits')
+        hdul.writeto(filename , overwrite=True)
+        print("Printed", filename )
     else:
-        hdul.writeto(os.path.join(outpath, args.filename), overwrite=True)
+        filename = os.path.join(outpath, args.filename)
+        hdul.writeto(filename, overwrite=True)
+        print("Printed", filename )
 
 if __name__ == "__main__":
     main()
