@@ -434,7 +434,7 @@ def analysis(save_output_folder,kE_label,sys_map,mask,mapa, hpix, fract_limits,l
         F,v1,v2 = compute_fisher(dict_output['chi2red'+label_boot+'2'] ,dict_output['chi2red'+label_boot+'3'] ,len(dict_output['x']),1,2)  
         pf3 = 1-scipy.stats.f.cdf(F,v1,v2)
         
-        print 'ok'
+        print ('ok')
         dict_output.update({'F03': p2s(pf)})
         dict_output.update({'F13': p2s(pf2)})
         dict_output.update({'F23': p2s(pf3)})  
@@ -879,7 +879,7 @@ def convert_to_pix_coord(ra, dec, nside=1024):
     pix = hp.ang2pix(nside, theta, phi, nest=False)
 
     return pix
-print 'done' 
+print ('done') 
 
 
 # compile also this !
@@ -1132,10 +1132,10 @@ def correct_weight(count,systematics_dict_total,systematic_maps, info,weights , 
             syst_l = [str(x) for x in np.array(label)[ind][mask]][::-1][0]
             nn = int(vv_arr[ind][mask][::-1][0])
             
-            print ' CORRECTION: {0} {1}'.format(syst_l,nn)
+            print (' CORRECTION: {0} {1}'.format(syst_l,nn))
             string = ''.join([str(x) for x in np.array(string)[ind][mask]][::-1])
         
-            print "systematics > lim : ",string#[mask].flatten()
+            print ("systematics > lim : ",string)#[mask].flatten()
         
             # define weights:
             import copy
@@ -1157,18 +1157,18 @@ def correct_weight(count,systematics_dict_total,systematic_maps, info,weights , 
             mask_nn = (systematic_maps[syst_l]['map'][info['mask_sims']] > systematics_dict_total[key][syst_l]['min_ss']) & (systematic_maps[syst_l]['map'][info['mask_sims']] < systematics_dict_total[key][syst_l]['max_ss'])
             
             mutenn = np.zeros(len(systematic_maps[syst_l]['map'][info['mask_sims']]))
-            print "efficiency: ", (np.float(len(x[mask_nn])))/(np.float(len(x))),len(x[mask_nn])
+            print ("efficiency: ", (np.float(len(x[mask_nn])))/(np.float(len(x))),len(x[mask_nn]))
             #print len(x[mask_nn]), len(weights_add[info['mask_sims']&mask_sys])
             if nn ==3:
                 #cubic correction
-                print 'cubic'
+                print ('cubic')
                 dict_out = systematics_dict_total[key][syst_l]#['params_bts3']
                 #the corrections should not correct for the shift
                 weights_add[info['mask_sims']][mask_nn] = fitting_3rd(x[mask_nn],dict_out['params_bts3'][0],dict_out['params_bts3'][1],dict_out['params_bts3'][2],dict_out['params_bts3'][3])  
 
             if nn ==2:
                 #cubic correction
-                print 'quadratic'
+                print ('quadratic')
                 dict_out = systematics_dict_total[key][syst_l]#['params_bts3']
 
                 nw = fitting_2nd(x[mask_nn],dict_out['params_bts2'][0],dict_out['params_bts2'][1],dict_out['params_bts2'][2])  
@@ -1177,14 +1177,14 @@ def correct_weight(count,systematics_dict_total,systematic_maps, info,weights , 
              
             if nn ==1:
                 #cubic correction
-                print 'linear'
+                print ('linear')
                 dict_out = systematics_dict_total[key][syst_l]#['params_bts3']
                 #the corrections should not correct for the shift
                 #print max(fitting_linear(x[mask_nn],dict_out['params_bts'][0],dict_out['params_bts'][1])  ), min(fitting_linear(x[mask_nn],dict_out['params_bts'][0],dict_out['params_bts'][1])  )
                 nw= fitting_linear(x[mask_nn],dict_out['params_bts'][0],dict_out['params_bts'][1])  
                 mutenn[mask_nn] = nw
                 weights_add[info['mask_sims']] = mutenn
-                print dict_out['params_bts'][0],dict_out['params_bts'][1],len(weights_add[info['mask_sims']]),len(weights_add[info['mask_sims']][mask_nn]), max(weights_add[info['mask_sims']][mask_nn])
+                print (dict_out['params_bts'][0],dict_out['params_bts'][1],len(weights_add[info['mask_sims']]),len(weights_add[info['mask_sims']][mask_nn]), max(weights_add[info['mask_sims']][mask_nn]))
             mute_l = False
         else:
             mute_l = True
@@ -1539,7 +1539,7 @@ def plot_resume(systematics_dict_total,z_min,z_max,nside,kE_label,d68 = False,ty
     plt.show()
         
         
-print 'done'
+print ('done')
 
 
 import skymapper as skm
@@ -1913,8 +1913,8 @@ class Jack(object):
                 pairs_ring[jackk][1] = pairsCC1
                 pairs_ring[jackk][0] = pairs_auto
                 
-            except RuntimeError, e:
-                print e
+            except (RuntimeError, e):
+                print (e)
                 pairs_ring[jackk][0] = np.zeros(shape)
                 pairs_ring[jackk][1] = np.zeros(shape)
 
@@ -1935,21 +1935,21 @@ class Jack(object):
                 
                 #update_progress((float(counter)/len(np.unique(b[:,1]))),timeit.default_timer(),startt)
                 if counter == 100:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 200:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 300:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 400:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 500:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 600:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 700:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 800:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
             self.pairs = np.array(pairs_ring)
 
 
@@ -2139,7 +2139,7 @@ def plot_resume_cc(systematics_dict_total,z_min,z_max,kE_label) :
     #systematics_dict_total[key].update({'mask_tot' : tot_mask})
     plt.tight_layout()
     
-    print kE_label
+    print (kE_label)
     plt.savefig('./output_{1}_{2}/{0}_{3}_total_systematics_cc_{4}.png'.format(key,z_min,z_max, kE_label,fract_limits))
 
     plt.show()
@@ -2250,7 +2250,7 @@ def analysis_3(kE_label,sys_map,mask,mapa, hpix, fract_limits=0.,mapa_weight = F
     b_arr = np.zeros(n_jck+1)
     c_arr = np.zeros(n_jck+1)
     if title == 'depth_i' or title == 'depth_g' or title == 'depth_r' or title == 'depth_z':
-        print 'fast'
+        print ('fast')
         index = np.random.randint(0,len(sys_map1),200000)
 
         b_arr[0],c_arr[0] = np.polyfit(sys_map1[index],mapa1[index],1)
@@ -2309,7 +2309,7 @@ def do_analysis_3(kE,kE_label,weight,systematic_maps,info,fract_limits=0,len_his
             dict_output = analysis_3(kE_label,systematic_maps[key],info['mask_sims'],kE,info['hpix_f'])
         systematics_dict.update({systematic_maps[key]['title'] : dict_output})
         t2 = timeit.default_timer()
-        print "slope {0} +- {1}".format(dict_output['b_arr'][0],dict_output['b_err'])
+        print ("slope {0} +- {1}".format(dict_output['b_arr'][0],dict_output['b_err']))
         print (t2-t1)
     return systematics_dict
 
@@ -2387,15 +2387,15 @@ class field_methods(object):
   'S29':[-185.988,-63.890]
   }
 
-  ccdid=['S29','S30','S31','S25','S26','S27','S28','S20','S21','S22','S23','S24','S14','S15','S16','S17','S18','S19','S8','S9','S10','S11','S12','S13','S1','S2','S3','S4','S5','S6','S7','N1','N2','N3','N4','N5','N6','N7','N8','N9','N10','N11','N12','N13','N14','N15','N16','N17','N18','N19','N20','N21','N22','N23','N24','N25','N26','N27','N28','N29','N30','N31']
-
   bad_ccd_names = ['N30', 'S30', 'S7']
-  bad_ccd_nums = [ccdid.index(bad_ccd_name) for bad_ccd_name in bad_ccd_names]
+  ccdid = ['S29','S30','S31','S25','S26','S27','S28','S20','S21','S22','S23','S24','S14','S15','S16','S17','S18','S19','S8','S9','S10','S11','S12','S13','S1','S2','S3','S4','S5','S6','S7','N1','N2','N3','N4','N5','N6','N7','N8','N9','N10','N11','N12','N13','N14','N15','N16','N17','N18','N19','N20','N21','N22','N23','N24','N25','N26','N27','N28','N29','N30','N31']
+  
+  #bad_ccd_nums = [ ccdid.index(bad_ccd_name) for bad_ccd_name in bad_ccd_names]
 
 
   ccdx=2048.*15.e-6*1000. # col
   ccdy=4096.*15.e-6*1000. # row
-
+  
   @staticmethod
   def ccd_centres():
 
@@ -3457,7 +3457,7 @@ def analysis(save_output_folder,kE_label,sys_map,mask,mapa, hpix, fract_limits,l
         F,v1,v2 = compute_fisher(dict_output['chi2red'+label_boot+'2'] ,dict_output['chi2red'+label_boot+'3'] ,len(dict_output['x']),1,2)  
         pf3 = 1-scipy.stats.f.cdf(F,v1,v2)
         
-        print 'ok'
+        print ('ok')
         dict_output.update({'F03': p2s(pf)})
         dict_output.update({'F13': p2s(pf2)})
         dict_output.update({'F23': p2s(pf3)})  
@@ -3902,7 +3902,7 @@ def convert_to_pix_coord(ra, dec, nside=1024):
     pix = hp.ang2pix(nside, theta, phi, nest=False)
 
     return pix
-print 'done' 
+print ('done') 
 
 
 # compile also this !
@@ -4155,10 +4155,10 @@ def correct_weight(count,systematics_dict_total,systematic_maps, info,weights , 
             syst_l = [str(x) for x in np.array(label)[ind][mask]][::-1][0]
             nn = int(vv_arr[ind][mask][::-1][0])
             
-            print ' CORRECTION: {0} {1}'.format(syst_l,nn)
+            print (' CORRECTION: {0} {1}'.format(syst_l,nn))
             string = ''.join([str(x) for x in np.array(string)[ind][mask]][::-1])
         
-            print "systematics > lim : ",string#[mask].flatten()
+            print ("systematics > lim : ",string)#[mask].flatten()
         
             # define weights:
             import copy
@@ -4180,18 +4180,18 @@ def correct_weight(count,systematics_dict_total,systematic_maps, info,weights , 
             mask_nn = (systematic_maps[syst_l]['map'][info['mask_sims']] > systematics_dict_total[key][syst_l]['min_ss']) & (systematic_maps[syst_l]['map'][info['mask_sims']] < systematics_dict_total[key][syst_l]['max_ss'])
             
             mutenn = np.zeros(len(systematic_maps[syst_l]['map'][info['mask_sims']]))
-            print "efficiency: ", (np.float(len(x[mask_nn])))/(np.float(len(x))),len(x[mask_nn])
+            print ("efficiency: ", (np.float(len(x[mask_nn])))/(np.float(len(x))),len(x[mask_nn]))
             #print len(x[mask_nn]), len(weights_add[info['mask_sims']&mask_sys])
             if nn ==3:
                 #cubic correction
-                print 'cubic'
+                print ('cubic')
                 dict_out = systematics_dict_total[key][syst_l]#['params_bts3']
                 #the corrections should not correct for the shift
                 weights_add[info['mask_sims']][mask_nn] = fitting_3rd(x[mask_nn],dict_out['params_bts3'][0],dict_out['params_bts3'][1],dict_out['params_bts3'][2],dict_out['params_bts3'][3])  
 
             if nn ==2:
                 #cubic correction
-                print 'quadratic'
+                print ('quadratic')
                 dict_out = systematics_dict_total[key][syst_l]#['params_bts3']
 
                 nw = fitting_2nd(x[mask_nn],dict_out['params_bts2'][0],dict_out['params_bts2'][1],dict_out['params_bts2'][2])  
@@ -4200,14 +4200,14 @@ def correct_weight(count,systematics_dict_total,systematic_maps, info,weights , 
              
             if nn ==1:
                 #cubic correction
-                print 'linear'
+                print ('linear')
                 dict_out = systematics_dict_total[key][syst_l]#['params_bts3']
                 #the corrections should not correct for the shift
                 #print max(fitting_linear(x[mask_nn],dict_out['params_bts'][0],dict_out['params_bts'][1])  ), min(fitting_linear(x[mask_nn],dict_out['params_bts'][0],dict_out['params_bts'][1])  )
                 nw= fitting_linear(x[mask_nn],dict_out['params_bts'][0],dict_out['params_bts'][1])  
                 mutenn[mask_nn] = nw
                 weights_add[info['mask_sims']] = mutenn
-                print dict_out['params_bts'][0],dict_out['params_bts'][1],len(weights_add[info['mask_sims']]),len(weights_add[info['mask_sims']][mask_nn]), max(weights_add[info['mask_sims']][mask_nn])
+                print (dict_out['params_bts'][0],dict_out['params_bts'][1],len(weights_add[info['mask_sims']]),len(weights_add[info['mask_sims']][mask_nn]), max(weights_add[info['mask_sims']][mask_nn]))
             mute_l = False
         else:
             mute_l = True
@@ -4562,7 +4562,7 @@ def plot_resume(systematics_dict_total,z_min,z_max,nside,kE_label,d68 = False,ty
     plt.show()
         
         
-print 'done'
+print ('done')
 
 
 import skymapper as skm
@@ -4936,8 +4936,8 @@ class Jack(object):
                 pairs_ring[jackk][1] = pairsCC1
                 pairs_ring[jackk][0] = pairs_auto
                 
-            except RuntimeError, e:
-                print e
+            except (RuntimeError, e):
+                print (e)
                 pairs_ring[jackk][0] = np.zeros(shape)
                 pairs_ring[jackk][1] = np.zeros(shape)
 
@@ -4958,21 +4958,21 @@ class Jack(object):
                 
                 #update_progress((float(counter)/len(np.unique(b[:,1]))),timeit.default_timer(),startt)
                 if counter == 100:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 200:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 300:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 400:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 500:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 600:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 700:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
                 if counter == 800:
-                    print counter, timeit.default_timer()-startt
+                    print (counter, timeit.default_timer()-startt)
             self.pairs = np.array(pairs_ring)
 
 
@@ -5162,7 +5162,7 @@ def plot_resume_cc(systematics_dict_total,z_min,z_max,kE_label) :
     #systematics_dict_total[key].update({'mask_tot' : tot_mask})
     plt.tight_layout()
     
-    print kE_label
+    print (kE_label)
     plt.savefig('./output_{1}_{2}/{0}_{3}_total_systematics_cc_{4}.png'.format(key,z_min,z_max, kE_label,fract_limits))
 
     plt.show()
@@ -5273,7 +5273,7 @@ def analysis_3(kE_label,sys_map,mask,mapa, hpix, fract_limits=0.,mapa_weight = F
     b_arr = np.zeros(n_jck+1)
     c_arr = np.zeros(n_jck+1)
     if title == 'depth_i' or title == 'depth_g' or title == 'depth_r' or title == 'depth_z':
-        print 'fast'
+        print ('fast')
         index = np.random.randint(0,len(sys_map1),200000)
 
         b_arr[0],c_arr[0] = np.polyfit(sys_map1[index],mapa1[index],1)
@@ -5332,7 +5332,7 @@ def do_analysis_3(kE,kE_label,weight,systematic_maps,info,fract_limits=0,len_his
             dict_output = analysis_3(kE_label,systematic_maps[key],info['mask_sims'],kE,info['hpix_f'])
         systematics_dict.update({systematic_maps[key]['title'] : dict_output})
         t2 = timeit.default_timer()
-        print "slope {0} +- {1}".format(dict_output['b_arr'][0],dict_output['b_err'])
+        print ("slope {0} +- {1}".format(dict_output['b_arr'][0],dict_output['b_err']))
         print (t2-t1)
     return systematics_dict
 
@@ -5413,7 +5413,7 @@ class field_methods(object):
   ccdid=['S29','S30','S31','S25','S26','S27','S28','S20','S21','S22','S23','S24','S14','S15','S16','S17','S18','S19','S8','S9','S10','S11','S12','S13','S1','S2','S3','S4','S5','S6','S7','N1','N2','N3','N4','N5','N6','N7','N8','N9','N10','N11','N12','N13','N14','N15','N16','N17','N18','N19','N20','N21','N22','N23','N24','N25','N26','N27','N28','N29','N30','N31']
 
   bad_ccd_names = ['N30', 'S30', 'S7']
-  bad_ccd_nums = [ccdid.index(bad_ccd_name) for bad_ccd_name in bad_ccd_names]
+  #bad_ccd_nums = [ccdid.index(bad_ccd_name) for bad_ccd_name in bad_ccd_names]
 
 
   ccdx=2048.*15.e-6*1000. # col
