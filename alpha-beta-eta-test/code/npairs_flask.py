@@ -8,7 +8,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Produce Tau correlations, i.e correlation among galaxies and reserved stars for all Flask realisations')
     
     parser.add_argument('--flask_cat',
-                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_mysp2/', 
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_v3_mysp/', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
                         default='/home/dfa/sobreira/alsina/catalogs/y3a1-v29',
@@ -67,7 +67,7 @@ def main():
     data_stars = data_stars[data_stars['mag']<20]
     print("Objects with magnitude <20",  len(data_stars))
  
-    bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
+    bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
     ck=args.cookie
     hdu = fits.PrimaryHDU()

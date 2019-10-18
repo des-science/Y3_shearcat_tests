@@ -15,14 +15,13 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/pipeline/2pt_sim_1110_baseline_Y3cov.fits',
                         help='fit file with fiducial data vectors, covariance matrix and so on.')
     parser.add_argument('--contaminant_marg',
-                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/marg_abe_dxi_eq4.fits',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/marg__ab_dxi_eq_4_.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/topropagatecosmology/marg_abe_dxi_eq_4_1sigma.fits',
                         help='fit file with contamination data vector, covariance matrix, marginalized best fit')
     parser.add_argument('--contaminant_over',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/overall_ab_dxi_eq_4_.fits',
                         help='fit file with contamination data vector, overall best fit')
     parser.add_argument('--contaminated',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/pipeline/2pt_sim_1110_baseline_Y3cov_contaminated_sup.fits', 
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/2pt_sim_1110_baseline_Y3cov_contaminated_sup_2sig.fits', 
                         help='fit file with contamination data vector, covariance matrix')
     parser.add_argument('--plotpath',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/plots/',
@@ -143,7 +142,7 @@ def plot_tomotwopoint(fitfile, out, n2pts=4, overall=False,  xlabels=[r'$\theta$
     print(filename, 'Printed!')
 
 
-def plotcontaminantandfiducial(contaminant, fiducial, out,overall=False, title=None, filenames=None):
+def plotcontaminantandfiducial(contaminant, fiducial, out,overall=False, title=None, filenames=None,  nsig=1):
     import fitsio
     import itertools
     import numpy as np
@@ -153,6 +152,7 @@ def plotcontaminantandfiducial(contaminant, fiducial, out,overall=False, title=N
         ximfit_cont=fitsio.read(contaminant,ext=2)
     else:
         covmatrixfit_cont=fitsio.read(contaminant,ext=1)
+        covmatrixfit_cont *= (nsig**2)
         xipfit_cont=fitsio.read(contaminant,ext=2)
         ximfit_cont=fitsio.read(contaminant,ext=3)
         
@@ -166,7 +166,7 @@ def plotcontaminantandfiducial(contaminant, fiducial, out,overall=False, title=N
     #xip
     xlabel=r'$\theta$ [arcmin]'; ylabel=r'$\xi_{+}(\theta)$'
     nbins=4
-    ylim = [5.e-9, 5.e-5]
+    ylim = [1.e-10, 1.e-4]
     fig, ax = plt.subplots(nbins, nbins, figsize=(1.6*nbins, 1.6*nbins), sharey=True, sharex=True)
     a=[i for i in range(1,nbins+1)]
     b=[j for j in range(1,nbins+1)]
@@ -289,7 +289,7 @@ def checkcontamination(contaminantedfile, fiducial,  out):
     nbins=4
     plt.clf()
     fig, ax = plt.subplots(nbins, nbins, figsize=(1.6*nbins, 1.6*nbins), sharey=True, sharex=True)
-    ylim = [5.e-9, 5.e-5]
+    ylim = [1.e-10, 1.e-4]
     a=[i for i in range(1,nbins+1)]
     b=[j for j in range(1,nbins+1)]
     bin_pairs=[]
@@ -313,11 +313,11 @@ def checkcontamination(contaminantedfile, fiducial,  out):
     print(filename, 'Printed!')
 
     #xim
-    xlabel=r'$\theta$ [arcmin]'; ylabel=r'$\xi_{+}(\theta)$'
+    xlabel=r'$\theta$ [arcmin]'; ylabel=r'$\xi_{-}(\theta)$'
     nbins=4
     plt.clf()
     fig, ax = plt.subplots(nbins, nbins, figsize=(1.6*nbins, 1.6*nbins), sharey=True, sharex=True)
-    ylim = [5.e-9, 5.e-5]
+    ylim = [1.e-10, 1.e-4]
     a=[i for i in range(1,nbins+1)]
     b=[j for j in range(1,nbins+1)]
     bin_pairs=[]
@@ -420,14 +420,25 @@ def main():
     #plot_covmat(args.contaminated, out, filename='CovariancematrixContaminated.png')
 
     ##TWO POINT STATS
-    plot_tomotwopoint(args.fiducial,out,ylabels=[r'$\xi_{+}(\theta)$',r'$\xi_{-}(\theta)$'],filenames=['xip_fiducial.png','xim_fiducial.png'])
-    plot_tomotwopoint(args.contaminated,out,ylabels=[r'$\xi_{+}(\theta)$',r'$\xi_{-}(\theta)$'],filenames=['xip_contaminated.png','xim_contaminated.png'])
-    plot_tomotwopoint(args.contaminant_marg,out,n2pts=2,ylabels=[r'$\delta \xi_{+}(\theta)$',r'$\delta \xi_{-}(\theta)$'],filenames=['xip_contaminant.png','xim_contaminant.png'])
-    plot_tomotwopoint(args.contaminant_over,out,n2pts=2,overall=True, ylabels=[r'$\delta \xi_{+}(\theta)$',r'$\delta \xi_{-}(\theta)$'],filenames=['xip_contaminant_over.png','xim_contaminant_over.png'])
+    
+    #plot_tomotwopoint(args.fiducial,out,ylabels=[r'$\xi_{+}(\theta)$',r'$\xi_{-}(\theta)$'],
+    #                  filenames=['xip_fiducial.png','xim_fiducial.png'])
+    #plot_tomotwopoint(args.contaminated,out,ylabels=[r'$\xi_{+}(\theta)$',r'$\xi_{-}(\theta)$'],
+    #                  filenames=['xip_contaminated.png','xim_contaminated.png'])
+    #plot_tomotwopoint(args.contaminant_marg,out,n2pts=2,
+    #                  ylabels=[r'$\delta \xi_{+}(\theta)$',r'$\delta \xi_{-}(\theta)$'],
+    #                  filenames=['xip_contaminant.png','xim_contaminant.png'])
+    #plot_tomotwopoint(args.contaminant_over,out,n2pts=2,overall=True,
+    #                  ylabels=[r'$\delta \xi_{+}(\theta)$',r'$\delta\xi_{-}(\theta)$'],
+    #                  filenames=['xip_contaminant_over.png','xim_contaminant_over.png'])
+    
+    
+    
     
 
-    plotcontaminantandfiducial(args.contaminant_marg, args.fiducial, out, title='Alpha-Beta',  filenames=['xipcont_xipfid_abe.png','ximcont_ximfid_abe.png'] )
-    plotcontaminantandfiducial(args.contaminant_over, args.fiducial, out, overall=True,  title='Alpha-Beta',  filenames=['xipcontover_xipfid_abe.png','ximcontover_ximfid_abe.png'] )
+    #plotcontaminantandfiducial(args.contaminant_marg, args.fiducial, out, title='Alpha-Beta-eta', filenames=['xipcont_xipfid_abe_2sig2.png','ximcont_ximfid_abe_2sig2.png'], nsig=2 )
+    #plotcontaminantandfiducial(args.contaminant_marg, args.fiducial, out, title='Alpha-Beta', filenames=['xipcont_xipfid_ab_1sig.png','ximcont_ximfid_ab_1sig.png'] )
+    #plotcontaminantandfiducial(args.contaminant_over, args.fiducial, out, overall=True, title='Alpha-Beta', filenames=['xipcontover_xipfid_abe.png','ximcontover_ximfid_abe.png'] )
 
     
 

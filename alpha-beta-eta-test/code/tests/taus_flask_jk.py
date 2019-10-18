@@ -246,15 +246,13 @@ def main():
     plotmetacal(axs, os.path.join(measurespath,'tau_4.fits'), 'gray', 'MARCO JK')
     '''
     
-    '''
-    ndraws = 290
-    args.zbin = 3
-    #plotmetacal(axs, args.tausmetacal, 'green', 'Taus treecorr')
-    plotflask(axs, args.zbin, args.tausflask, 'red', 'Taus flask', ndraws)
-    plotjk(axs, args.zbin, args.tausjk, 'blue', 'Taus JK ', 300, numpycov=True)
-    '''
     
-    ndraws = 250
+    plotmetacal(axs, args.tausmetacal, 'green', 'Treecorr sigmas')
+    plotflask(axs, args.zbin, args.tausflask, 'red', 'Flask sigmas', 400)
+    plotjk(axs, args.zbin, args.tausjk, 'blue', 'JK sigmas ', 999, numpycov=True)
+    
+    
+    '''
     plotflask(axs, 1, args.tausflask, 'blue', 'Taus flask zbin1', ndraws)
     plotjk(axs, 1, args.tausjk, 'blue', 'Taus JK zbin1 ', 250, numpycov=True)
     plotflask(axs, 2, args.tausflask, 'red', 'Taus flask  zbin2', ndraws)
@@ -263,7 +261,7 @@ def main():
     plotjk(axs, 3, args.tausjk, 'green', 'Taus JK  zbin3', 250, numpycov=True)
     plotflask(axs, 4, args.tausflask, 'yellow', 'Taus flask  zbin4', ndraws)
     plotjk(axs, 4, args.tausjk, 'yellow', 'Taus JK  zbin4', 250, numpycov=True)
-    
+    '''
     
     
     

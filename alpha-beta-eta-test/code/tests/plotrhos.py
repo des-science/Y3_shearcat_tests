@@ -37,7 +37,7 @@ def main():
     except OSError:
         if not os.path.exists(plotspath): raise
 
-    xlim = [1, 250.]
+    xlim = [0.1, 250.]
     #xlim = [None, None]
     ylims = [[1.e-12,1.e-5 ],[1.e-13,1.e-6 ],[5.e-9 ,3.e-4 ],[1.e-11 ,4.e-3 ]]
     #ylims = [[None,None ],[None,None ],[None , None ],[None ,None]]

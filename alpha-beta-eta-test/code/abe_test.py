@@ -8,28 +8,30 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Alpha beta eta test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
     parser.add_argument('--taus',
-                        default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_1.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_2.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_3.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_4.fits'],
-                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
-                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_1.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_2.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_3.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_4.fits'],
+                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin_1.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin_2.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin_3.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin_4.fits'],
+                        default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
+                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
+                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_1.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_2.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_3.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_4.fits'],
                         help='Ordered list of fits TAUS, containing all tau stats used to estimate abe')
     parser.add_argument('--singletau',
                         default=None, 
-                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3_v2.fits',
+                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin_1.fits',
                         #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS.fits',
                         #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK.fits',
                         #default='/home2/dfa/sobreira/alsina/catalogs/flask/taus/taus_src-cat_s201_z1_ck1.fits',
                         #default=None,
                         help='Fits file containing all tau stats used to estimate abe')
-    parser.add_argument('--rhos', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS.fits',
+    parser.add_argument('--rhos',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS.fits',
+                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS_1-250.fits',
                         help='Fits file containing all rho stats used to estimate abe')
     parser.add_argument('--rhoscosmo', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS_Y3.fits',
                         help='Fits file containing all rho stats used to estimate dxip, the contaminant to be used in cosmosis')
@@ -289,7 +291,7 @@ def getxibias_overall(pars, datarhos, models_combo,  plots=False, nameterms='ter
 
     return meanr, dxi
 
-def getxibiastomo_margin(samples_i, samples_j, datarhos, models_combo, plots=False, bins=[0, 0], nameterms='terms_dxi.png',dxiname='dxi.png'):
+def getxibiastomo_margin(samples_i, samples_j, datarhos, models_combo, nsig=1, plots=False, bins=[0, 0], nameterms='terms_dxi.png',dxiname='dxi.png'):
     from src.readfits import read_rhos
     from src.maxlikelihood import bestparameters
     from src.plot_stats import pretty_rho
@@ -308,7 +310,8 @@ def getxibiastomo_margin(samples_i, samples_j, datarhos, models_combo, plots=Fal
     pars_j = bestparameters(samples_j)
     samples =  np.concatenate([samples_i, samples_j])
     
-    par_matcov = np.cov(samples) 
+    par_matcov = np.cov(samples)
+    par_matcov *= (nsig**2)
     if (par_matcov.size==1 ): variances = par_matcov
     else: variances = np.diagonal(par_matcov)
     covariances = sum( (par_matcov[i,i+1: ].tolist() for i in range(len(samples) - 1)) , [] )
@@ -673,7 +676,7 @@ def write_singlexip_overall( parsp, pasrsm, rhoscosmo,  models_combo,   plots,  
     outname = os.path.join(outpath, '%s_%s_%s'%( 'singlexip_overall_', filename,  '.fits'))
     hdul.writeto(outname, overwrite=True)
     print(outname,'Written!')
-def write_tomoxip_margin(samplesp_list, samplesm_list, rhoscosmo, models_combo, plots, outpath, plotspath ):
+def write_tomoxip_margin(samplesp_list, samplesm_list, rhoscosmo, models_combo, plots, outpath, plotspath, nsig=1):
     import itertools
     from src.readfits import read_rhos_plots
     from astropy.io import fits
@@ -702,10 +705,10 @@ def write_tomoxip_margin(samplesp_list, samplesm_list, rhoscosmo, models_combo, 
         samplesp_i =  samplesp_list[i - 1]; samplesm_i =  samplesm_list[i - 1]
         samplesp_j =  samplesp_list[j - 1]; samplesm_j =  samplesm_list[j - 1]
         bins=[i, j]
-        meanr, xip, covxip = getxibiastomo_margin( samplesp_i, samplesp_j, datarhosp, models_combo,
+        meanr, xip, covxip = getxibiastomo_margin( samplesp_i, samplesp_j, datarhosp, models_combo, nsig=nsig,
                                                    plots=plots, bins=bins, nameterms= os.path.join(plotspath, '%s_%s_xip.png'%( binstr, nameterms)), 
                                                    dxiname=os.path.join(plotspath, '%s_%s_xip.png'%( binstr,  namedxip )))
-        meanr, xim, covxim = getxibiastomo_margin( samplesm_i, samplesm_j ,datarhosm, models_combo,
+        meanr, xim, covxim = getxibiastomo_margin( samplesm_i, samplesm_j ,datarhosm, models_combo, nsig=nsig,
                                                    plots=plots, bins=bins, nameterms= os.path.join(plotspath, '%s_%s_xim.png'%( binstr,  nameterms )), 
                                                    dxiname=os.path.join(plotspath, '%s_%s_xim.png'%( binstr,  namedxip )))
         ang_list.append(meanr)
@@ -903,6 +906,9 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
             else:
                 plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, os.path.join(plotspath, '%s_zbin_%d_.png'%(namemc, zbin)),  os.path.join(plotspath, '%s_zbin_%d_.png'%(namecont, zbin)), zbin=zbin )
                 plotcovmat(auxp1, mflags, os.path.join(plotspath, '%s_zbin_%d_.png'%(namecovmat, zbin)))
+
+            if axs is not None:
+                plotbestfit(zbin, axs, auxp1, auxm1, meanr, data, models_combo,  plotspath, margin=margin, overall=overall)
                 
         
         #samplesp, samplesm
@@ -1057,7 +1063,7 @@ def main():
                 saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
             else:
                 saveintex(models_combo, args.margin, args.overall, parsp_list, chisq_list, filename + '.tex')
-            write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
+            write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath, nsig=nsig)
 
     if args.overall:
         if args.singletau is not None:
@@ -1083,7 +1089,8 @@ def main():
             fig7, ax7 = plt.subplots()
             axs=[ax1,ax2,ax3,ax4,ax5,ax6,ax7]
             figs=[fig1,fig2,fig3,fig4,fig5,fig6]
-            ylabels=[r'$\tau_{0+}$',r'$\tau_{0-}$',r'$\tau_{2+}$',r'$\tau_{2-}$',r'$\tau_{5+}$',r'$\tau_{5-}$']
+            #ylabels=[r'$\tau_{0+}$',r'$\tau_{0-}$',r'$\tau_{2+}$',r'$\tau_{2-}$',r'$\tau_{5+}$',r'$\tau_{5-}$']
+            ylabels=[r'$\tau_{0+}$',r'$\tau_{0-}$',r'$\theta \times \tau_{2+}$',r'$\theta\times\tau_{2-}$',r'$\theta\times\tau_{5+}$',r'$\theta\times\tau_{5-}$']
             eq, abe, ab, ae, be, a, b, e = models_combo
             for i,  taufile in enumerate(args.taus):
                 parsp, chi2p_nu, parsm, chi2m_nu =RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,

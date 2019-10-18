@@ -475,3 +475,28 @@ def read_jk(filename,  keys=None):
         for i in range(len(outkeys)):  data[outkeys[i]] = np.array(cat[inkeys[i]])    
     print('made recarray')
     return data
+
+def read_stars_jk(filename,  keys=None):
+    import numpy as np
+    cat =  fitsio.read(filename)
+    outkeys = ['ra', 'dec','obs_e1', 'obs_e2', 'obs_T',
+               'piff_e1', 'piff_e2', 'piff_T', 'mag', 'JKID']
+     
+    nrows = len(cat['ra'])
+    
+    
+    if keys is not None:
+        formats = []
+        for key in keys:
+            if key == 'JKID': formats.append('i4')
+        else: formats.append('f4')
+        data = np.recarray(shape=(nrows,), formats=formats, names=keys)
+        for key in keys:
+            data[key] = np.array(cat[key]) 
+    else:
+        formats = ['f4']*9 + ['i4']
+        data = np.recarray(shape=(nrows,), formats=formats, names=outkeys)
+        for i in range(len(outkeys)):  data[outkeys[i]] = np.array(cat[outkeys[i]])    
+        
+    print('made recarray with %d stars'%(len(data['ra'])) )
+    return data

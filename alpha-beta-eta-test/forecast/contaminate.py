@@ -8,15 +8,17 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/pipeline/2pt_sim_1110_baseline_Y3cov.fits',
                         help='File containing xip to be modified')
     parser.add_argument('--contaminant',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/marg__ab_dxi_eq_4_.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/topropagatecosmology/marg_abe_dxi_eq_4_1sigma.fits',
                         help='Path for the outputs of this code')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/pipeline/', help='location of the output of the files')
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/', help='location of the output of the files')
+    parser.add_argument('--nsig', default=2, type=int, 
+                        help='nsigma values of the errors')
     parser.add_argument('--sup', default=False, 
                         action='store_const', const=True, help='Use the superior limit of the error bar of deltaxip to contaminate')
-    parser.add_argument('--inf', default=True, 
+    parser.add_argument('--inf', default=False, 
                         action='store_const', const=True, help='Use the inferior limit of the error bar of deltaxip to contaminate')
     parser.add_argument('--filename',
-                        default='2pt_sim_1110_baseline_Y3cov_contaminated_inf.fits',
+                        default='2pt_sim_1110_baseline_Y3cov_contaminated_inf_2sig.fits',
                         help='Path for the outputs of this code')  
     
     args = parser.parse_args()
@@ -73,13 +75,14 @@ def main():
     dxipbin = xipfit_cont['VALUE']
     dximbin = ximfit_cont['VALUE']
 
+    nsig = args.nsig
     lengths = [len(xipfit_cont), len(ximfit_cont)]
     if args.sup:
-        dxipbin += get_error(covmatrixfit_cont, lengths, 'xip')
-        dximbin += get_error(covmatrixfit_cont, lengths, 'xim')
+        dxipbin += nsig*get_error(covmatrixfit_cont, lengths, 'xip')
+        dximbin += nsig*get_error(covmatrixfit_cont, lengths, 'xim')
     if args.inf:
-        dxipbin -= get_error(covmatrixfit_cont, lengths, 'xip')
-        dximbin -= get_error(covmatrixfit_cont, lengths, 'xim')
+        dxipbin -= nsig*get_error(covmatrixfit_cont, lengths, 'xip')
+        dximbin -= nsig*get_error(covmatrixfit_cont, lengths, 'xim')
 
     nrows = 20
     nbins=4
@@ -94,7 +97,7 @@ def main():
         idxbinsp =  list(itertools.compress(range(len(binp)),  binp))
         idxbinsm =  list(itertools.compress(range(len(binm)),  binm))
         if (len(idxbinsp)!=0): xipfit_ori['VALUE'][binp] -=dxipbin[binp]
-        if (len(idxbinsm)!=0): ximfit_ori['VALUE'][binm] -=dxipbin[binm]
+        if (len(idxbinsm)!=0): ximfit_ori['VALUE'][binm] -=dximbin[binm]
 
     hdulist = fits.open(args.original)
     #delete all xip but saving header

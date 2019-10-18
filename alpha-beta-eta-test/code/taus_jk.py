@@ -11,26 +11,15 @@ def parse_args():
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--zbin', default=1,  type=int,
                         help='zbin of the jk_cat, used only to save names')
-    parser.add_argument('--piff_cat',
-                        default='/home/dfa/sobreira/alsina/catalogs/y3a1-v29',
-                        help='Full Path to the Only stars Piff catalog')
-    parser.add_argument('--exps_file',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/code/ally3.grizY',
-                        #default='/home/dfa/sobreira/alsina/DESWL/psf/testexp',
-                        help='list of exposures (in lieu of separate exps)')
-    parser.add_argument('--bands', default='riz', type=str,
-                         help='Limit to the given bands')
-    parser.add_argument('--use_reserved', default=True,
-                        action='store_const', const=True,
-                        help='just use the objects with the RESERVED flag')
-    parser.add_argument('--frac', default=1., type=float,
-                        help='Choose a random fraction of the input stars')
+    parser.add_argument('--stars_cat',
+                        default='/home/dfa/sobreira/alsina/catalogs/JK/jn_njk1000/Y3_reserved_STAR_JK.fits', 
+                        help='Full Path to the Metacalibration catalog')
     parser.add_argument('--mod', default=True,
                         action='store_const', const=True,
                         help='If true it substracts the mean to each field before calculate correlations')
     parser.add_argument('--jkidx', default=1,  type=int,
                         help='seed used, useful to run parallel')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/JK/taus_jk_1-250/',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/JK/taus_jk_01-250_V2/',
                         help='location of the output of the files')    
     args = parser.parse_args()
 
@@ -40,7 +29,7 @@ def main():
     from astropy.io import fits
     import numpy as np
     from src.runcorr import measure_tau
-    from src.read_cats import read_data, toList, read_jk
+    from src.read_cats import read_data, toList, read_jk, read_stars_jk
     import h5py as h
     
     args = parse_args()
@@ -55,17 +44,7 @@ def main():
     
   
     #Reading Mike stars catalog
-
-    keys = ['ra', 'dec','obs_e1', 'obs_e2', 'obs_T',
-            'piff_e1', 'piff_e2', 'piff_T', 'mag']
- 
-    exps = toList(args.exps_file)
-    data_stars, bands, tilings = read_data(exps, args.piff_cat , keys,
-                                     limit_bands=args.bands,
-                                     use_reserved=args.use_reserved)
-    print("Objects",  len(data_stars))
-    data_stars = data_stars[data_stars['mag']<20]
-    print("Objects with magnitude <20",  len(data_stars))
+    data_stars = read_stars_jk(args.stars_cat)
  
     bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 250, nbins = 20,)
     #bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 1.0, nbins = 10,)
@@ -87,9 +66,12 @@ def main():
         new_file = open(outname, "w")
         
         booljk = (data_galaxies['JKID']!=jkidx)
-        print("Total objects in patch%d: %d"%(jkidx,len(data_galaxies[booljk]) ))
+        print("Total galaxies in patch%d: %d"%(jkidx,len(data_galaxies[booljk]) ))
         
-        tau0, tau2, tau5= measure_tau( data_stars , data_galaxies[booljk], bin_config, mod=args.mod)
+        booljk_stars = (data_stars['JKID']!=jkidx)
+        print("Total stars in patch%d: %d"%(jkidx,len(data_stars[booljk_stars]) ))
+        
+        tau0, tau2, tau5= measure_tau( data_stars[booljk_stars] , data_galaxies[booljk], bin_config, mod=args.mod)
         tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
         tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
         taus = [tau0parr,tau0marr, tau2parr, tau2marr, tau5parr, tau5marr]

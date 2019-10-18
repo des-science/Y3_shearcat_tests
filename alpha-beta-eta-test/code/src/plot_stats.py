@@ -492,7 +492,7 @@ def pretty_residuals_tomo(axs,  meanr,res,sig,label='Corr',color='black'):
     #axs.set_yscale('log')
     #axs.errorbar( -meanr, res, yerr=sig, color=color,  marker='^',  capsize=2)
     #axs.errorbar( -meanr,-res, yerr=sig, color=color,  marker='^', ls=':', capsize=2)
-    axs.legend(loc='best', fontsize=15) 
+    axs.legend(loc='best', fontsize=15, frameon=True) 
     axs.tick_params(axis='both', which='major', labelsize=15)
     axs.set_xlabel(r'$\theta$ (arcmin)', fontsize=17)
     #axs.set_ylim(-3.e-6,6.e-6 )
@@ -722,30 +722,59 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
         res2p = a*rhosp[5]+ b*rhosp[4] + e*rhosp[3]
         res2m = am*rhosm[5] + bm*rhosm[4] + em*rhosm[3]
         
+        sigmasp = [np.sqrt(np.diag(cov)) for cov in covtausp]
+        sigmasm = [np.sqrt(np.diag(cov)) for cov in covtausm]
 
+        #multplying for Theta to have better vision using semilog plot
+        '''
+        tausp = [np.array(tau)*meanr for tau in tausp]
+        tausm = [np.array(tau)*meanr for tau in tausm]
+        sigmasp = [np.array(sig)*meanr for sig in sigmasp]
+        sigmasm = [np.array(sig)*meanr for sig in sigmasm]
+        res0p = np.array(res0p)*meanr
+        res0m = np.array(res0m)*meanr
+        res1p = np.array(res1p)*meanr
+        res1m = np.array(res1m)*meanr
+        res2p = np.array(res2p)*meanr
+        res2m = np.array(res2m)*meanr
+        '''
+        #Tau0 is a different guy        
+        tausp = [tausp[0]] + [np.array(tau)*meanr for tau in tausp[1:] ]
+        tausm = [tausm[0]] + [np.array(tau)*meanr for tau in tausm[1:] ]
+        sigmasp = [sigmasp[0]] + [np.array(sig)*meanr for sig in sigmasp[1: ] ]
+        sigmasm = [sigmasm[0]] + [np.array(sig)*meanr for sig in sigmasm[1: ] ]
+        res0p = np.array(res0p)
+        res0m = np.array(res0m)
+        res1p = np.array(res1p)*meanr
+        res1m = np.array(res1m)*meanr
+        res2p = np.array(res2p)*meanr
+        res2m = np.array(res2m)*meanr
+        
+
+        
         #if zbin == 2 or zbin == 3: return
         colors=['red','green','blue','black']
-        pretty_residuals_tomo(axs[0], meanr,tausp[0], np.sqrt(np.diag(covtausp[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[0], meanr,tausp[0], sigmasp[0], label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[0].plot( meanr,res0p, 'k', color=colors[zbin-1])
         #axs[0].plot( meanr, -res0p, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[1], meanr,tausm[0], np.sqrt(np.diag(covtausm[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[1], meanr,tausm[0], sigmasm[0], label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[1].plot( meanr,res0m, 'k', color=colors[zbin-1])
         #axs[1].plot( meanr, -res0m, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[2],  meanr,tausp[1], np.sqrt(np.diag(covtausp[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[2],  meanr,tausp[1], sigmasp[1], label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[2].plot( meanr,res1p, 'k', color=colors[zbin-1])
         #axs[2].plot( meanr, -res1p, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[3], meanr,tausm[1], np.sqrt(np.diag(covtausm[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[3], meanr,tausm[1], sigmasm[1], label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[3].plot( meanr,res1m, 'k', color=colors[zbin-1])
         #axs[3].plot( meanr, -res1m, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[4],  meanr,tausp[2], np.sqrt(np.diag(covtausp[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[4],  meanr,tausp[2], sigmasp[2], label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[4].plot( meanr,res2p, 'k', color=colors[zbin-1])
         #axs[4].plot( meanr, -res2p, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[5], meanr,tausm[2], np.sqrt(np.diag(covtausm[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[5], meanr,tausm[2], sigmasm[1], label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[5].plot( meanr,res2m, 'k', color=colors[zbin-1])
         #axs[5].plot( meanr, -res2m, 'k', color=colors[zbin-1])
         

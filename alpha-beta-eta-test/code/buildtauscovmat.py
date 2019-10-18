@@ -10,13 +10,16 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Correlation of reserved stars')
     
     parser.add_argument('--tausflask',
-                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_v3_mysp/',
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/taus_flask_01-250/',
                         help='Full Path to the taus measurement of flask catalogs')
+    parser.add_argument('--tausjk',
+                        default='/home/dfa/sobreira/alsina/catalogs/JK/taus_jk_01-250_V2/',
+                        help='Full Path to the taus measurement of JK catalogs')
     parser.add_argument('--input_tau',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_1.fits',
                         help='Fit file with the taus correlations, and which covariance matrix will be replaced and writen in filename')
     parser.add_argument('--filename',
-                        default='TAUS_FLASK_zbin_1.fits',
+                        default='TAUS_JK_zbin_1.fits',
                         help='Fit file based on inputfile but now with Flask Covariance matrix')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
@@ -24,6 +27,10 @@ def parse_args():
                         help='seed used, useful to run parallel')
     parser.add_argument('--plots', default=True,
                         action='store_const', const=True, help='Plot correlations functions')
+    parser.add_argument('--jk', default=False,
+                        action='store_const', const=True, help='flag to switch betwen flask and JK')
+    parser.add_argument('--njk', default=1000 , type=int,
+                         help='number of jk patches, only used if args.jk is True')
     parser.add_argument('--plotspath',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/plots/',
                         help='location of the plots.')
@@ -80,12 +87,15 @@ def main():
     #outdata = np.recarray((nrows, ), dtype=dtype)
     veclist = []
     count = 0; zbin = args.zbin
-    for seed in range(1, 701 ): #version2
+    for seed in range(1, 1000 ): #version2
         for ck in range(1,2):
-            name = os.path.join(args.tausflask, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
+            if args.jk: name = os.path.join(args.tausjk, 'taus_src-cat_jk%d_z%d.fits'%(seed,zbin ))
+            else: name = os.path.join(args.tausflask, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
             exist =  os.path.isfile(name)
             if exist:
-                meanr, taus, covtaus = read_taus(name)
+                try: meanr, taus, covtaus = read_taus(name)
+                except: print(name, 'could not be open')
+                
                 if (np.count_nonzero(taus) == 0):
                     print("Warning, weird measurement, skipping", name)
                 else:
@@ -93,10 +103,11 @@ def main():
                     count +=1
             else:
                 print(name, 'Does not exist')
-    print(count, "FLASK catalogs were read")
+    print(count, "catalogs were read")
                 
     ranveclist = np.c_[veclist].T
     covmat = np.cov(ranveclist)
+    if args.jk: covmat *= (args.njk - 1)   
     
     if(args.plots):
         lengths = [len(taus[0]), len(taus[1]), len(taus[2]), len(taus[3]),
@@ -111,7 +122,8 @@ def main():
             plt.axvline(x=line, c='k', lw=1, ls='-')
             plt.axhline(y=line, c='k', lw=1, ls='-')
         plt.tight_layout()
-        filename = plotspath + 'CovariancematrixTausFlask_' + str(args.zbin) + '_.png'
+        if args.jk: filename = os.path.join(plotspath,'CovariancematrixTausJK_zbin%d.png'%(args.zbin))
+        else: filename = os.path.join(plotspath,'CovariancematrixTausFlask_zbin%d.png'%(args.zbin))
         plt.savefig(filename, dpi=500)
         print(filename, 'Printed!')
 
@@ -123,7 +135,7 @@ def main():
     covmathdu= fits.ImageHDU(covmat)
     hdulist.insert(1, covmathdu)
     hdulist[1].header = oldheaders[0]
-    print(hdulist)
+    #print(hdulist)
     print("writting, ", outpath + args.filename)
     hdulist.writeto(outpath + args.filename, overwrite=True)
     
