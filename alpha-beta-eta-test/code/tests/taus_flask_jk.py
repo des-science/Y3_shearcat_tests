@@ -60,7 +60,54 @@ def covariance_jck(TOTAL_PHI,jk_r,type_cov):
     return {'cov' : cov_jck, 'err' : err_jck, 'corr':corr, 'mean':average}
 
 
-def plotmetacal(axs, tausname,  color, label):
+def plotdif(axs, tausname1, tausname2,  color, label, yerr=None):
+    from src.readfits import read_taus
+    import numpy as np
+
+    ax1, ax2, ax3, ax4, ax5, ax6 = axs
+    
+    name1 = os.path.join(tausname1)
+    meanr, taus1, covmat1 = read_taus(name1)
+    name2 = os.path.join(tausname2)
+    meanr, taus2, covmat2 = read_taus(name2)  
+    
+           
+    nrows = len(meanr)
+   
+    print('matrix covariance1 shape', covmat1.shape)
+    sig_tau0p1 = np.sqrt(np.diag(covmat1[0:nrows, 0:nrows]))
+    sig_tau0m1 = np.sqrt(np.diag(covmat1[nrows:2*nrows, nrows:2*nrows]))
+    sig_tau2p1 = np.sqrt(np.diag(covmat1[2*nrows:3*nrows, 2*nrows:3*nrows]))
+    sig_tau2m1 = np.sqrt(np.diag(covmat1[3*nrows:4*nrows, 3*nrows:4*nrows]))
+    sig_tau5p1 = np.sqrt(np.diag(covmat1[4*nrows:5*nrows, 4*nrows:5*nrows]))
+    sig_tau5m1 = np.sqrt(np.diag(covmat1[5*nrows:6*nrows, 5*nrows:6*nrows]))
+
+    print('matrix covariance2 shape', covmat2.shape)
+    sig_tau0p2 = np.sqrt(np.diag(covmat2[0:nrows, 0:nrows]))
+    sig_tau0m2 = np.sqrt(np.diag(covmat2[nrows:2*nrows, nrows:2*nrows]))
+    sig_tau2p2 = np.sqrt(np.diag(covmat2[2*nrows:3*nrows, 2*nrows:3*nrows]))
+    sig_tau2m2 = np.sqrt(np.diag(covmat2[3*nrows:4*nrows, 3*nrows:4*nrows]))
+    sig_tau5p2 = np.sqrt(np.diag(covmat2[4*nrows:5*nrows, 4*nrows:5*nrows]))
+    sig_tau5m2 = np.sqrt(np.diag(covmat2[5*nrows:6*nrows, 5*nrows:6*nrows]))
+
+    sig_taus1 = [sig_tau0p1,sig_tau0m1,sig_tau2p1,sig_tau2m1,sig_tau5p1,sig_tau5m1  ]
+    sig_taus2 = [sig_tau0p2,sig_tau0m2,sig_tau2p2,sig_tau2m2,sig_tau5p2,sig_tau5m2  ]
+    
+
+    #ylabels = [r'$\tau_{0+}$', r'$\tau_{0-}$', r'$\tau_{2+}$', r'$\tau_{2-}$', r'$\tau_{5+}$', r'$\tau_{5-}$']
+    ylabels = [r'$\Delta \sigma \tau_{0+} $', r'$\sigma \tau_{0-}$', r'$\sigma \tau_{2+}$', r'$\sigma \tau_{2-}$', r'$\sigma \tau_{5+}$', r'$\sigma \tau_{5-}$']
+
+    if yerr == 'JK': yerr =np.array(sig_taus1)/np.sqrt(1000) 
+    else: yerr = [None]*len(sig_taus1) 
+    for i, ax in enumerate(axs):
+        ax.errorbar(meanr, 1 - (sig_taus1[i]/sig_taus2[i]) ,yerr=yerr[i],color=color,  marker='.', capsize=2, label=label)
+        #ax.errorbar(meanr,taumeans[i],yerr=sig_taus[i],color=color, ls='', marker='.', capsize=2, label=label)
+        ax.legend(loc='best', fontsize=10, frameon=True)
+        ax.set_ylabel(ylabels[i]); ax.set_xlabel(r'$\theta$')
+        ax.set_xscale('log')
+        #ax.set_yscale('log')
+
+def plotmetacal(axs, tausname,  color, label, yerr=None):
     from src.readfits import read_taus
     import numpy as np
 
@@ -85,14 +132,17 @@ def plotmetacal(axs, tausname,  color, label):
 
     #ylabels = [r'$\tau_{0+}$', r'$\tau_{0-}$', r'$\tau_{2+}$', r'$\tau_{2-}$', r'$\tau_{5+}$', r'$\tau_{5-}$']
     ylabels = [r'$\sigma \tau_{0+}$', r'$\sigma \tau_{0-}$', r'$\sigma \tau_{2+}$', r'$\sigma \tau_{2-}$', r'$\sigma \tau_{5+}$', r'$\sigma \tau_{5-}$']
+
+    if yerr == 'JK': yerr =np.array(sig_taus)/np.sqrt(1000) 
+    else: yerr = [None]*len(sig_taus) 
     for i, ax in enumerate(axs):
-        ax.errorbar(meanr,sig_taus[i],yerr=None,color=color, ls='', marker='.', capsize=2, label=label)
+        ax.errorbar(meanr,sig_taus[i],yerr=yerr[i],color=color, ls='', marker='.', capsize=2, label=label)
         #ax.errorbar(meanr,taumeans[i],yerr=sig_taus[i],color=color, ls='', marker='.', capsize=2, label=label)
         ax.legend(loc='best', fontsize=10)
-        ax.set_ylabel(ylabels[i]); ax1.set_xlabel(r'$\theta$')
+        ax.set_ylabel(ylabels[i]); ax.set_xlabel(r'$\theta$')
         ax.set_xscale('log')
         ax.set_yscale('log')
-        #ax.set_ylim([ -2.e-6,2.e-6 ])
+        #ax.set_ylim([ 1.e-7, None ])
 def plotflask(axs, zbin, tausflask,color, label, ndraws):
     from src.readfits import read_taus
     import numpy as np
@@ -212,7 +262,7 @@ def plotjk(axs, zbin, tausflask,  color, label, ndraws, numpycov=True):
         ax.errorbar(meanr,sig_taus[i],yerr=None,color=color, ls='', marker='.', capsize=2, label=label)
         #ax.errorbar(meanr,taumeans[i],yerr=sig_taus[i],color=color, ls='', marker='.', capsize=2, label=label)
         ax.legend(loc='best', fontsize=10)
-        ax.set_ylabel(ylabels[i]); ax1.set_xlabel(r'$\theta$')
+        ax.set_ylabel(ylabels[i]); ax.set_xlabel(r'$\theta$')
         ax.set_xscale('log')
         ax.set_yscale('log')
         #ax.set_ylim([ -2.e-6,2.e-6 ])
@@ -236,21 +286,34 @@ def main():
     for i in range(6):
         figaux, axaux = plt.subplots()
         figs.append(figaux); axs.append(axaux)
-        filenames.append(os.path.join(plotspath,'%s_flask_JK_zbin%d%s'%(names[i], args.zbin, '.png') ))
+        filenames.append(os.path.join(plotspath,'%s_flask_JK_zbin%d_total%s'%(names[i], args.zbin, '.png') ))
+
+
+    
+    measurespath = os.path.expanduser('/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/' )
+    plotmetacal(axs, os.path.join(measurespath,'TAUS_FLASK_zbin_4.fits'), 'green', 'FLASK')
+    #plotmetacal(axs, os.path.join(measurespath,'TAUS_FLASK_zbin_old_4.fits'), 'red', 'OLD SHAPE NOISE')
+    plotmetacal(axs, os.path.join(measurespath,'TAUS_zbin_4.fits'), 'blue', 'Shape noise only')
+    #plotmetacal(axs, os.path.join(measurespath,'tau_4.fits'), 'red', 'JK old')
+    plotmetacal(axs, os.path.join(measurespath,'tau_newrun_4.fits'), 'gray', 'Jackknife',  yerr='JK')
+    
+    
+    '''
+    measurespath = os.path.expanduser('/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/' )
+    plotdif(axs, os.path.join(measurespath,'TAUS_FLASK_zbin_4.fits') , os.path.join(measurespath,'tau_newrun_4.fits'),  'blue', r'$\Delta \sigma=1-\frac{\sigma_{Flask}}{\sigma_{JK}}$')
+    '''
 
     '''
     measurespath = os.path.expanduser('/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/' )
-    plotmetacal(axs, os.path.join(measurespath,'TAUS_FLASK_zbin_4.fits'), 'green', 'MY SHAPE NOISE')
-    plotmetacal(axs, os.path.join(measurespath,'TAUS_FLASK_zbin_old_4.fits'), 'red', 'OLD SHAPE NOISE')
-    plotmetacal(axs, os.path.join(measurespath,'TAUS_zbin_4_1-250.fits'), 'blue', 'CURRENT METACAL')
-    plotmetacal(axs, os.path.join(measurespath,'tau_4.fits'), 'gray', 'MARCO JK')
+    plotmetacal(axs, os.path.join(measurespath,'TAUS_FLASK_zbin_4.fits'), 'green', 'FLASK')
+    plotmetacal(axs, os.path.join(measurespath,'tau_newrun_4.fits'), 'gray', 'JK', yerr='JK')
     '''
     
-    
+    '''
     plotmetacal(axs, args.tausmetacal, 'green', 'Treecorr sigmas')
     plotflask(axs, args.zbin, args.tausflask, 'red', 'Flask sigmas', 400)
     plotjk(axs, args.zbin, args.tausjk, 'blue', 'JK sigmas ', 999, numpycov=True)
-    
+    '''
     
     '''
     plotflask(axs, 1, args.tausflask, 'blue', 'Taus flask zbin1', ndraws)

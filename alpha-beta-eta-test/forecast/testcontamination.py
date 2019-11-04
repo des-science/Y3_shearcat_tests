@@ -194,7 +194,7 @@ def plotcontaminantandfiducial(contaminant, fiducial, out,overall=False, title=N
                                 color='red', ylim=ylim)
         
     red_patch = mpatches.Patch(color='red', label=r'$\delta \xi $')
-    blue_patch = mpatches.Patch(color='blue', label=r'$\xi_{+}^{sim}$')
+    blue_patch = mpatches.Patch(color='blue', label=r'$\xi_{+}$')
     fig.legend(handles=[red_patch, blue_patch], fontsize=20)
     if title is not None: fig.suptitle(title)
     fig.tight_layout()
@@ -234,7 +234,7 @@ def plotcontaminantandfiducial(contaminant, fiducial, out,overall=False, title=N
                                 color='red', ylim=ylim)
     
     red_patch = mpatches.Patch(color='red', label=r'$\delta \xi $')
-    blue_patch = mpatches.Patch(color='blue', label=r'$\xi_{-}^{sim}$')
+    blue_patch = mpatches.Patch(color='blue', label=r'$\xi_{-}$')
     fig.legend(handles=[red_patch, blue_patch], fontsize=20)
     if title is not None: fig.suptitle(title)
     fig.tight_layout()
@@ -436,7 +436,7 @@ def main():
     
     
 
-    #plotcontaminantandfiducial(args.contaminant_marg, args.fiducial, out, title='Alpha-Beta-eta', filenames=['xipcont_xipfid_abe_2sig2.png','ximcont_ximfid_abe_2sig2.png'], nsig=2 )
+    plotcontaminantandfiducial(args.contaminant_marg, args.fiducial, out, title='Alpha-Beta-eta', filenames=['xipcont_xipfid_abe_2sig2.png','ximcont_ximfid_abe_2sig2.png'], nsig=2 )
     #plotcontaminantandfiducial(args.contaminant_marg, args.fiducial, out, title='Alpha-Beta', filenames=['xipcont_xipfid_ab_1sig.png','ximcont_ximfid_ab_1sig.png'] )
     #plotcontaminantandfiducial(args.contaminant_over, args.fiducial, out, overall=True, title='Alpha-Beta', filenames=['xipcontover_xipfid_abe.png','ximcontover_ximfid_abe.png'] )
 
@@ -444,7 +444,7 @@ def main():
 
     #Checking contamination
     #plotting contaminated minus fiducial
-    checkcontamination(args.contaminated,args.fiducial,  out)
+    #checkcontamination(args.contaminated,args.fiducial,  out)
     
 
 

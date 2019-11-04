@@ -738,7 +738,8 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
         res2p = np.array(res2p)*meanr
         res2m = np.array(res2m)*meanr
         '''
-        #Tau0 is a different guy        
+        
+        #Tau0 is a different guy
         tausp = [tausp[0]] + [np.array(tau)*meanr for tau in tausp[1:] ]
         tausm = [tausm[0]] + [np.array(tau)*meanr for tau in tausm[1:] ]
         sigmasp = [sigmasp[0]] + [np.array(sig)*meanr for sig in sigmasp[1: ] ]
@@ -750,6 +751,7 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
         res2p = np.array(res2p)*meanr
         res2m = np.array(res2m)*meanr
         
+       
 
         
         #if zbin == 2 or zbin == 3: return
@@ -774,7 +776,7 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
         axs[4].plot( meanr,res2p, 'k', color=colors[zbin-1])
         #axs[4].plot( meanr, -res2p, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[5], meanr,tausm[2], sigmasm[1], label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[5], meanr,tausm[2], sigmasm[2], label=r'Bin %d'%(zbin), color=colors[zbin-1])
         axs[5].plot( meanr,res2m, 'k', color=colors[zbin-1])
         #axs[5].plot( meanr, -res2m, 'k', color=colors[zbin-1])
         

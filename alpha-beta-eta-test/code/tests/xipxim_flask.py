@@ -8,7 +8,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Produce xip and xim correlations, i.e correlation among galaxies for all Flask realisations')
     
     parser.add_argument('--flask_cat',
-                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_6x2pt_lognormal-maskedcats/', 
+                        default='/home/dfa/sobreira/alsina/catalogs/FLASK/desy3_v3_mysp/', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--mod', default=False,
                         action='store_const', const=True,
@@ -25,7 +25,7 @@ def parse_args():
     parser.add_argument('--g2flip', default=False,
                         action='store_const', const=True,
                         help='If true invert the sig of g2')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/FLASK/xis_noflip/',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/catalogs/FLASK/xisg1flip/',
                         help='location of the output of the files')    
     args = parser.parse_args()
 
@@ -49,7 +49,7 @@ def main():
         if not os.path.exists(outpath): raise
     
  
-    bin_config = dict( sep_units = 'arcmin', min_sep = 1.0, max_sep = 250, nbins = 20,)
+    bin_config = dict( sep_units = 'arcmin', min_sep = 0.1, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = 'arcmin' , bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
     flip = [args.g1flip, args.g2flip]
     ck=args.cookie
