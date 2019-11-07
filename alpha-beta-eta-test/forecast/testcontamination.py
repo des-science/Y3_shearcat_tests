@@ -15,7 +15,8 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/pipeline/2pt_sim_1110_baseline_Y3cov.fits',
                         help='fit file with fiducial data vectors, covariance matrix and so on.')
     parser.add_argument('--contaminant_marg',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/topropagatecosmology/marg_abe_dxi_eq_4_1sigma.fits',
+                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/topropagatecosmology/marg_abe_dxi_eq_4_1sigma.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/marg_abe_eq4_contaminant.fits', 
                         help='fit file with contamination data vector, covariance matrix, marginalized best fit')
     parser.add_argument('--contaminant_over',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/overall_ab_dxi_eq_4_.fits',
@@ -436,7 +437,7 @@ def main():
     
     
 
-    plotcontaminantandfiducial(args.contaminant_marg, args.fiducial, out, title='Alpha-Beta-eta', filenames=['xipcont_xipfid_abe_2sig2.png','ximcont_ximfid_abe_2sig2.png'], nsig=2 )
+    plotcontaminantandfiducial(args.contaminant_marg, args.fiducial, out, title='Alpha-Beta-eta', filenames=['xipcont_xipfid_abe_1sig.png','ximcont_ximfid_abe_1sig.png'], nsig=2 )
     #plotcontaminantandfiducial(args.contaminant_marg, args.fiducial, out, title='Alpha-Beta', filenames=['xipcont_xipfid_ab_1sig.png','ximcont_ximfid_ab_1sig.png'] )
     #plotcontaminantandfiducial(args.contaminant_over, args.fiducial, out, overall=True, title='Alpha-Beta', filenames=['xipcontover_xipfid_abe.png','ximcontover_ximfid_abe.png'] )
 
