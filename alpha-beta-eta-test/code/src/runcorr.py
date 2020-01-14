@@ -1,4 +1,4 @@
-def measure_tau(data_stars, data_galaxies, bin_config, prefix='piff', mod=True):
+def measure_tau(data_stars, data_galaxies, bin_config, prefix='piff', mod=True, obs=False):
     """Compute the tau statistics
     """
     import gc
@@ -26,6 +26,8 @@ def measure_tau(data_stars, data_galaxies, bin_config, prefix='piff', mod=True):
     
     #Modified ellipticities reserved stars and galaxies
     if(mod):
+        e1 = e1 - np.array(np.mean(e1))
+        e2 = e2 - np.array(np.mean(e2))
         p_e1 = p_e1 - np.array(np.mean(p_e1))
         p_e2 = p_e2 - np.array(np.mean(p_e2))
         de1 = de1 - np.array(np.mean(de1))
@@ -45,7 +47,11 @@ def measure_tau(data_stars, data_galaxies, bin_config, prefix='piff', mod=True):
     print('ragal = ',ragal)
     print('decgal = ',decgal)
     
-    ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
+    if(obs):
+        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
+    else:
+        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
+    
     decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
     wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
     egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
@@ -77,7 +83,7 @@ def measure_tau(data_stars, data_galaxies, bin_config, prefix='piff', mod=True):
     print('All correlations done sucessfully')
     return results
 
-def measure_rho(data, bin_config,  prefix='piff', mod=True,  obs=False,  cosmobin=False ):
+def measure_rho(data, bin_config,  prefix='piff', mod=True,  obs=False ):
     """Compute the rho statistics
     """
     import treecorr
@@ -232,4 +238,79 @@ def measure_npairs(data_stars, data_galaxies, bin_config, prefix='piff', mod=Tru
             rho.process(cat1, cat2)
         results.append(rho)
     print('All correlations done sucessfully')
+    return results
+
+def measure_rho_y1(data, bin_config, mod=True,  obs=False ):
+    """Compute the rho statistics for Y1
+    """
+    import treecorr
+    import numpy as np
+    
+    e1 = data['e1']
+    e2 = data['e2']
+    p_e1 = data['psf_e1']
+    p_e2 = data['psf_e2']
+    T = data['size']
+    p_T = data['psf_size']
+
+    de1 = e1-p_e1
+    de2 = e2-p_e2
+    dt = (T-p_T)/T
+    w1 = p_e1*dt
+    w2 = p_e2*dt
+    w1obs = e1*dt 
+    w2obs = e2*dt 
+        
+    
+    #Modified ellipticities
+    if(mod):
+        e1 = e1 - np.array(np.mean(e1))
+        e2 = e2 - np.array(np.mean(e2))       
+        p_e1 = p_e1 - np.array(np.mean(p_e1))
+        p_e2 = p_e2 - np.array(np.mean(p_e2))
+        de1 = de1 - np.array(np.mean(de1))
+        de2 = de2 - np.array(np.mean(de2))
+        w1 = w1 - np.array(np.mean(w1))
+        w2 = w2 - np.array(np.mean(w2))
+        w1obs = w1obs - np.array(np.mean(w1obs))
+        w2obs = w2obs - np.array(np.mean(w2obs))
+        
+    ra = data['ra']
+    dec = data['dec']
+    print('ra = ',ra)
+    print('dec = ',dec)
+    if(obs):
+        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
+        decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
+        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1obs, g2=w2obs)
+    else:
+        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
+        decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
+        #wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
+        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1obs, g2=w2obs)
+    ecat.name = 'ecat'
+    decat.name = 'decat'
+    wcat.name = 'wcat'
+    
+  
+
+    results = []
+    for (cat1, cat2) in [(ecat, ecat), 
+                         (decat, decat),
+                          (decat, ecat),
+                          (wcat, wcat),
+                          (decat, wcat),
+                          (ecat, wcat) ]:
+        print('Doing correlation of %s vs %s'%(cat1.name, cat2.name))
+
+        rho = treecorr.GGCorrelation(bin_config, verbose=2)
+
+        if cat1 is cat2:
+            rho.process(cat1)
+        else:
+            rho.process(cat1, cat2)
+        print('mean xi+ = ',rho.xip.mean())
+        print('mean xi- = ',rho.xim.mean())
+        results.append(rho)
+
     return results

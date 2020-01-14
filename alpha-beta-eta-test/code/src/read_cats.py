@@ -39,6 +39,23 @@ def band_combinations(bands, single=True, combo=True):
     return use_bands
 
 
+def read_data_y1(datafile, keys):
+    RESERVED = 64
+    NOT_STAR = 128
+
+    BAD_CCDS = [2, 31, 61]
+    MAX_TILING = 10
+
+    all_keys = keys
+
+    data = fitsio.read(datafile)
+
+
+
+    tilingflag = (data['tiling']==0) or (data['tiling']>MAX_TILING)
+    print('skipping', len(data[tilingflag]), ' of ',len(data) ,'stars' )
+    data=data[~tilingflag]
+
 def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=False, frac=1.,  verbose=False):
 
     RESERVED = 64

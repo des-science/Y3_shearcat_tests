@@ -121,13 +121,16 @@ def main():
         
     #PLOT marginalized
     if(args.plots): 
-        veclist = [abesamps['a1'], abesamps['b1'], abesamps['e1']]
+        #veclist = [abesamps['a1'], abesamps['b1'], abesamps['e1'], abesamps['a2'], abesamps['b2'], abesamps['e2'], abesamps['a3'], abesamps['b3'], abesamps['e3'], abesamps['a4'], abesamps['b4'], abesamps['e4']]
+        veclist = [abesamps['a2'], abesamps['b2'], abesamps['e2']]
         #mcmcpars = percentiles(veclist, nsig=1) 
         #print( ' mcmc parameters xi+',  'nsig=', 1, ' percentiles: ',  mcmcpars)
         filename = os.path.join(plotspath,'cornerabe.png')
-        corner_plot(veclist, ['a1', 'b1', 'e1'], filename, title=None)
+        #corner_plot(veclist, ['a1', 'b1', 'e1'], filename, title=None)
 
-        samples = MCSamples(samples=veclist, names=['a1', 'b1', 'e1'], labels=[r'\alpha^{1}', r'\beta^{1}', r'\eta^{1}'])
+        #samples = MCSamples(samples=veclist, names=['a1', 'b1', 'e1', 'a2', 'b2', 'e2', 'a3', 'b3', 'e3', 'a4', 'b4', 'e4'],
+        #                    labels=[r'\alpha^{1}',r'\beta^{1}',r'\eta^{1}',r'\alpha^{2}',r'\beta^{2}',r'\eta^{2}',r'\alpha^{3}',r'\beta^{3}',r'\eta^{3}',r'\alpha^{4}',r'\beta^{4}',r'\eta^{4}'])
+        samples = MCSamples(samples=veclist, names=['a2', 'b2', 'e2'], labels=[r'\alpha^{2}',r'\beta^{2}',r'\eta^{2}'])
         g = plots.getSubplotPlotter()
         g.settings.plot_meanlikes = False
         g.settings.alpha_factor_contour_lines = True

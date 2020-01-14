@@ -16,15 +16,15 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/catalogs/JK/taus_jk_01-250_V2/',
                         help='Full Path to the taus measurement of JK catalogs')
     parser.add_argument('--input_tau',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_1.fits',
+                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS.fits',
                         help='Fit file with the taus correlations, and which covariance matrix will be replaced and writen in filename')
     parser.add_argument('--filename',
-                        default='TAUS_JK_zbin_1.fits',
+                        default='TAUS_FLASK.fits',
                         help='Fit file based on inputfile but now with Flask Covariance matrix')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
-    parser.add_argument('--zbin', default=1 , type=int,
-                        help='seed used, useful to run parallel')
+    parser.add_argument('--zbin', default=None,
+                        help='int indicating the number of the redshift bin')
     parser.add_argument('--plots', default=True,
                         action='store_const', const=True, help='Plot correlations functions')
     parser.add_argument('--jk', default=False,
@@ -86,23 +86,27 @@ def main():
     #nrows = len(tau0marr)
     #outdata = np.recarray((nrows, ), dtype=dtype)
     veclist = []
-    count = 0; zbin = args.zbin
+    count = 0; 
     for seed in range(1, 1000 ): #version2
         for ck in range(1,2):
-            if args.jk: name = os.path.join(args.tausjk, 'taus_src-cat_jk%d_z%d.fits'%(seed,zbin ))
-            else: name = os.path.join(args.tausflask, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
-            exist =  os.path.isfile(name)
-            if exist:
-                try: meanr, taus, covtaus = read_taus(name)
-                except: print(name, 'could not be open')
-                
-                if (np.count_nonzero(taus) == 0):
-                    print("Warning, weird measurement, skipping", name)
-                else:
-                    veclist.append(np.concatenate(np.c_[taus]))
-                    count +=1
+            if args.zbin is not None: 
+                zmin = args.zbin; zmax=args.zbin+1
             else:
-                print(name, 'Does not exist')
+                zmin=1; zmax=5
+            for zbin in range(zmin,zmax):
+                if args.jk: name = os.path.join(args.tausjk, 'taus_src-cat_jk%d_z%d.fits'%(seed,zbin ))
+                else: name = os.path.join(args.tausflask, 'taus_src-cat_s%d_z%d_ck%d.fits'%(seed,zbin, ck  ))
+                exist =  os.path.isfile(name)
+                if exist:
+                    try: meanr, taus, covtaus = read_taus(name)
+                    except: print(name, 'could not be open')
+                    if (np.count_nonzero(taus) == 0):
+                        print("Warning, weird measurement, skipping", name)
+                    else:
+                        veclist.append(np.concatenate(np.c_[taus]))
+                        count +=1
+                else:
+                    print(name, 'Does not exist')
     print(count, "catalogs were read")
                 
     ranveclist = np.c_[veclist].T
@@ -122,8 +126,12 @@ def main():
             plt.axvline(x=line, c='k', lw=1, ls='-')
             plt.axhline(y=line, c='k', lw=1, ls='-')
         plt.tight_layout()
-        if args.jk: filename = os.path.join(plotspath,'CovariancematrixTausJK_zbin%d.png'%(args.zbin))
-        else: filename = os.path.join(plotspath,'CovariancematrixTausFlask_zbin%d.png'%(args.zbin))
+        if args.zbin is not None:
+            if args.jk: filename = os.path.join(plotspath,'CovariancematrixTausJK_zbin%d.png'%(args.zbin))
+            else: filename = os.path.join(plotspath,'CovariancematrixTausFlask_zbin%d.png'%(args.zbin))
+        else:
+            if args.jk: filename = os.path.join(plotspath,'CovariancematrixTausJK.png')
+            else: filename = os.path.join(plotspath,'CovariancematrixTausFlask.png')
         plt.savefig(filename, dpi=500)
         print(filename, 'Printed!')
 

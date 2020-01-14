@@ -67,7 +67,8 @@ def read_taus_plots(stat_file, minscale=None, maxscale=None):
 def read_rhos(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None):
     import numpy as np
     import fitsio
-    covmat =  fitsio.read(stat_file, ext=1)
+    print("Trying to Read", stat_file)
+    covmat=  fitsio.read(stat_file, ext=1)
     RHO0P =  fitsio.read(stat_file, ext=2); rho0p =  RHO0P['VALUE']
     RHO0M =  fitsio.read(stat_file, ext=3); rho0m =  RHO0M['VALUE']
     RHO1P =  fitsio.read(stat_file, ext=4); rho1p =  RHO1P['VALUE']
@@ -80,11 +81,12 @@ def read_rhos(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
     RHO4M =  fitsio.read(stat_file, ext=11); rho4m =  RHO4M['VALUE']
     RHO5P =  fitsio.read(stat_file, ext=12); rho5p =  RHO5P['VALUE']
     RHO5M =  fitsio.read(stat_file, ext=13); rho5m =  RHO5M['VALUE']
-    
+
     meanr = RHO0P['ANG']
     rhos = [rho0p, rho0m, rho1p, rho1m, rho2p, rho2m, rho3p, rho3m,
             rho4p, rho4m, rho5p, rho5m]
     nrhos = len(rhos)
+    print(stat_file, "Format seems OK")
     if maxscale is not None and maxbin is None:
         meanr = meanr[meanr<maxscale]
         idx = int(len(meanr))
@@ -123,6 +125,7 @@ def read_rhos(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
 def read_taus(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None):
     import numpy as np
     import fitsio
+    #print("Trying to Read", stat_file)
     covmat =  fitsio.read(stat_file, ext=1)
     TAU0P =  fitsio.read(stat_file, ext=2); tau0p =  TAU0P['VALUE']
     TAU0M =  fitsio.read(stat_file, ext=3); tau0m =  TAU0M['VALUE']
@@ -134,6 +137,7 @@ def read_taus(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
     meanr = TAU0P['ANG']
     taus = [tau0p, tau0m, tau2p, tau2m, tau5p, tau5m]
     ntaus = len(taus)
+    #print(stat_file, "Format seems OK")
     if maxscale is not None:
         meanr = meanr[meanr<maxscale]
         idx = len(meanr)

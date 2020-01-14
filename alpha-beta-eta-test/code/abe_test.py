@@ -16,14 +16,16 @@ def parse_args():
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin2.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin3.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin4.fits'],
-                        default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
-                                 '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
+                        default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK.fits'],
+                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
+                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
                         #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_1.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_2.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_3.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_4.fits'],
+                        nargs='+',
                         help='Ordered list of fits TAUS, containing all tau stats used to estimate abe')
     parser.add_argument('--singletau',
                         default=None, 
@@ -35,6 +37,7 @@ def parse_args():
                         help='Fits file containing all tau stats used to estimate abe')
     parser.add_argument('--rhos',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS.fits',
+                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS_Y3-mod.fits',
                         #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS_1-250.fits',
                         help='Fits file containing all rho stats used to estimate abe')
     parser.add_argument('--rhoscosmo', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS_Y3.fits',
@@ -141,7 +144,7 @@ def getxibias_margin(samples, datarhos, models_combo, plots=False, nameterms='te
 
     #Ploting each term of the bias
     if(plots):
-        xlim = [2., 300.]
+        xlim = [.2, 300.]
         #supposing that a,b and n are idependent of rhos(scale independent)
         var0 = ((2*a*rho0)**2)*vara +  (a**2)*(sig_rho0**2)
         var1 = ((2*b*rho1)**2)*varb +  (b**2)*(sig_rho1**2)
@@ -851,7 +854,7 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
     from src.plot_stats import plotallrhosfits, plotalltausfits, plot_samplesdist, plotbestfit, plotbestfitresiduals,  plotcovmat
 
     if (plots):
-        xlim = [1, 300.]
+        xlim = [0.1, 300.]
         taustitle = ''
         plotalltausfits(taufile, outpath=plotspath, title='zbin: %d'%(zbin),  xlim=xlim, zbin=str(zbin))
     
@@ -999,7 +1002,7 @@ def main():
         if not os.path.exists(outpath): raise
 
     if (args.plots):
-        xlim = [1, 300.]
+        xlim = [0.1, 300.]
         ylims = [[1.e-11,5.e-6 ],[1.e-12,1.e-6 ],[3.e-9 ,3.e-4 ],[3.e-12 ,3.e-6 ]]
         rhostitle = ''
         plotallrhosfits(args.rhos, outpath=plotspath, title=rhostitle, xlim=xlim, ylims=ylims)
@@ -1062,13 +1065,15 @@ def main():
             if a:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('a', eq)
             if b:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('b', eq)
             if e:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('e', eq)
-            if args.splitxipxim:
-                saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex')
-                saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
+            if len(args.taus)==4:
+                if args.splitxipxim:
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex')
+                    saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
+                else:
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisq_list, filename + '.tex')
+                write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath, nsig=nsig)
             else:
-                saveintex(models_combo, args.margin, args.overall, parsp_list, chisq_list, filename + '.tex')
-            write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath, nsig=nsig)
-
+                print("Non tomograpic taus or missing taus, Warning not table nor contamination produced")
     if args.overall:
         if args.singletau is not None:
             parsp, chi2p_nu, parsm, chi2m_nu = RUNTEST_PERTAU(args.rhos,args.singletau, args.minscale, args.maxscale,
@@ -1128,12 +1133,15 @@ def main():
             if a:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('a', eq)
             if b:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('b', eq)
             if e:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('e', eq)
-            if args.splitxipxim:
-                saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex')
-                saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
+            if len(args.taus)==4:
+                if args.splitxipxim:
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex')
+                    saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
+                else:
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'.tex')
+                write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )
             else:
-                saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'.tex')
-            write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )
+                print("Non tomograpic taus or missing taus, Warning not table nor contamination produced")
 
     
 
