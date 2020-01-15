@@ -6,12 +6,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Correlation of reserved stars')
     
     parser.add_argument('--piff_cat',
-                        default='/home/dfa/sobreira/alsina/catalogs/y3a1-v29',
+                        default='/home/dfa/sobreira/alsina/catalogs/y1a1-v13/psf_y1a1-v13.fits',
+                        #default='/data/catalogs/y1a1-v13/psf_y1a1-v13.fits',
                         help='Full Path to the Only stars Piff catalog')
-    parser.add_argument('--exps_file',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/code/ally3.grizY',
-                        #default='/home/dfa/sobreira/alsina/DESWL/psf/testexp', 
-                        help='list of exposures (in lieu of separate exps)')
     parser.add_argument('--bands', default='riz', type=str,
                          help='Limit to the given bands')
     parser.add_argument('--use_reserved', default=True,
@@ -44,8 +41,8 @@ def parse_args():
 def main():
     import sys; sys.path.append(".");
     import numpy as np
-    from src.read_cats import read_data,  toList
-    from src.runcorr import measure_rho
+    from src.read_cats import read_data_y1
+    from src.runcorr import measure_rho_y1
     from astropy.io import fits
     import treecorr
     
@@ -61,18 +58,13 @@ def main():
         
 
     #STATISTIC USING ONLY RESERVED STARS
-    keys = ['ra', 'dec','obs_e1', 'obs_e2', 'obs_T',
-            'piff_e1', 'piff_e2', 'piff_T',  'mag']
+    keys = ['ra', 'dec','e1', 'e2', 'size',
+            'psf_e1', 'psf_e2', 'psf_size']
  
-    exps = toList(args.exps_file)
-    data, bands, tilings = read_data(exps, args.piff_cat , keys,
+    data = read_data_y1(args.piff_cat , keys,
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
-    print("Objects",  len(data))
-    data = data[data['mag']<20]
-    print("Objects with magnitude <20",  len(data))
-
-   
+  
     
     
     if args.cosmobin and (args.bin_config is None):
@@ -88,7 +80,7 @@ def main():
         #bin_config = dict(sep_units = 'arcmin', nbins = 20, min_sep = 1.0, max_sep = 250,)
         #bin_config = dict(sep_units = 'arcmin', bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
 
-    rho0, rho1, rho2, rho3, rho4, rho5 = measure_rho(data,bin_config,
+    rho0, rho1, rho2, rho3, rho4, rho5 = measure_rho_y1(data,bin_config,
                                                      mod=args.mod,
                                                      obs=args.obs)
     rho0parr = rho0.xip; rho1parr = rho1.xip; rho2parr = rho2.xip
