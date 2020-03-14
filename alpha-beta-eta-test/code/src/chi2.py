@@ -321,7 +321,8 @@ def minimizeCHI2(data, initial_guess, eq=None,  mflags=[True, True, True], xip=T
         npoints *= 2
 
     dof = npoints- len(initial_guess)
-
+    print("Degree of freedom", dof)
+    print("chi2", result.fun)
     if result.success:
         fitted_params = result.x
         return fitted_params, result.fun/dof
