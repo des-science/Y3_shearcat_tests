@@ -1,0 +1,9 @@
+# Some info on the scripts used for measuring xi+/-
+
+1. call_xipm_xcorrmod_binslop0_apr4highsnr.py calls the script (it's very short)
+2. xipm_xcorrmod_binslop0_apr4highsnr.py is the main script with classes to set up the measurement (it's a mess because I've modified things in a terrible way)
+3. info_bslop0_apr4highsnr.py is also necessary and sets up some of the paths and parameters such as the mastercat path, theta bins, etc.
+4. destest_mcal_highsnr.yaml is called from xipm_xcorrmod_binslop0_apr4highsnr.py (see mcal_file = ...)
+
+Apologies that a lot of the stuff/settings in these above files are not used.
+It's exactly because things are a bit obfuscated that there is probably an issue now...
