@@ -39,7 +39,7 @@ def band_combinations(bands, single=True, combo=True):
     return use_bands
 
 
-def read_data_y1(datafile, keys, limit_bands=None, use_reserved=None):
+def read_data_y1(datafile, keys, limit_bands=None, use_reserved=None,  masks=True):
     RESERVED = 64
     NOT_STAR = 128
 
@@ -50,32 +50,33 @@ def read_data_y1(datafile, keys, limit_bands=None, use_reserved=None):
 
     data = fitsio.read(datafile)
 
+    if masks:
+        mask = ~((data['tiling']==0)|(data['tiling']>MAX_TILING))
+        print('Tiling filter', len(data[mask]), 'of',len(data) ,'stars' )
+        data=data[mask]
 
+        mask = ~np.in1d(data['ccd'], BAD_CCDS)
+        print('Bad ccd filter', len(data[mask]), 'of',len(data) ,'stars' )
+        data=data[mask]
 
-    mask = ~((data['tiling']==0)|(data['tiling']>MAX_TILING))
-    print('Tiling filter', len(data[mask]), 'of',len(data) ,'stars' )
-    data=data[mask]
+        T = data['size']
+        e1 = data['e1']
+        e2 = data['e2']
+        dT = data['size'] - data['psf_size']
+        de1 = data['e1'] - data['psf_e1']
+        de2 = data['e2'] - data['psf_e2']
 
-    mask = ~np.in1d(data['ccd'], BAD_CCDS)
-    print('Bad ccd filter', len(data[mask]), 'of',len(data) ,'stars' )
-    data=data[mask]
+        #THIS LINE WAS INCLUDED IN Y3
+        good = (abs(dT/T) < 0.1) & (abs(de1) < 0.1) & (abs(de2) < 0.1)
+        mask = good
+        print('Good filter', len(data[mask]), 'of',len(data) ,'stars' )
+        data=data[mask]
 
-    T = data['size']
-    e1 = data['e1']
-    e2 = data['e2']
-    dT = data['size'] - data['psf_size']
-    de1 = data['e1'] - data['psf_e1']
-    de2 = data['e2'] - data['psf_e2']
     
-    good = (abs(dT/T) < 0.1) & (abs(de1) < 0.1) & (abs(de2) < 0.1)
-    mask = good
-    print('Good filter', len(data[mask]), 'of',len(data) ,'stars' )
-    data=data[mask]
-
-    used_bands = ~np.array([( b not in limit_bands) for b in data['filter']] )
-    mask = used_bands
-    print('objects in', limit_bands, 'bands', len(data[mask]), 'of',len(data) ,'stars' )
-    data=data[mask]
+        used_bands = ~np.array([( b not in limit_bands) for b in data['filter']] )
+        mask = used_bands
+        print('objects in', limit_bands, 'bands', len(data[mask]), 'of',len(data) ,'stars' )
+        data=data[mask]
 
 
     
