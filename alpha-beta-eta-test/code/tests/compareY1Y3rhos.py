@@ -70,7 +70,9 @@ def main():
         figs.append(figaux); axs.append(axaux)
         filenames.append(os.path.join(plotspath,names[i]))
 
-    legends=['DES Y1', 'DES Y3'];  colors=['gray', 'red'];  markers=['o', '^']
+    #legends=['DES Y1', 'DES Y3'];  colors=['gray', 'red'];  markers=['o', '^']
+    #legends=[r'e$_{\textrm{model}}$', r'e$_{\textrm{obs}}$'];  colors=['blue', 'red'];  markers=['o', '^']
+    legends=['Mean-subtracted', r'Non-mean-subtracted'];  colors=['blue', 'red'];  markers=['o', '^']
     for j, fil in enumerate([args.rhos1, args.rhos2]):
         meanr, rhos,  cov_rhos =  read_rhos_plots(fil)
         for i in range(len(rhos)):
@@ -100,8 +102,8 @@ def main():
             sig_rhom = np.sqrt(np.diag(cov_rhos[2*k + 1]))
             pretty_rho(ax_tm[i][j], meanr, rhos[2*k + 1], sig_rhom, legend=None, color=colors[q], marker=markers[q], ylabel=ylabels[2*k + 1], xlim=xlim,  ylim=ylims[2*k + 1],  legsz=10,  labsz=10,  marsz=2)
 
-    line0, = plt.plot([1, 2, 3], label='DES Y1', color= colors[0])
-    line1, = plt.plot([1, 2, 3], label='DES Y3', color= colors[1])
+    line0, = plt.plot([1, 2, 3], label=legends[0], color= colors[0])
+    line1, = plt.plot([1, 2, 3], label=legends[1], color= colors[1])
     fig_tp.legend(handles=[line0, line1], bbox_to_anchor=(0.4,-0.03), loc='lower left',  ncol=2,  fontsize= 10)
     fig_tm.legend(handles=[line0, line1], bbox_to_anchor=(0.4,-0.03), loc='lower left',  ncol=2,  fontsize= 10)
     
