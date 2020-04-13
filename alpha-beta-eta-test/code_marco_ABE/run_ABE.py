@@ -30,7 +30,7 @@ from contextlib import closing
 from mpi4py import MPI
 
 
-RUNSTODO = 'runs_path_ABE_FLASK' #"runs_path_ABE_y3"
+#RUNSTODO = 'runs_path_ABE_FLASK' #"runs_path_ABE_y3"
 RUNSTODO = "runs_path_ABE_y3"
 def save_obj(name, obj):
     with open(name + '.pkl', 'wb') as f:
@@ -674,7 +674,7 @@ def run_MAP_one(i,kk):
             mute_dict['ra_2'],mute_dict['dec_2'],mute_dict['hpix1'],mute_dict['hpix2'],np.ones(len(mute_dict['w1'])),
             np.ones(len(mute_dict['w2'])),(mute_dict['g1_1']-np.mean(mute_dict['g1_1'])),mute_dict['g2_1']-np.mean(mute_dict['g2_1']),mute_dict['g1_2']-np.mean(mute_dict['g1_2']),mute_dict['g2_2']-np.mean(mute_dict['g2_2']), corr='GG',
             number_of_cores=2, centers= mute_dict['centers'], njk=mute_dict['n_jck'], cov = True,
-            outp_fold=mute_dict['outp_fold'],label = mute_dict['label']+"_noweight",init=gg)
+            outp_fold=mute_dict['outp_fold'],label = mute_dict['label']+"_noweight",init=kk)
             
    
 
@@ -710,7 +710,7 @@ if __name__ == '__main__':
     list_run = []
     #list_run1 = []
     
-    inits=[0]
+    inits=[0,500]
     list_run = []
     list_run_init=[]
     '''
