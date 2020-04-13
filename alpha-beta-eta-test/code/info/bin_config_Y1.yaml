@@ -1,0 +1,5 @@
+min_sep: 0.3
+max_sep: 300.
+bin_size: 0.2
+bin_slop: 0.3
+sep_units: arcmin
