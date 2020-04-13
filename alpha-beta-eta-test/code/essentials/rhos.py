@@ -27,9 +27,6 @@ def parse_args():
                         help='Use e_obs instead of e_piff to calculate modified rho stats')
     parser.add_argument('--bin_config', default=None,
                         help='bin_config file for running rhos')
-    parser.add_argument('--cosmobin', default=False,
-                        action='store_const', const=True,
-                        help='Use Y3 cosmology binning . Useful to calculate the bias of xip.')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
                         help='location of the output of the files')
     parser.add_argument('--filename', default='RHOS.fits',
@@ -75,18 +72,12 @@ def main():
    
     
     
-    if args.cosmobin and (args.bin_config is None):
-        #BINNING USED TO PROPAGATE IN COSMOLOGY
-        bin_config = dict(sep_units = 'arcmin', nbins = 20, min_sep = 2.5, max_sep = 250,)
-    elif args.bin_config is not None:
+    if args.bin_config is not None:
         print("Using external bin config")
         bin_config = treecorr.read_config(args.bin_config)
         print(bin_config)
     else:
-        #BINING FOR ESTIMATING ABE
-        bin_config = dict(sep_units = 'arcmin', nbins = 20, min_sep = 0.1, max_sep = 250,)
-        #bin_config = dict(sep_units = 'arcmin', nbins = 20, min_sep = 1.0, max_sep = 250,)
-        #bin_config = dict(sep_units = 'arcmin', bin_slop = 0.1, min_sep = 0.1, max_sep = 300, bin_size = 0.2)
+        print("No BinConfig defined")
 
     rho0, rho1, rho2, rho3, rho4, rho5 = measure_rho(data,bin_config,
                                                      mod=args.mod,
