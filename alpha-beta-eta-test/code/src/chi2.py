@@ -289,11 +289,9 @@ def chi2(modelvec, datavec,  covmodel, covdata,  moderr=False ):
     #print('np.dot(d,d.T):',  np.dot(d, d.T)[0][0])
     return chisq[0][0]
     
-def chi2nu(pars, data, eq=None, mflags=[True, True, True], xip=True, xim=True,  moderr=False):
-    import itertools
+def ndof(data, eq=None, mflags=[True, True, True], xip=True, xim=True):
     npoints = len(data['rhos'][0])
     ndim =  len(list(itertools.compress(range(len(mflags)),  mflags)))
-    #print(npoints)
     if (eq ==  0 or eq==1 or eq==2) :
         npoints *=1 
     elif(eq==21 or eq==20 or eq==10 or eq==12):
@@ -303,24 +301,16 @@ def chi2nu(pars, data, eq=None, mflags=[True, True, True], xip=True, xim=True,  
     if(xip and xim):
         npoints *= 2
     dof = npoints- ndim
+    return dof
+def chi2nu(pars, data, eq=None, mflags=[True, True, True], xip=True, xim=True,  moderr=False):
+    dof = ndof(data, eq=eq, mflags=mflags, xip=xip, xim=xim)
     return  CHI2(pars, data, eq=eq, mflags=mflags, xip=xip, xim=xim,  moderr=moderr)/dof
     
 def minimizeCHI2(data, initial_guess, eq=None,  mflags=[True, True, True], xip=True, xim=False, moderr=False):
     import scipy.optimize as optimize
     result = optimize.minimize(CHI2, initial_guess,args=(data,eq,mflags, xip, xim, moderr), method='Nelder-Mead', tol=1e-6)
 
-    npoints = len(data['rhos'][0])
-    #print(npoints)
-    if (eq ==  0 or eq==1 or eq==2) :
-        npoints *=1 
-    elif(eq==21 or eq==20 or eq==10 or eq==12):
-        npoints *=2
-    else:
-        npoints *=3
-    if(xip and xim):
-        npoints *= 2
-
-    dof = npoints- len(initial_guess)
+    dof = ndof(data, eq=eq, mflags=mflags, xip=xip, xim=xim)
     print("Degree of freedom", dof)
     print("chi2", result.fun)
     if result.success:

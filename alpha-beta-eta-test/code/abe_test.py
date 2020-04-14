@@ -975,7 +975,7 @@ def main():
     from src.plot_stats import plotallrhosfits
     from src.maxlikelihood import percentiles, bestparameters
     from src.readfits import  read_rhos, read_taus
-    from src.chi2 import chi2nu
+    from src.chi2 import chi2nu,  ndof
     import numpy as np
 
     args = parse_args()
@@ -1007,6 +1007,11 @@ def main():
     nsig = args.nsig
     nwalkers,  nsteps = args.nwalkers, args.nsteps
 
+    data = {}
+    data['rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[1]
+    data['cov_rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[2]
+
+
     if args.margin:
         if args.singletau is not None:
             print("STARTING single tau ANALYSIS",  arg.singletau)
@@ -1021,14 +1026,11 @@ def main():
 
         else:
             if (len(args.taus)==4): print("STARTING TOMOGRAPHIC ANALYSIS")
-            data = {}
-            data['rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[1]
-            data['cov_rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[2]
-
+            
             samplesp_list = []; parsp_list = []
             samplesm_list = []; parsm_list = []
             chisqp_list = []; chisqm_list = []; chisq_list = []
-        
+            #data was before here
             for i,  taufile in enumerate(args.taus):
                 if (len(args.taus) == 1): zbin = None
                 else: zbin = (i + 1)
@@ -1061,12 +1063,15 @@ def main():
             if a:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('a', eq)
             if b:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('b', eq)
             if e:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('e', eq)
+
             if len(args.taus)==4:
                 if args.splitxipxim:
-                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex')
-                    saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=False, xim=False)
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex', dof)
+                    saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex', dof)
                 else:
-                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisq_list, filename + '.tex')
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True)
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisq_list, filename + '.tex', dof)
                 write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath, nsig=nsig)
             else:
                 print("Non tomograpic taus or missing taus, Warning not table nor contamination produced")
@@ -1129,10 +1134,12 @@ def main():
             if e:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('e', eq)
             if len(args.taus)==4:
                 if args.splitxipxim:
-                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex')
-                    saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=False, xim=False)
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex', dof)
+                    saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex', dof)
                 else:
-                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'.tex')
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True)
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'.tex', dof)
                 write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )
             else:
                 print("Non tomograpic taus or missing taus, Warning not table nor contamination produced")
