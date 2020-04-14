@@ -290,6 +290,7 @@ def chi2(modelvec, datavec,  covmodel, covdata,  moderr=False ):
     return chisq[0][0]
     
 def ndof(data, eq=None, mflags=[True, True, True], xip=True, xim=True):
+    import itertools
     npoints = len(data['rhos'][0])
     ndim =  len(list(itertools.compress(range(len(mflags)),  mflags)))
     if (eq ==  0 or eq==1 or eq==2) :
