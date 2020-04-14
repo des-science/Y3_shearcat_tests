@@ -855,8 +855,9 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
 
     if (plots):
         xlim = [0.1, 300.]
-        taustitle = ''
-        plotalltausfits(taufile, outpath=plotspath, title='zbin: %d'%(zbin),  xlim=xlim, zbin=str(zbin))
+        if zbin is not None: title='zbin: %d'%(zbin)
+        else: title = 'Non-tomographic'
+        plotalltausfits(taufile, outpath=plotspath, title=title,  xlim=xlim, zbin=zbin)
     
     meanr, rhos,  covrho =  read_rhos(rhofile, minscale=minscale, maxscale=maxscale)
     meanr, taus,  covtau =  read_taus(taufile, minscale=minscale, maxscale=maxscale)
@@ -1026,7 +1027,7 @@ def main():
             write_singlexip_margin(samplesp, samplesm, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
 
         else:
-            print("STARTING TOMOGRAPHIC ANALYSIS")
+            if (len(args.taus)==4): print("STARTING TOMOGRAPHIC ANALYSIS")
             data = {}
             data['rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[1]
             data['cov_rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[2]
@@ -1086,11 +1087,12 @@ def main():
             write_singlexip_overall(parsp, parsm, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
         
         else:
-            print("STARTING TOMOGRAPHIC ANALYSIS")
+            if (len(args.taus)==4): print("STARTING TOMOGRAPHIC ANALYSIS")
             samplesp_list = []; parsp_list = []
             samplesm_list = []; parsm_list = []
             chisqp_list = []; chisqm_list = []
 
+            figs = []; axs = []
             for i in range(6): #there 6 taus
                 figaux, axaux = plt.subplots()
                 figs.append(figaux); axs.append(axaux)

@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 plt.style.use('SVA1StyleSheet.mplstyle')
+import os
 
 def pretty_rho(meanr, rho, sig,  legend=None, lfontsize=24, color='black', marker='o', ylabel=r'$\rho(\theta)$',title=None,  xlim=None,  ylim=None):
     import numpy as np
@@ -233,7 +234,7 @@ def plotallrhosfits(stat_file, outpath, title= None, xlim=None, ylims=None):
         plt.savefig(outpath + names[i], dpi=150)
         print(outpath +names[i], 'Printed!')
     
-def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zbin=''):
+def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zbin=None):
     import numpy as np
     from src.readfits import read_taus_plots
     import fitsio
@@ -246,14 +247,17 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
     sig_tau2p =  np.sqrt(np.diag(cov2p)); sig_tau2m =  np.sqrt(np.diag(cov2m))
     sig_tau5p =  np.sqrt(np.diag(cov5p)); sig_tau5m =  np.sqrt(np.diag(cov5m))
 
+    if zbin is not None: extname = 'zbin%d'%(zbin)
+    else: extname = 'non-tomographic'
+
     plt.clf()
     pretty_tau2(meanr, tau0p, sig_tau0p, tau2p, sig_tau2p, tau5p, sig_tau5p, mlabel=False, title=title, xlim=xlim, ylim=ylim0p)
-    name = outpath +'taup_all_rsrs' + zbin +  '.png'
+    name = os.path.join(outpath, 'taup_all_rsrs_%s.png'%(extname) )
     print("Printing file: ", name)
     plt.savefig(name)
     plt.clf()
     pretty_tau2(meanr, tau0m, sig_tau0m, tau2m, sig_tau2m, tau5m, sig_tau5m, mlabel=True, title=title, xlim=xlim, ylim=ylim0m)
-    name = outpath +'taum_all_rsrs' + zbin +  '.png'
+    name = os.path.join(outpath, 'taum_all_rsrs_%s.png'%(extname) )
     print("Printing file: ", name)
     plt.savefig(name)
 
@@ -285,7 +289,7 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
         plt.axvline(x=line, c='k', lw=1, ls='-')
         plt.axhline(y=line, c='k', lw=1, ls='-')
     plt.tight_layout()
-    filename = outpath + 'CovariancematrixTaus' + zbin + '.png'
+    filename = os.path.join(outpath, 'CovariancematrixTaus_%s.png'%(extname) )
     plt.savefig(filename, dpi=150)
     print(filename, 'Printed!')
 
@@ -686,7 +690,7 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
     covtausm =[data['cov_taus'][(2*i + 1)*nrows:2*(i + 1)*nrows , (2*i + 1)*nrows:2*(i + 1)*nrows] for i in range(3)]
 
     if zbin is not None: label = r'Bin %d'%(zbin)
-    else: label = None
+    else: label = 'Non-tomographic'; zbin = 1
     
     if(overall and not margin):
         a = b = e = 0; 
