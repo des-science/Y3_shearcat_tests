@@ -1036,9 +1036,11 @@ def main():
             chisqp_list = []; chisqm_list = []; chisq_list = []
         
             for i,  taufile in enumerate(args.taus):
+                if (len(args.taus) == 1): zbin = None
+                else: zbin = (i + 1)
                 samplesp, samplesm=RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                   models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
-                                                  True, False, args.plots, plotspath,  zbin=(i + 1))
+                                                  True, False, args.plots, plotspath,  zbin=zbin)
                 mcmcparsp = percentiles(samplesp, nsig=nsig) 
                 mcmcparsm = percentiles(samplesm, nsig=nsig)
                 if args.splitxipxim :
@@ -1088,23 +1090,20 @@ def main():
             samplesp_list = []; parsp_list = []
             samplesm_list = []; parsm_list = []
             chisqp_list = []; chisqm_list = []
-        
-            fig1, ax1 = plt.subplots()
-            fig2, ax2 = plt.subplots()
-            fig3, ax3 = plt.subplots()
-            fig4, ax4 = plt.subplots()
-            fig5, ax5 = plt.subplots()
-            fig6, ax6 = plt.subplots()
-            fig7, ax7 = plt.subplots()
-            axs=[ax1,ax2,ax3,ax4,ax5,ax6,ax7]
-            figs=[fig1,fig2,fig3,fig4,fig5,fig6]
+
+            for i in range(6): #there 6 taus
+                figaux, axaux = plt.subplots()
+                figs.append(figaux); axs.append(axaux)
+           
             #ylabels=[r'$\tau_{0+}$',r'$\tau_{0-}$',r'$\tau_{2+}$',r'$\tau_{2-}$',r'$\tau_{5+}$',r'$\tau_{5-}$']
             ylabels=[r'$\tau_{0+}$',r'$\tau_{0-}$',r'$\theta \times \tau_{2+}$',r'$\theta\times\tau_{2-}$',r'$\theta\times\tau_{5+}$',r'$\theta\times\tau_{5-}$']
             eq, abe, ab, ae, be, a, b, e = models_combo
             for i,  taufile in enumerate(args.taus):
+                if (len(args.taus) == 1): zbin = None
+                else: zbin = (i + 1)
                 parsp, chi2p_nu, parsm, chi2m_nu =RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                                  models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
-                                                                 False, True, args.plots, plotspath,  zbin=(i + 1), axs=axs)
+                                                                 False, True, args.plots, plotspath,  zbin=zbin, axs=axs)
                 if args.splitxipxim :
                     print( 'overall parameters xi+', parsp.tolist()) 
                     print( 'chi2r: ',  chi2p_nu)
