@@ -16,7 +16,6 @@ def parse_args():
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin2.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin3.fits',
                         #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin4.fits'],
-                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK.fits'],
                         default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
@@ -30,15 +29,9 @@ def parse_args():
     parser.add_argument('--singletau',
                         default=None, 
                         #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin_1.fits',
-                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS.fits',
-                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/oldbins/TAUS_FLASK.fits',
-                        #default='/home2/dfa/sobreira/alsina/catalogs/flask/taus/taus_src-cat_s201_z1_ck1.fits',
-                        #default=None,
                         help='Fits file containing all tau stats used to estimate abe')
     parser.add_argument('--rhos',
                         default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS.fits',
-                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS_Y3-mod.fits',
-                        #default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS_1-250.fits',
                         help='Fits file containing all rho stats used to estimate abe')
     parser.add_argument('--rhoscosmo', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/RHOS_Y3.fits',
                         help='Fits file containing all rho stats used to estimate dxip, the contaminant to be used in cosmosis')
@@ -855,8 +848,9 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
 
     if (plots):
         xlim = [0.1, 300.]
-        taustitle = ''
-        plotalltausfits(taufile, outpath=plotspath, title='zbin: %d'%(zbin),  xlim=xlim, zbin=str(zbin))
+        if zbin is not None: title='zbin: %d'%(zbin)
+        else: title = 'Non-tomographic'
+        plotalltausfits(taufile, outpath=plotspath, title=title,  xlim=xlim, zbin=zbin)
     
     meanr, rhos,  covrho =  read_rhos(rhofile, minscale=minscale, maxscale=maxscale)
     meanr, taus,  covtau =  read_taus(taufile, minscale=minscale, maxscale=maxscale)
@@ -929,23 +923,23 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
         #parsp,chisqp,parsm,chisqm
         return auxp1, auxp2, auxm1, auxm2
 
-def saveintex(models_combo, margin, overall, parlist, chisq_list, filename):
+def saveintex(models_combo, margin, overall, parlist, chisq_list, filename, ndof):
     print('Generating table.tex')
     eq, abe, ab, ae, be, a, b, e = models_combo
     if overall:
         parsbin1, parsbin2,  parsbin3,  parsbin4 =  parlist
         if abe:
-            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $\alpha$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $\beta$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \rule{0pt}{3ex} %s $\eta$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline \rule{0pt}{3ex} %s $\chi_{\nu}^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n',  parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n',  parsbin1[1], parsbin2[1], parsbin3[1], parsbin4[1], '\n', parsbin1[2], parsbin2[2], parsbin3[2], parsbin4[2],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $\alpha$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $\beta$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \rule{0pt}{3ex} %s $\eta$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline  %s $\chi^{2}_{\nu=%d}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n',  parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n',  parsbin1[1], parsbin2[1], parsbin3[1], parsbin4[1], '\n', parsbin1[2], parsbin2[2], parsbin3[2], parsbin4[2],'\n', ndof*chisq_list[0],  ndof*chisq_list[1], ndof*chisq_list[2], ndof*chisq_list[3], '\n', ndof, chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3],'\n', '\n')
         if ab or ae or be:
             if ab: name1 = r'\alpha'; name2 = r'\beta'
             if ae: name1 = r'\alpha'; name2 = r'\eta'
             if be: name1 = r'\beta'; name2 = r'\eta'
-            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \rule{0pt}{3ex} %s $\chi_{\nu}^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name1, parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n', name2,  parsbin1[1], parsbin2[1], parsbin3[1], parsbin4[1], '\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s $\chi^{2}_{\nu=%d}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name1, parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n', name2,  parsbin1[1], parsbin2[1], parsbin3[1], parsbin4[1], '\n', ndof*chisq_list[0],  ndof*chisq_list[1], ndof*chisq_list[2], ndof*chisq_list[3], '\n', ndof, chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3],'\n', '\n')
         if a or b or e:
             if a: name = r'\alpha'
             if b: name = r'\beta'
             if e: name = r'\eta'
-            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $\chi_{\nu}^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name, parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$\\ \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s $\chi^{2}_{\nu=%d}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name, parsbin1[0], parsbin2[0], parsbin3[0], parsbin4[0],'\n', ndof*chisq_list[0],  ndof*chisq_list[1], ndof*chisq_list[2], ndof*chisq_list[3], '\n', ndof, chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3],'\n', '\n')
         
         print(text[1:-1], file=open(filename, "w"))
         print(filename ,  'written!')
@@ -955,21 +949,21 @@ def saveintex(models_combo, margin, overall, parlist, chisq_list, filename):
     if margin:
         parsbin1, parsbin2,  parsbin3,  parsbin4 =  parlist
         if abe:
-            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $\alpha$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$\\ \rule{0pt}{3ex} %s $\beta$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ \\ \rule{0pt}{3ex} %s $\eta$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ \\ \hline \rule{0pt}{3ex} %s $\chi_{\nu}^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n',  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n',  parsbin1[1][0],parsbin1[1][1],parsbin1[1][2], parsbin2[1][0],parsbin2[1][1],parsbin2[1][2], parsbin3[1][0],parsbin3[1][1],parsbin3[1][2],parsbin4[1][0],parsbin4[1][1],parsbin4[1][2], '\n', parsbin1[2][0],parsbin1[2][1],parsbin1[2][2],parsbin2[2][0],parsbin2[2][1],parsbin2[2][2], parsbin3[2][0],parsbin3[2][1],parsbin3[2][2],parsbin4[2][0],parsbin4[2][1],parsbin4[2][2],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $\alpha$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$\\ \rule{0pt}{3ex} %s $\beta$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ \\ \rule{0pt}{3ex} %s $\eta$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ \\ \hline \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s $\chi^{2}_{\nu=%d}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n',  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n',  parsbin1[1][0],parsbin1[1][1],parsbin1[1][2], parsbin2[1][0],parsbin2[1][1],parsbin2[1][2], parsbin3[1][0],parsbin3[1][1],parsbin3[1][2],parsbin4[1][0],parsbin4[1][1],parsbin4[1][2], '\n', parsbin1[2][0],parsbin1[2][1],parsbin1[2][2],parsbin2[2][0],parsbin2[2][1],parsbin2[2][2], parsbin3[2][0],parsbin3[2][1],parsbin3[2][2],parsbin4[2][0],parsbin4[2][1],parsbin4[2][2],'\n', ndof*chisq_list[0],  ndof*chisq_list[1], ndof*chisq_list[2], ndof*chisq_list[3], '\n', ndof, chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3],'\n', '\n')
       
         if ab or ae or be:
             if ab: name1 = r'\alpha'; name2 = r'\beta'
             if ae: name1 = r'\alpha'; name2 = r'\eta'
             if be: name1 = r'\beta'; name2 = r'\eta'
 
-            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$\\ \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ \\ \rule{0pt}{3ex} %s $\chi_{\nu}^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name1,  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n', name2,  parsbin1[1][0],parsbin1[1][1],parsbin1[1][2], parsbin2[1][0],parsbin2[1][1],parsbin2[1][2], parsbin3[1][0],parsbin3[1][1],parsbin3[1][2],parsbin4[1][0],parsbin4[1][1],parsbin4[1][2], '\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$\\ \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ \\ \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s $\chi^{2}_{\nu=%d}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name1,  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n', name2,  parsbin1[1][0],parsbin1[1][1],parsbin1[1][2], parsbin2[1][0],parsbin2[1][1],parsbin2[1][2], parsbin3[1][0],parsbin3[1][1],parsbin3[1][2],parsbin4[1][0],parsbin4[1][1],parsbin4[1][2], '\n', ndof*chisq_list[0],  ndof*chisq_list[1], ndof*chisq_list[2], ndof*chisq_list[3], '\n', ndof, chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3],'\n', '\n')
 
         if a or b or e:
             if a: name = r'\alpha'
             if b: name = r'\beta'
             if e: name = r'\eta'
 
-            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$\\ \rule{0pt}{3ex} %s $\chi_{\nu}^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name,  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n', chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3], '\n', '\n')
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|c|c|c|} \hline %s & \textrm{Bin}1 & \textrm{Bin}2 & \textrm{Bin}3 & \textrm{Bin}4 \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$ & $%.3f_{%.3f}^{+%.3f}$\\ \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s $\chi^{2}_{\nu=%d}$ & $%.3f$ & $%.3f$ & $%.3f$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name,  parsbin1[0][0],parsbin1[0][1],parsbin1[0][2],parsbin2[0][0],parsbin2[0][1],parsbin2[0][2],parsbin3[0][0],parsbin3[0][1],parsbin3[0][2],parsbin4[0][0],parsbin4[0][1],parsbin4[0][2],'\n', ndof*chisq_list[0],  ndof*chisq_list[1], ndof*chisq_list[2], ndof*chisq_list[3], '\n', ndof, chisq_list[0],  chisq_list[1], chisq_list[2], chisq_list[3],'\n', '\n')
 
         print(text[1:-1], file=open(filename, "w"))
         print(filename ,  'written!')
@@ -981,7 +975,7 @@ def main():
     from src.plot_stats import plotallrhosfits
     from src.maxlikelihood import percentiles, bestparameters
     from src.readfits import  read_rhos, read_taus
-    from src.chi2 import chi2nu
+    from src.chi2 import chi2nu,  ndof
     import numpy as np
 
     args = parse_args()
@@ -1013,6 +1007,11 @@ def main():
     nsig = args.nsig
     nwalkers,  nsteps = args.nwalkers, args.nsteps
 
+    data = {}
+    data['rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[1]
+    data['cov_rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[2]
+
+
     if args.margin:
         if args.singletau is not None:
             print("STARTING single tau ANALYSIS",  arg.singletau)
@@ -1026,19 +1025,18 @@ def main():
             write_singlexip_margin(samplesp, samplesm, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
 
         else:
-            print("STARTING TOMOGRAPHIC ANALYSIS")
-            data = {}
-            data['rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[1]
-            data['cov_rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[2]
-
+            if (len(args.taus)==4): print("STARTING TOMOGRAPHIC ANALYSIS")
+            
             samplesp_list = []; parsp_list = []
             samplesm_list = []; parsm_list = []
             chisqp_list = []; chisqm_list = []; chisq_list = []
-        
+            #data was before here
             for i,  taufile in enumerate(args.taus):
+                if (len(args.taus) == 1): zbin = None
+                else: zbin = (i + 1)
                 samplesp, samplesm=RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                   models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
-                                                  True, False, args.plots, plotspath,  zbin=(i + 1))
+                                                  True, False, args.plots, plotspath,  zbin=zbin)
                 mcmcparsp = percentiles(samplesp, nsig=nsig) 
                 mcmcparsm = percentiles(samplesm, nsig=nsig)
                 if args.splitxipxim :
@@ -1065,12 +1063,15 @@ def main():
             if a:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('a', eq)
             if b:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('b', eq)
             if e:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('e', eq)
+
             if len(args.taus)==4:
                 if args.splitxipxim:
-                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex')
-                    saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=False, xim=False)
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex', dof)
+                    saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex', dof)
                 else:
-                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisq_list, filename + '.tex')
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True)
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisq_list, filename + '.tex', dof)
                 write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath, nsig=nsig)
             else:
                 print("Non tomograpic taus or missing taus, Warning not table nor contamination produced")
@@ -1084,27 +1085,25 @@ def main():
             write_singlexip_overall(parsp, parsm, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
         
         else:
-            print("STARTING TOMOGRAPHIC ANALYSIS")
+            if (len(args.taus)==4): print("STARTING TOMOGRAPHIC ANALYSIS")
             samplesp_list = []; parsp_list = []
             samplesm_list = []; parsm_list = []
             chisqp_list = []; chisqm_list = []
-        
-            fig1, ax1 = plt.subplots()
-            fig2, ax2 = plt.subplots()
-            fig3, ax3 = plt.subplots()
-            fig4, ax4 = plt.subplots()
-            fig5, ax5 = plt.subplots()
-            fig6, ax6 = plt.subplots()
-            fig7, ax7 = plt.subplots()
-            axs=[ax1,ax2,ax3,ax4,ax5,ax6,ax7]
-            figs=[fig1,fig2,fig3,fig4,fig5,fig6]
+
+            figs = []; axs = []
+            for i in range(6): #there 6 taus
+                figaux, axaux = plt.subplots()
+                figs.append(figaux); axs.append(axaux)
+           
             #ylabels=[r'$\tau_{0+}$',r'$\tau_{0-}$',r'$\tau_{2+}$',r'$\tau_{2-}$',r'$\tau_{5+}$',r'$\tau_{5-}$']
             ylabels=[r'$\tau_{0+}$',r'$\tau_{0-}$',r'$\theta \times \tau_{2+}$',r'$\theta\times\tau_{2-}$',r'$\theta\times\tau_{5+}$',r'$\theta\times\tau_{5-}$']
             eq, abe, ab, ae, be, a, b, e = models_combo
             for i,  taufile in enumerate(args.taus):
+                if (len(args.taus) == 1): zbin = None
+                else: zbin = (i + 1)
                 parsp, chi2p_nu, parsm, chi2m_nu =RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                                  models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
-                                                                 False, True, args.plots, plotspath,  zbin=(i + 1), axs=axs)
+                                                                 False, True, args.plots, plotspath,  zbin=zbin, axs=axs)
                 if args.splitxipxim :
                     print( 'overall parameters xi+', parsp.tolist()) 
                     print( 'chi2r: ',  chi2p_nu)
@@ -1135,10 +1134,12 @@ def main():
             if e:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('e', eq)
             if len(args.taus)==4:
                 if args.splitxipxim:
-                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex')
-                    saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex')
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=False, xim=False)
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'_xip.tex', dof)
+                    saveintex(models_combo, args.margin, args.overall, parsm_list, chisqm_list, filename+'_xim.tex', dof)
                 else:
-                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'.tex')
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True)
+                    saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'.tex', dof)
                 write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )
             else:
                 print("Non tomograpic taus or missing taus, Warning not table nor contamination produced")
