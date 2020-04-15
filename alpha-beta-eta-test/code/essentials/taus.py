@@ -33,6 +33,9 @@ def parse_args():
     parser.add_argument('--obs', default=False,
                         action='store_const', const=True,
                         help='If true it uses psf_e stars for tau0')
+    parser.add_argument('--weights', default=False,
+                        action='store_const', const=True,
+                        help='Use weights in the reading of Metacal')
     parser.add_argument('--bin_config', default=None,
                         help='bin_config file for running taus')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/',
@@ -88,10 +91,10 @@ def main():
 
     if args.zbin is not None:
         print('STARTING TOMOPRAPHIC TAUS!, measuring tau for zbin=', args.zbin)
-        data_galaxies = read_metacal(args.metacal_cat, galkeys, zbin=args.zbin,nz_source_file=args.nz_source)
+        data_galaxies = read_metacal(args.metacal_cat, galkeys, zbin=args.zbin,nz_source_file=args.nz_source, weights=args.weights)
     else:
         print("STARTING NON TOMOGRAPHIC TAUS")
-        data_galaxies = read_metacal(args.metacal_cat,  galkeys )
+        data_galaxies = read_metacal(args.metacal_cat,  galkeys, weights=args.weights )
 
     tau0, tau2, tau5= measure_tau( data_stars , data_galaxies, bin_config,
                                    mod=args.mod)
