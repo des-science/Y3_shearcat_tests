@@ -32,6 +32,13 @@ from mpi4py import MPI
 
 #RUNSTODO = 'runs_path_ABE_FLASK' #"runs_path_ABE_y3"
 RUNSTODO = "runs_path_ABE_y3"
+inits=[0,250,500,750]
+
+RUNSTODO = "runs_path_ABE_y1_final"
+inits=[0,25,50,75]
+
+nomean = True
+
 def save_obj(name, obj):
     with open(name + '.pkl', 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
@@ -569,136 +576,54 @@ waaaarning!!!! I changed the weights to 1.
 """
 
 
-
-def run_MAP(i):
-    print (i)
-
-    rewrite = False
-    runs_path = load_obj(RUNSTODO)
-    mute_dict = load_obj(runs_path[i])
-    print ("loaded ")
-    if  ((rewrite) or (not os.path.exists(mute_dict['path_pkl']+"_noweight_nomean2"+".pkl"))):
-            print ("running ",mute_dict['path_pkl'])
-            print (mute_dict['outp_fold'])
-            if not os.path.exists(mute_dict['outp_fold']):
-                os.mkdir(mute_dict['outp_fold'])
-            '''
-            J = Jack_MAP(mute_dict['conf'],mute_dict['label_dist'],mute_dict['ra_1'],mute_dict['dec_1'],
-            mute_dict['ra_2'],mute_dict['dec_2'],mute_dict['hpix1'],mute_dict['hpix2'],np.ones(len(mute_dict['w1'])),
-            np.ones(len(mute_dict['w2'])),(mute_dict['g1_1']-np.mean(mute_dict['g1_1'])),mute_dict['g2_1']-np.mean(mute_dict['g2_1']),mute_dict['g1_2']-np.mean(mute_dict['g1_2']),mute_dict['g2_2']-np.mean(mute_dict['g2_2']), corr='GG',
-            number_of_cores=10, centers= mute_dict['centers'], njk=mute_dict['n_jck'], cov = True,
-            outp_fold=mute_dict['outp_fold'],label = mute_dict['label']+"_noweight")
-            
-   
-
-            '''
-            J = Jack_MAP(mute_dict['conf'],mute_dict['label_dist'],mute_dict['ra_1'],mute_dict['dec_1'],
-            mute_dict['ra_2'],mute_dict['dec_2'],mute_dict['hpix1'],mute_dict['hpix2'],np.ones(len(mute_dict['w1'])),
-            np.ones(len(mute_dict['w2'])),mute_dict['g1_1'],mute_dict['g2_1'],mute_dict['g1_2'],mute_dict['g2_2'], corr='GG',
-            number_of_cores=2, centers= mute_dict['centers'], njk=mute_dict['n_jck'], cov = True,
-            outp_fold=mute_dict['outp_fold'],label = mute_dict['label']+"_noweight_nomean2")
-
-    
-    
-            print ("before correlation")
-            pairs = J.Correlation()
-            print ("after correlation")
-            sys_xipxim_high = dict()
-            sys_xipxim_high.update({'high':pairs})
-            save_obj(mute_dict['path_pkl']+"_noweight_nomean2",sys_xipxim_high)
-
-            
-            
-            
-            
-            
-            
-def run_MAP2(i):
-    print (i)
-
-    rewrite = False
-    runs_path = load_obj(RUNSTODO)
-    mute_dict = load_obj(runs_path[i])
-    print ("loaded ")
-    if  ((rewrite) or (not os.path.exists(mute_dict['path_pkl']+"_noweight_"+".pkl"))):
-            print ("running ",mute_dict['path_pkl'])
-            print (mute_dict['outp_fold'])
-            if not os.path.exists(mute_dict['outp_fold']):
-                os.mkdir(mute_dict['outp_fold'])
-            
-            J = Jack_MAP(mute_dict['conf'],mute_dict['label_dist'],mute_dict['ra_1'],mute_dict['dec_1'],
-            mute_dict['ra_2'],mute_dict['dec_2'],mute_dict['hpix1'],mute_dict['hpix2'],np.ones(len(mute_dict['w1'])),
-            np.ones(len(mute_dict['w2'])),(mute_dict['g1_1']-np.mean(mute_dict['g1_1'])),mute_dict['g2_1']-np.mean(mute_dict['g2_1']),mute_dict['g1_2']-np.mean(mute_dict['g1_2']),mute_dict['g2_2']-np.mean(mute_dict['g2_2']), corr='GG',
-            number_of_cores=2, centers= mute_dict['centers'], njk=mute_dict['n_jck'], cov = True,
-            outp_fold=mute_dict['outp_fold'],label = mute_dict['label']+"_noweight")
-            
-   
-
-            '''
-            J = Jack_MAP(mute_dict['conf'],mute_dict['label_dist'],mute_dict['ra_1'],mute_dict['dec_1'],
-            mute_dict['ra_2'],mute_dict['dec_2'],mute_dict['hpix1'],mute_dict['hpix2'],np.ones(len(mute_dict['w1'])),
-            np.ones(len(mute_dict['w2'])),mute_dict['g1_1'],mute_dict['g2_1'],mute_dict['g1_2'],mute_dict['g2_2'], corr='GG',
-            number_of_cores=5, centers= mute_dict['centers'], njk=mute_dict['n_jck'], cov = True,
-            outp_fold=mute_dict['outp_fold'],label = mute_dict['label']+"_noweight_")
-            '''
-    
-    
-            print ("before correlation")
-            pairs = J.Correlation()
-            print ("after correlation")
-            sys_xipxim_high = dict()
-            sys_xipxim_high.update({'high':pairs})
-            save_obj(mute_dict['path_pkl']+"_noweight",sys_xipxim_high)
-
-                
-                
-                
-                
-                
                 
                 
 def run_MAP_one(i,kk):
     print (i)
-
+    if nomean:
+        labb ='_nomean_'
+    else:
+        labb =''
     rewrite = False
     runs_path = load_obj(RUNSTODO)
     mute_dict = load_obj(runs_path[i])
     print ("loaded ")
-    if  ((rewrite) or (not os.path.exists(mute_dict['path_pkl']+"_noweight_"+".pkl"))):
+    if  ((rewrite) or (not os.path.exists(mute_dict['path_pkl']+"_withweight"+labb+".pkl"))):
             print ("running ",mute_dict['path_pkl'])
             print (mute_dict['outp_fold'])
             if not os.path.exists(mute_dict['outp_fold']):
                 os.mkdir(mute_dict['outp_fold'])
-            
-            J = Jack_MAP(mute_dict['conf'],mute_dict['label_dist'],mute_dict['ra_1'],mute_dict['dec_1'],
-            mute_dict['ra_2'],mute_dict['dec_2'],mute_dict['hpix1'],mute_dict['hpix2'],np.ones(len(mute_dict['w1'])),
-            np.ones(len(mute_dict['w2'])),(mute_dict['g1_1']-np.mean(mute_dict['g1_1'])),mute_dict['g2_1']-np.mean(mute_dict['g2_1']),mute_dict['g1_2']-np.mean(mute_dict['g1_2']),mute_dict['g2_2']-np.mean(mute_dict['g2_2']), corr='GG',
+            if nomean:
+                
+                J = Jack_MAP(mute_dict['conf'],mute_dict['label_dist'],mute_dict['ra_1'],mute_dict['dec_1'],
+            mute_dict['ra_2'],mute_dict['dec_2'],mute_dict['hpix1'],mute_dict['hpix2'],mute_dict['w1'], mute_dict['w2'],mute_dict['g1_1'],mute_dict['g2_1'],mute_dict['g1_2'],mute_dict['g2_2'], corr='GG',
             number_of_cores=2, centers= mute_dict['centers'], njk=mute_dict['n_jck'], cov = True,
-            outp_fold=mute_dict['outp_fold'],label = mute_dict['label']+"_noweight",init=kk)
+            outp_fold=mute_dict['outp_fold'],label = mute_dict['label']+"_withweight"+labb,init=kk)
             
-   
+            else:
 
-            '''
-            J = Jack_MAP(mute_dict['conf'],mute_dict['label_dist'],mute_dict['ra_1'],mute_dict['dec_1'],
-            mute_dict['ra_2'],mute_dict['dec_2'],mute_dict['hpix1'],mute_dict['hpix2'],np.ones(len(mute_dict['w1'])),
-            np.ones(len(mute_dict['w2'])),mute_dict['g1_1'],mute_dict['g2_1'],mute_dict['g1_2'],mute_dict['g2_2'], corr='GG',
-            number_of_cores=5, centers= mute_dict['centers'], njk=mute_dict['n_jck'], cov = True,
-            outp_fold=mute_dict['outp_fold'],label = mute_dict['label']+"_noweight_")
-            '''
-    
+                J = Jack_MAP(mute_dict['conf'],mute_dict['label_dist'],mute_dict['ra_1'],mute_dict['dec_1'],
+            mute_dict['ra_2'],mute_dict['dec_2'],mute_dict['hpix1'],mute_dict['hpix2'],mute_dict['w1'], mute_dict['w2'],(mute_dict['g1_1']-np.mean(mute_dict['g1_1'])),mute_dict['g2_1']-np.mean(mute_dict['g2_1']),mute_dict['g1_2']-np.mean(mute_dict['g1_2']),mute_dict['g2_2']-np.mean(mute_dict['g2_2']), corr='GG',
+            number_of_cores=2, centers= mute_dict['centers'], njk=mute_dict['n_jck'], cov = True,
+            outp_fold=mute_dict['outp_fold'],label = mute_dict['label']+"_withweight"+labb,init=kk)
+            
     
             print ("before correlation")
             pairs = J.Correlation()
             print ("after correlation")
             sys_xipxim_high = dict()
             sys_xipxim_high.update({'high':pairs})
-            save_obj(mute_dict['path_pkl']+"_noweight",sys_xipxim_high)
+            save_obj(mute_dict['path_pkl']+"_withweight"+labb,sys_xipxim_high)
 
                 
                 
                 
 if __name__ == '__main__':
-           
+    if nomean:
+        labb ='_nomean_'
+    else:
+        labb =''
+        
     import gc      
     number_of_cores=1
     runs_path = load_obj(RUNSTODO)
@@ -710,7 +635,7 @@ if __name__ == '__main__':
     list_run = []
     #list_run1 = []
     
-    inits=[0,500]
+    
     list_run = []
     list_run_init=[]
     '''
@@ -733,7 +658,7 @@ if __name__ == '__main__':
         runs_path = load_obj(RUNSTODO)
         mute_dict = load_obj(runs_path[i])
 
-        if  ((rewrite) or (not os.path.exists(runs_path[i]+"_noweight"+".pkl"))):
+        if  ((rewrite) or (not os.path.exists(runs_path[i]+"_withweight"+labb+".pkl"))):
             #if "0.2_1.3" not in mute_dict['path_pkl']:
                 for gg in inits:
                     list_run.append(i)
@@ -756,39 +681,3 @@ if __name__ == '__main__':
 
         
         
-    '''    
-                    
-        if  ((rewrite) or (not os.path.exists(runs_path[i]+"_noweight"+".pkl"))):
-            list_run1.append(i)
-            print ((runs_path[i]))
-        runs_path=0.
-        mute_dict=0.
-        
-    list_run= np.array(list_run)
-    print  (list_run1)
-    while run_count<(len(list_run)+len(list_run1)):
-        comm = MPI.COMM_WORLD
-        
-
-        print("Hello! I'm rank %d from %d running in total..." % (comm.rank, comm.size))
-        if (run_count+comm.rank)< len(list_run):
-            
-            print ('A',(run_count+comm.rank),len(list_run))
-            try:
-                run_MAP(list_run[(run_count+comm.rank)])#,runs_path)
-            except:
-                pass
-            
-        else:
-            
-            print ('B',(run_count+comm.rank),len(list_run1))
-            try:
-                run_MAP2(list_run1[(run_count+comm.rank)-len(list_run)])#,runs_path)
-            except:
-                pass
-            
-        run_count+=comm.size
-        comm.bcast(run_count,root = 0)
-        comm.Barrier() 
-
-    '''    
