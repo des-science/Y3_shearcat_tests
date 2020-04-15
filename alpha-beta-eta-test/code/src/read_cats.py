@@ -509,10 +509,10 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None,  weights=Non
         w2p = np.array(f['catalog/metacal/sheared_1m/weight'])
         w1m = np.array(f['catalog/metacal/sheared_2p/weight'])
         w2m = np.array(f['catalog/metacal/sheared_2m/weight'])
-        e1p = np.array(master['catalog/metacal/sheared_1p/e_1'])#[select_metacal]
-        e1m = np.array(master['catalog/metacal/sheared_1m/e_1'])#[select_metacal]
-        e2p = np.array(master['catalog/metacal/sheared_2p/e_2'])#[select_metacal]
-        e2m = np.array(master['catalog/metacal/sheared_2m/e_2'])#[select_metacal]
+        e1p = np.array(f['catalog/metacal/sheared_1p/e_1'])#[select_metacal]
+        e1m = np.array(f['catalog/metacal/sheared_1m/e_1'])#[select_metacal]
+        e2p = np.array(f['catalog/metacal/sheared_2p/e_2'])#[select_metacal]
+        e2m = np.array(f['catalog/metacal/sheared_2m/e_2'])#[select_metacal]
 
     #snr = np.array(f['catalog/metacal/unsheared/snr'])
     #size_ratio =  np.array(f['catalog/metacal/unsheared/size_ratio'])
