@@ -550,7 +550,7 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None,  weights=Non
         data['e_2'] = data['e_2']/(R22s + R22)
         if zbin is not None: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]  bin%d:'%(zbin))
         else: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]')
-        print(R11s + R11, R22s + R22))
+        print(R11s + R11, R22s + R22)
     print('Metal read sucesfully',  len(data),  'objects')
 
     return data
