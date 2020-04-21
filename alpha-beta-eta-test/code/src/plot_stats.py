@@ -275,7 +275,8 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
         plt.savefig(outpath + names[i], dpi=150)
         print(outpath +names[i], 'Printed!')
     '''
-
+    
+    
     plt.clf()
     lengths = [len(tau0p),len(tau0m),len(tau2p),len(tau2p), len(tau5p),  len(tau5m)]
     covmatrixfit=fitsio.read(stat_file, ext=1)
@@ -291,7 +292,10 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
     plt.tight_layout()
     filename = os.path.join(outpath, 'CovariancematrixTaus_%s.png'%(extname) )
     plt.savefig(filename, dpi=150)
+    plt.close()
     print(filename, 'Printed!')
+
+
 
 def plotalltauscorrmatfits(filenames, outpath):
     import fitsio
@@ -375,7 +379,7 @@ def plotcovmat(samples, mflags, namecovmat):
     plt.savefig(namecovmat, dpi=150)
     print('Printing', namecovmat)
     
-def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont, zbin=0):
+def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont, title):
     import numpy as np
     import emcee
     aflag, bflag, eflag =  mflags
@@ -462,7 +466,7 @@ def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecon
         idx = np.arange(len(par))
         axs[i][0].scatter(idx, par[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
         # Get selfcorrelation using emcee
-        ac = emcee.autocorr.function(par)
+        ac = emcee.autocorr.function_1d(par)
         idx = np.arange(len(ac),step=1)
         axs[i][1].scatter(idx, ac[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
         axs[i][1].axhline(alpha=1., lw=1., color='red')
@@ -471,8 +475,8 @@ def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecon
     plt.tight_layout()
     plt.savefig(namemc)
     plt.close(fig)
-    print(namemc, "Printed")
-    corner_plot(samples, labels, namecont,title='zbin %d'%(zbin))
+    print(namemc, "Printed")                                    
+    corner_plot(samples, labels, namecont,title=title)
 
 def pretty_residuals(axs, idx, meanr,res,sig,label='Corr',color='black'):
     axs[idx].plot(meanr, res, color=color, label=label)

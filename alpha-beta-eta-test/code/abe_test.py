@@ -8,22 +8,10 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Alpha beta eta test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
     parser.add_argument('--taus',
-                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_newrun_1.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_newrun_2.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_newrun_3.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/tau_newrun_4.fits'],
-                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin1.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin2.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin3.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_JK_zbin4.fits'],
                         default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_1.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_2.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_3.fits',
                                  '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_FLASK_zbin_4.fits'],
-                        #default=['/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_1.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_2.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_3.fits',
-                        #         '/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/TAUS_zbin_4.fits'],
                         nargs='+',
                         help='Ordered list of fits TAUS, containing all tau stats used to estimate abe')
     parser.add_argument('--singletau',
@@ -850,7 +838,8 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
         xlim = [0.1, 300.]
         if zbin is not None: title='zbin: %d'%(zbin)
         else: title = 'Non-tomographic'
-        plotalltausfits(taufile, outpath=plotspath, title=title,  xlim=xlim, zbin=zbin)
+        #plotalltausfits(taufile, outpath=plotspath, title=title,  xlim=xlim, zbin=zbin)
+        
     
     meanr, rhos,  covrho =  read_rhos(rhofile, minscale=minscale, maxscale=maxscale)
     meanr, taus,  covtau =  read_taus(taufile, minscale=minscale, maxscale=maxscale)
@@ -899,14 +888,16 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
         
     if (margin and not overall):
         if(plots):
+            if zbin is not None: title = 'zbin_%d'%(zbin)
+            else: title =  'Non-tomographic' 
             if (splitxipxim):
-                plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, os.path.join(plotspath,'%s_zbin_%d_p_.png'%(namemc, zbin)), os.path.join(plotspath, '%s_zbin_%d_p_.png'%(namecont, zbin )), zbin=zbin )
-                plot_samplesdist(auxm1 , auxm2, mflags, nwalkers, nsteps, os.path.join(plotspath,'%s_zbin_%d_m_.png'%(namemc, zbin)), os.path.join(plotspath, '%s_zbin_%d_m_.png'%(namecont, zbin)), zbin=zbin )
-                plotcovmat(auxp1, mflags, os.path.join(plotspath, '%s_zbin_%d_p_.png'%(namecovmat, zbin)))
-                plotcovmat(auxm1, mflags, os.path.join(plotspath, '%s_zbin_%d_m_.png'%(namecovmat, zbin)))
+                plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, os.path.join(plotspath,'%s_%s_p_.png'%(namemc, title)), os.path.join(plotspath, '%s_%s_p_.png'%(namecont, title )), title=title )
+                plot_samplesdist(auxm1 , auxm2, mflags, nwalkers, nsteps, os.path.join(plotspath,'%s_%s_m_.png'%(namemc, title)), os.path.join(plotspath, '%s_%s_m_.png'%(namecont, title)), title=title )
+                plotcovmat(auxp1, mflags, os.path.join(plotspath, '%s_%s_p_.png'%(namecovmat, title)))
+                plotcovmat(auxm1, mflags, os.path.join(plotspath, '%s_%s_m_.png'%(namecovmat, title)))
             else:
-                plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, os.path.join(plotspath, '%s_zbin_%d_.png'%(namemc, zbin)),  os.path.join(plotspath, '%s_zbin_%d_.png'%(namecont, zbin)), zbin=zbin )
-                plotcovmat(auxp1, mflags, os.path.join(plotspath, '%s_zbin_%d_.png'%(namecovmat, zbin)))
+                plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, os.path.join(plotspath, '%s_%s_.png'%(namemc, title)),  os.path.join(plotspath, '%s_%s_.png'%(namecont, title)), title=title )
+                plotcovmat(auxp1, mflags, os.path.join(plotspath, '%s_%s_.png'%(namecovmat, title)))
 
             if axs is not None:
                 plotbestfit(zbin, axs, auxp1, auxm1, meanr, data, models_combo,  plotspath, margin=margin, overall=overall)
@@ -967,7 +958,50 @@ def saveintex(models_combo, margin, overall, parlist, chisq_list, filename, ndof
 
         print(text[1:-1], file=open(filename, "w"))
         print(filename ,  'written!')
+
+def saveintex_nontomo(models_combo, margin, overall, parlist, chisq_list, filename, ndof):
+    print('Generating table.tex')
+    eq, abe, ab, ae, be, a, b, e = models_combo
+    if overall:
+        if abe:
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|} \hline %s & \textrm{Non-tomographic} \\ \hline \rule{0pt}{3ex} %s $\alpha$ & $%.3f$ \\ \rule{0pt}{3ex} %s $\beta$ & $%.3f$ \\ \rule{0pt}{3ex} %s $\eta$ & $%.3f$ \\ \hline \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$\\ \hline  %s $\chi^{2}_{\nu=%d}$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n',  parlist[0],  '\n',  parlist[1],  '\n', parlist[2], '\n', ndof*chisq_list, '\n', ndof, chisq_list,'\n', '\n')
+        if ab or ae or be:
+            if ab: name1 = r'\alpha'; name2 = r'\beta'
+            if ae: name1 = r'\alpha'; name2 = r'\eta'
+            if be: name1 = r'\beta'; name2 = r'\eta'
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|} \hline %s & \textrm{Non-tomographic}  \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f$ \\ \rule{0pt}{3ex} %s $%s$ & $%.3f$\\ \hline  \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$ \\ \hline %s $\chi^{2}_{\nu=%d}$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name1, parlist[0],'\n', name2,  parlist[1],  '\n', ndof*chisq_list,  '\n', ndof, chisq_list,'\n', '\n')
+        if a or b or e:
+            if a: name = r'\alpha'
+            if b: name = r'\beta'
+            if e: name = r'\eta'
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|} \hline %s & \textrm{Non-tomographic}  \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f$\\  \hline \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$ \\ \hline %s $\chi^{2}_{\nu=%d}$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name, parlist[0],'\n', ndof*chisq_list,  '\n', ndof, chisq_list, '\n', '\n')
         
+        print(text[1:-1], file=open(filename, "w"))
+        print(filename ,  'written!')
+        
+ 
+
+    if margin:
+        if abe:
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|} \hline %s & \textrm{Non-tomographic}  \\ \hline \rule{0pt}{3ex} %s $\alpha$ & $%.3f_{%.3f}^{+%.3f}$\\ \rule{0pt}{3ex} %s $\beta$ & $%.3f_{%.3f}^{+%.3f}$ \\ \rule{0pt}{3ex} %s $\eta$ & $%.3f_{%.3f}^{+%.3f}$\\ \hline \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$\\ \hline %s $\chi^{2}_{\nu=%d}$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n',  parlist[0][0],parlist[0][1],parlist[0][2],'\n',  parlist[1][0],parlist[1][1],parlist[1][2], '\n', parlist[2][0],parlist[2][1],parlist[2][2], '\n', ndof*chisq_list,  '\n', ndof, chisq_list,'\n', '\n')
+      
+        if ab or ae or be:
+            if ab: name1 = r'\alpha'; name2 = r'\beta'
+            if ae: name1 = r'\alpha'; name2 = r'\eta'
+            if be: name1 = r'\beta'; name2 = r'\eta'
+
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|} \hline %s & \textrm{Non-tomographic}  \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$ \\ \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$\\ \hline \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$ \\ \hline %s $\chi^{2}_{\nu=%d}$ & $%.3f$ \\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name1,  parlist[0][0],parlist[0][1],parlist[0][2], '\n', name2,  parlist[1][0],parlist[1][1],parlist[1][2], '\n', ndof*chisq_list , '\n', ndof, chisq_list, '\n', '\n')
+
+        if a or b or e:
+            if a: name = r'\alpha'
+            if b: name = r'\beta'
+            if e: name = r'\eta'
+
+            text =  r"$\begin{center} %s \centering %s \begin{tabular}{ |c|c|} \hline %s & \textrm{Non-tomographic}   \\ \hline \rule{0pt}{3ex} %s $%s$ & $%.3f_{%.3f}^{+%.3f}$\\ \hline \rule{0pt}{3ex} %s $\chi^{2}$ & $%.3f$ \\ \hline %s $\chi^{2}_{\nu=%d}$ & $%.3f$\\ \hline %s \end{tabular} %s \end{center}$"%('\n','\n','\n', '\n', name,  parlist[0][0],parlist[0][1],parlist[0][2], '\n',  ndof*chisq_list, '\n', ndof, chisq_list, '\n', '\n')
+
+        print(text[1:-1], file=open(filename, "w"))
+        print(filename ,  'written!')
+  
         
     
                         
@@ -1073,8 +1107,15 @@ def main():
                     dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True)
                     saveintex(models_combo, args.margin, args.overall, parsp_list, chisq_list, filename + '.tex', dof)
                 write_tomoxip_margin( samplesp_list, samplesm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath, nsig=nsig)
-            else:
-                print("Non tomograpic taus or missing taus, Warning not table nor contamination produced")
+            if len(args.taus)==1:
+                print("Non tomograpic taus or missing taus, Warning not contamination produced only table with values")
+                if args.splitxipxim:
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=False, xim=False)
+                    saveintex_nontomo(models_combo, args.margin, args.overall, parsp_list[0], chisqp_list[0], filename+'_xip.tex', dof)
+                    saveintex_nontomo(models_combo, args.margin, args.overall, parsm_list[0], chisqm_list[0], filename+'_xim.tex', dof)
+                else:
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True)
+                    saveintex_nontomo(models_combo, args.margin, args.overall, parsp_list[0], chisq_list[0], filename + '.tex', dof)
     if args.overall:
         if args.singletau is not None:
             parsp, chi2p_nu, parsm, chi2m_nu = RUNTEST_PERTAU(args.rhos,args.singletau, args.minscale, args.maxscale,
@@ -1116,13 +1157,15 @@ def main():
                 chisqp_list.append(chi2p_nu); chisqm_list.append(chi2m_nu);
             if(args.plots):
                 for i, fig in enumerate(figs):
-                    print('Printing', plotspath+'tau%d_bestfit.png'%(i))
+                    filename = os.path.join(plotspath, 'tau%d_bestfit.png'%(i))
+                    print('Printing', filename)
                     axs[i].set_ylabel(ylabels[i])
                     if abe: axs[i].set_title('Alpha-beta-eta')
                     if ab: axs[i].set_title('Alpha-beta')
                     fig.tight_layout()
-                    if ab: fig.savefig(plotspath+'tau%d_bestfit_ab.png'%(i),dpi=200)
-                    if abe: fig.savefig(plotspath+'tau%d_bestfit_abe.png'%(i),dpi=200)
+                    if ab: fig.savefig(filename,dpi=200)
+                    if abe: fig.savefig(filename,dpi=200)
+                    plt.close(fig)
                     
             
             if abe:  filename = os.path.join(outpath, 'table_%s_overall_eq%d')%('abe', eq)
@@ -1140,13 +1183,17 @@ def main():
                 else:
                     dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True)
                     saveintex(models_combo, args.margin, args.overall, parsp_list, chisqp_list, filename+'.tex', dof)
-                write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )
-            else:
-                print("Non tomograpic taus or missing taus, Warning not table nor contamination produced")
-
-    
-
-  
+                write_tomoxip_overall( parsp_list, parsm_list, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath )    
+            if len(args.taus)==1:
+                print("Non tomograpic taus or missing taus, Warning not contamination produced only table with values")
+                if args.splitxipxim:
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=False, xim=False)
+                    saveintex_nontomo(models_combo, args.margin, args.overall, parsp_list[0], chisqp_list[0], filename+'_xip.tex', dof)
+                    saveintex_nontomo(models_combo, args.margin, args.overall, parsm_list[0], chisqm_list[0], filename+'_xim.tex', dof)
+                else:
+                    dof =  ndof(data, eq=eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True)
+                    saveintex_nontomo(models_combo, args.margin, args.overall, parsp_list[0], chisqp_list[0], filename + '.tex', dof)
+            
     
 if __name__ == "__main__":
     main()

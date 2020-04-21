@@ -13,13 +13,13 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Correlation of reserved stars')
     parser.add_argument('--rhos1',
-                        default='/data/catalogs/rhos-taus/32bins/Y3binning/nomasks/RHOS_Y1-obs.fits',
+                        default='/data/catalogs/rhos-taus/marco/Y3_03_31_20/rho__JK_Y3_1.fits',
                         help='Fits file containing all rho stats used to estimate abe')
     parser.add_argument('--rhos2',
-                        default='/data/catalogs/rhos-taus/32bins/Y3binning/RHOS_Y3_7-24-19-obs.fits',
+                        default='/data/catalogs/rhos-taus/RHOS_Y3_7-24-19-obs-mod.fits',
                         help='Fits file containing all rho stats used to estimate abe')
     parser.add_argument('--plotspath',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/measured_correlations/plots/',
+                        default='/data/plots/',
                         help='location of the plots.')
     args = parser.parse_args()
 
@@ -50,6 +50,11 @@ def main():
     from src.readfits import  read_rhos_plots
 
  
+    #legends=['DES Y1', 'DES Y3'];  colors=['gray', 'red'];  markers=['o', '^']
+    #legends=[r'e$_{\textrm{model}}$', r'e$_{\textrm{obs}}$'];  colors=['blue', 'red'];  markers=['o', '^']
+    #legends=['Mean-subtracted', r'Non-mean-subtracted'];  colors=['blue', 'red'];  markers=['o', '^']
+    legends=['DES Y3 mike', r'DES Y3 marco'];  colors=['blue', 'red'];  markers=['o', '^']
+
     args = parse_args()
 
     plotspath = os.path.expanduser(args.plotspath)
@@ -60,7 +65,7 @@ def main():
         if not os.path.exists(plotspath): raise
 
     #One fig for each correlation
-    xlim = [0.5, 250.]
+    xlim = [0.1, 250.]
     figs = [];  axs = []; filenames = []
     ylabels  = np.concatenate([ np.array([r'$\rho_{%i+}(\theta)$'%(i), r'$\rho_{%i-}(\theta)$'%(i)]) for i in range(0, 6) ])
     names =  np.concatenate([ np.array(['Y1-Y3_rho%ip.png'%(i),'Y1-Y3_rho%im.png'%(i) ]) for i in range(0, 6) ] ) 
@@ -70,9 +75,7 @@ def main():
         figs.append(figaux); axs.append(axaux)
         filenames.append(os.path.join(plotspath,names[i]))
 
-    #legends=['DES Y1', 'DES Y3'];  colors=['gray', 'red'];  markers=['o', '^']
-    #legends=[r'e$_{\textrm{model}}$', r'e$_{\textrm{obs}}$'];  colors=['blue', 'red'];  markers=['o', '^']
-    legends=['Mean-subtracted', r'Non-mean-subtracted'];  colors=['blue', 'red'];  markers=['o', '^']
+    
     for j, fil in enumerate([args.rhos1, args.rhos2]):
         meanr, rhos,  cov_rhos =  read_rhos_plots(fil)
         for i in range(len(rhos)):
@@ -86,7 +89,7 @@ def main():
         print(filenames[i], 'Printed!')
 
     ##SINGLE FIG
-    ylims = [[8.e-6, 5.e-4] , None ,[1.e-9, 5.e-6] ,None ,[1.e-7, 2.e-6] ,None , [1.e-11, 1.e-8] ,None  ,[1.e-12, 5.e-8] ,None ,[1.e-8, 8.e-7] ,[1.e-11 ,4.e-8 ] ] 
+    ylims = [[8.e-6, 5.e-4] , None ,[1.e-9, 5.e-6] ,None ,[1.e-7, 2.e-6] ,None , [1.e-11, 5.e-8] ,None  ,[1.e-12, 5.e-8] ,None ,[1.e-8, 8.e-7] ,[1.e-11 ,4.e-8 ] ] 
     nbinsx = 2; nbinsy = 3
     fig_tp, ax_tp = plt.subplots(nbinsx, nbinsy, figsize=(4.8*nbinsx, 1.6*nbinsy), sharey=False, sharex=False)
     fig_tm, ax_tm = plt.subplots(nbinsx, nbinsy, figsize=(4.8*nbinsx, 1.6*nbinsy), sharey=False, sharex=False)
@@ -108,7 +111,7 @@ def main():
     fig_tm.legend(handles=[line0, line1], bbox_to_anchor=(0.4,-0.03), loc='lower left',  ncol=2,  fontsize= 10)
     
     
-    filenames = [os.path.join(plotspath, s ) for s in ['Y1-Y3_allrhosp.png', 'Y1-Y3_allrhosm.png']]
+    filenames = [os.path.join(plotspath, s ) for s in ['Y3-Y3w_allrhosp.png', 'Y3-Y3w_allrhosm.png']]
     
     for i, fig in enumerate([fig_tp, fig_tm]):
         fig.tight_layout(rect=[0, 0.05, 1, 1])
