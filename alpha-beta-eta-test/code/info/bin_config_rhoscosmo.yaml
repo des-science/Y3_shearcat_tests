@@ -1,0 +1,4 @@
+min_sep: 2.5
+max_sep: 250.
+nbins: 20
+sep_units: arcmin

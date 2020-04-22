@@ -3,12 +3,77 @@
   Modeling PSF errors and propagate errors in cosmological estimates.
 
 ## In the folder code/ you will find all the required code to estimate
-   the parameters alpha, beta and eta.  These parameters are obtained
-   solving a fitting problem where the model vector is determined by
-   the concatenation of rho-stats and the data vector by what we have
-   called tau-stats. See https://www.overleaf.com/19082636fhptxgfskhwd
-   for definitions and details.
+   the parameters alpha, beta and eta and find the total shear PSF
+   bias.  These parameters are obtained solving a fitting problem
+   where the model vector is determined by the concatenation of
+   rho-stats and the data vector by what we have called tau-stats. See
+   https://www.overleaf.com/19082636fhptxgfskhwd for definitions and
+   details.
 
+   1) abe_test.py main script that solves the fitting problem provided
+   all the preliminar measurements. The output are two contributions
+   
+   a) --plots & --plotspath: boolean and direction of all the plots the
+   correlations rho-stats and tau-staus, covariances matrix both of
+   parameters alpha, beta, eta and diagnostics taus, the marginalized
+   and countours of the posterior distribution of alpha, beta an eta
+   and the final best fits (including a complete error calculation for
+   the total bias an each of the bias associated to a particular
+   rho-stat)
+
+   b) --outpath the final contamination two point correlation function
+   with his diagonal covariance matrix is written
+
+   There are the following modes of analysis:
+
+   a) --singletau useful to test a particular measure of taus, i.e it
+   does not perform the full tomograpyc analysis, and only determine
+   the parameters once. Otherwise, it would require a full list of
+   taus for each tomobin and estimate a set of parameter for each
+   redshift bin.
+
+   b) --eq We have defined a set of three equation and then with the
+   concatenation of them we solve the fitting problem. We could use
+   less equation to track errors. So to see each equation behaviour we
+   can choose a index from 0 to 2. The full right thing is to use the
+   whole system of equations then by default is selected --eq=4 which
+   represent the whole system. There are also the cases of using two
+   equations --eq=10 uses tau0 and tau2, --eq=20 uses tau0 and tau5
+   and --eq=21 uses equations with tau2 and tau5
+
+   c) --splitxipxim Calculate independent contamination parameter abe for
+   xip and xim tau-stat and rho-stats. The right thing to do is to use
+   only one set of parmeter using the whole set of stats
+   simultaneously. But again this might be useful to track problems in
+   the code.
+
+   d) --uwmprior use strong prior for abe based on unweighted moments
+
+   e) --overall get the estimated abe values from maximum the overall
+   likelihood that correspond to the maximum of the full posterior
+
+   f) --margin get the estimated abe values from the maximum of the
+   marginalized posterior.
+
+   g) --abe --ab --ae --be --a --b --e flags to select only a number
+   of parameter.  By default it chooses abe. Recalling that a
+   represents the leakage, b is proportional to the shape residual and
+   e to the size residuals.
+
+   NOTE: in abe_test.py errors are propagated in PSF bias using
+   standar deviations of the posteriors of parameters and errors in
+   rhos. However it is more convinient to use the full posterior to
+   sample the PSF bias. Then we wrote two functions sample_abe.py and
+   sample_bias.py to save in fits files the full posterior of abe
+   parameters, and to sample the 2PCF PSF bias (and estimate errors)
+
+
+
+   ### In the folder code/essentials there is code to get inputs for
+       the main code. i.e rho-stat file and tau-stat
+       file. Particularly getting taus from Flask simulations and
+       Jackknifing require some additional considerations.
+   
    1) rhos.py measure the rho-stats for reserved stars. You must
    provide:
 
@@ -95,55 +160,7 @@
    tomobin. Warning: use the same tomo bin than the input_file,
    otherwise covariances of different tomo bins will be replaced
 
-   5) abe_test.py main script that solves the fitting problem provided
-   all the preliminar measurements. The output are two contributions
-   
-   a) --plots & --plotspath: boolean and direction of all the plots the
-   correlations rho-stats and tau-staus, covariances matrix both of
-   parameters alpha, beta, eta and diagnostics taus, the marginalized
-   and countours of the posterior distribution of alpha, beta an eta
-   and the final best fits (including a complete error calculation for
-   the total bias an each of the bias associated to a particular
-   rho-stat)
-
-   b) --outpath the final contamination two point correlation function
-   with his diagonal covariance matrix is written
-
-   There are the following modes of analysis:
-
-   a) --singletau useful to test a particular measure of taus, i.e it
-   does not perform the full tomograpyc analysis, and only determine
-   the parameters once. Otherwise, it would require a full list of
-   taus for each tomobin and estimate a set of parameter for each
-   redshift bin.
-
-   b) --eq We have defined a set of three equation and then with the
-   concatenation of them we solve the fitting problem. We could use
-   less equation to track errors. So to see each equation behaviour we
-   can choose a index from 0 to 2. The full right thing is to use the
-   whole system of equations then by default is selected --eq=4 which
-   represent the whole system. There are also the cases of using two
-   equations --eq=10 uses tau0 and tau2, --eq=20 uses tau0 and tau5
-   and --eq=21 uses equations with tau2 and tau5
-
-   c) --splitxipxim Calculate independent contamination parameter abe for
-   xip and xim tau-stat and rho-stats. The right thing to do is to use
-   only one set of parmeter using the whole set of stats
-   simultaneously. But again this might be useful to track problems in
-   the code.
-
-   d) --uwmprior use strong prior for abe based on unweighted moments
-
-   e) --overall get the estimated abe values from maximum the overall
-   likelihood that correspond to the maximum of the full posterior
-
-   f) --margin get the estimated abe values from the maximum of the
-   marginalized posterior.
-
-   g) --abe --ab --ae --be --a --b --e flags to select only a number
-   of parameter.  By default it chooses abe. Recalling that a
-   represents the leakage, b is proportional to the shape residual and
-   e to the size residuals.
+  
    
 
    ### In the folder code/tests there are some basic test, to validate the
@@ -177,4 +194,4 @@
     contours plots of the samples obtainied after running cosmosis chains with
     datavectors coming from fiducial and contaminated fiducial cosmology
 
-    ### In the folder forecas/pipeline are thte used pipelines to run in cosmosis
+    ### In the folder forecast/pipeline are the used pipelines to run in cosmosis

@@ -39,7 +39,7 @@ def band_combinations(bands, single=True, combo=True):
     return use_bands
 
 
-def read_data_y1(datafile, keys, limit_bands=None, use_reserved=None):
+def read_data_y1(datafile, keys, limit_bands=None, use_reserved=None,  masks=True):
     RESERVED = 64
     NOT_STAR = 128
 
@@ -50,32 +50,33 @@ def read_data_y1(datafile, keys, limit_bands=None, use_reserved=None):
 
     data = fitsio.read(datafile)
 
+    if masks:
+        mask = ~((data['tiling']==0)|(data['tiling']>MAX_TILING))
+        print('Tiling filter', len(data[mask]), 'of',len(data) ,'stars' )
+        data=data[mask]
 
+        mask = ~np.in1d(data['ccd'], BAD_CCDS)
+        print('Bad ccd filter', len(data[mask]), 'of',len(data) ,'stars' )
+        data=data[mask]
 
-    mask = ~((data['tiling']==0)|(data['tiling']>MAX_TILING))
-    print('Tiling filter', len(data[mask]), 'of',len(data) ,'stars' )
-    data=data[mask]
+        T = data['size']
+        e1 = data['e1']
+        e2 = data['e2']
+        dT = data['size'] - data['psf_size']
+        de1 = data['e1'] - data['psf_e1']
+        de2 = data['e2'] - data['psf_e2']
 
-    mask = ~np.in1d(data['ccd'], BAD_CCDS)
-    print('Bad ccd filter', len(data[mask]), 'of',len(data) ,'stars' )
-    data=data[mask]
+        #THIS LINE WAS INCLUDED IN Y3
+        good = (abs(dT/T) < 0.1) & (abs(de1) < 0.1) & (abs(de2) < 0.1)
+        mask = good
+        print('Good filter', len(data[mask]), 'of',len(data) ,'stars' )
+        data=data[mask]
 
-    T = data['size']
-    e1 = data['e1']
-    e2 = data['e2']
-    dT = data['size'] - data['psf_size']
-    de1 = data['e1'] - data['psf_e1']
-    de2 = data['e2'] - data['psf_e2']
     
-    good = (abs(dT/T) < 0.1) & (abs(de1) < 0.1) & (abs(de2) < 0.1)
-    mask = good
-    print('Good filter', len(data[mask]), 'of',len(data) ,'stars' )
-    data=data[mask]
-
-    used_bands = ~np.array([( b not in limit_bands) for b in data['filter']] )
-    mask = used_bands
-    print('objects in', limit_bands, 'bands', len(data[mask]), 'of',len(data) ,'stars' )
-    data=data[mask]
+        used_bands = ~np.array([( b not in limit_bands) for b in data['filter']] )
+        mask = used_bands
+        print('objects in', limit_bands, 'bands', len(data[mask]), 'of',len(data) ,'stars' )
+        data=data[mask]
 
 
     
@@ -416,7 +417,7 @@ def read_h5(filename, folder, keys):
     return data
 
 
-def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
+def read_metacal_unweight(filename,  keys,  zbin=None,  nz_source_file=None):
     import h5py as h
   
     dgamma = 2*0.01
@@ -468,6 +469,88 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
         if zbin is not None: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]  bin%d:'%(zbin))
         else: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]')
         print(R11s + np.mean(data['R11']), R22s + np.mean(data['R22']))
+    print('Metal read sucesfully',  len(data),  'objects')
+
+    return data
+
+def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None,  weights=None):
+    import h5py as h
+  
+    dgamma = 2*0.01
+    
+    f = h.File(filename, 'r')
+    cat =  f['catalog/metacal/unsheared']
+    print('catalog/metacal/unsheared' + ' keys:',cat.keys())
+    nrows = len(np.array( cat['ra'] ))
+    formats = []
+    for key in keys:
+        if key == 'ccd' or key == 'tiling':
+            formats.append('i2')
+        elif key == 'exp' or 'flag' in key:
+            formats.append('i4')
+        elif key == 'band':
+            formats.append('a1')
+        else:
+            formats.append('f4')
+    data = np.recarray(shape=(nrows,), formats=formats, names=keys)
+    for key in keys:  data[key] = np.array(cat[key])    
+    print('made recarray')
+
+    select = np.array(f['index/select'])
+    select_1p = np.array(f['index/select_1p'])
+    select_1m = np.array(f['index/select_1m'])
+    select_2p = np.array(f['index/select_2p'])
+    select_2m = np.array(f['index/select_2m'])
+
+    # load weights *************************************
+    if weights is not None:
+        w = np.array(f['catalog/metacal/unsheared/weight'])
+        w1p = np.array(f['catalog/metacal/sheared_1p/weight'])
+        w2p = np.array(f['catalog/metacal/sheared_1m/weight'])
+        w1m = np.array(f['catalog/metacal/sheared_2p/weight'])
+        w2m = np.array(f['catalog/metacal/sheared_2m/weight'])
+        e1p = np.array(f['catalog/metacal/sheared_1p/e_1'])#[select_metacal]
+        e1m = np.array(f['catalog/metacal/sheared_1m/e_1'])#[select_metacal]
+        e2p = np.array(f['catalog/metacal/sheared_2p/e_2'])#[select_metacal]
+        e2m = np.array(f['catalog/metacal/sheared_2m/e_2'])#[select_metacal]
+
+    #snr = np.array(f['catalog/metacal/unsheared/snr'])
+    #size_ratio =  np.array(f['catalog/metacal/unsheared/size_ratio'])
+    
+    if zbin is None:
+        if weights is None:
+            if 'e_1' in keys: R11s = ( np.sum((data['e_1']*w)[select_1p])/np.sum(w[select_1p]) - np.sum((data['e_1']*w)[select_1m])/np.sum(w[select_1m])  )/dgamma
+            if 'e_2' in keys: R22s = ( np.sum((data['e_2']*w)[select_2p])/np.sum(w[select_2p]) - np.sum((data['e_2']*w)[select_2m])/np.sum(w[select_2m]) )/dgamma
+        else:
+            if 'e_1' in keys: R11s = (data['e_1'][select_1p].mean() - data['e_1'][select_1m].mean() )/dgamma
+            if 'e_2' in keys: R22s = (data['e_2'][select_2p].mean() - data['e_2'][select_2m].mean() )/dgamma
+        data = data[select]        
+    else:
+        #TODO weights for tomographic reading
+        print("Reading only data from bin",  zbin)
+        n = h.File(nz_source_file, 'r')
+        zbin_array = np.array(n['nofz/zbin'])
+        ind = np.where( zbin_array==zbin-1 )[0]
+        ind_1p = np.where(np.array(n['nofz/zbin_1p'])==zbin - 1)
+        ind_1m = np.where(np.array(n['nofz/zbin_1m'])==zbin - 1)
+        ind_2p = np.where(np.array(n['nofz/zbin_2p'])==zbin - 1)
+        ind_2m = np.where(np.array(n['nofz/zbin_2m'])==zbin - 1)
+        if 'e_1' in keys: R11s = (data['e_1'][select_1p][ind_1p].mean() - data['e_1'][select_1m][ind_1m].mean() )/dgamma
+        if 'e_2' in keys: R22s = (data['e_2'][select_2p][ind_2p].mean() - data['e_2'][select_2m][ind_2m].mean() )/dgamma
+        data = data[select][ind]
+        
+    if 'e_1' and 'e_2' in keys:
+        if weights is None:
+            R11 = np.sum((w1p*e1p)[select])/np.sum((w1p)[select]) - np.sum((w1m*e1m)[select])/np.sum((w1m)[select])
+            R22 = np.sum((w2p*e2p)[select])/np.sum((w2p)[select]) - np.sum((w2m*e2m)[select])/np.sum((w2m)[select]) 
+        else:
+            R11 = np.mean(data['R11'])
+            R22 =  np.mean(data['R22'])
+        data['e_1'] = data['e_1']/(R11s + R11)
+        data['e_2'] = data['e_2']/(R22s + R22)
+        if zbin is not None: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]  bin%d:'%(zbin))
+        else: print('Response Correctation [R11s+mean(R11) ,R22s+mean(R22)]')
+        print(R11s + R11, R22s + R22)
     print('Metal read sucesfully',  len(data),  'objects')
 
     return data

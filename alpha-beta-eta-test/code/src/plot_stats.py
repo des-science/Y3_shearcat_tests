@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 plt.style.use('SVA1StyleSheet.mplstyle')
+import os
 
 def pretty_rho(meanr, rho, sig,  legend=None, lfontsize=24, color='black', marker='o', ylabel=r'$\rho(\theta)$',title=None,  xlim=None,  ylim=None):
     import numpy as np
@@ -233,7 +234,7 @@ def plotallrhosfits(stat_file, outpath, title= None, xlim=None, ylims=None):
         plt.savefig(outpath + names[i], dpi=150)
         print(outpath +names[i], 'Printed!')
     
-def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zbin=''):
+def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zbin=None):
     import numpy as np
     from src.readfits import read_taus_plots
     import fitsio
@@ -246,14 +247,17 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
     sig_tau2p =  np.sqrt(np.diag(cov2p)); sig_tau2m =  np.sqrt(np.diag(cov2m))
     sig_tau5p =  np.sqrt(np.diag(cov5p)); sig_tau5m =  np.sqrt(np.diag(cov5m))
 
+    if zbin is not None: extname = 'zbin%d'%(zbin)
+    else: extname = 'non-tomographic'
+
     plt.clf()
     pretty_tau2(meanr, tau0p, sig_tau0p, tau2p, sig_tau2p, tau5p, sig_tau5p, mlabel=False, title=title, xlim=xlim, ylim=ylim0p)
-    name = outpath +'taup_all_rsrs' + zbin +  '.png'
+    name = os.path.join(outpath, 'taup_all_rsrs_%s.png'%(extname) )
     print("Printing file: ", name)
     plt.savefig(name)
     plt.clf()
     pretty_tau2(meanr, tau0m, sig_tau0m, tau2m, sig_tau2m, tau5m, sig_tau5m, mlabel=True, title=title, xlim=xlim, ylim=ylim0m)
-    name = outpath +'taum_all_rsrs' + zbin +  '.png'
+    name = os.path.join(outpath, 'taum_all_rsrs_%s.png'%(extname) )
     print("Printing file: ", name)
     plt.savefig(name)
 
@@ -271,7 +275,8 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
         plt.savefig(outpath + names[i], dpi=150)
         print(outpath +names[i], 'Printed!')
     '''
-
+    
+    
     plt.clf()
     lengths = [len(tau0p),len(tau0m),len(tau2p),len(tau2p), len(tau5p),  len(tau5m)]
     covmatrixfit=fitsio.read(stat_file, ext=1)
@@ -285,9 +290,12 @@ def plotalltausfits(stat_file, outpath, title= None, xlim=None,  ylims=None,  zb
         plt.axvline(x=line, c='k', lw=1, ls='-')
         plt.axhline(y=line, c='k', lw=1, ls='-')
     plt.tight_layout()
-    filename = outpath + 'CovariancematrixTaus' + zbin + '.png'
+    filename = os.path.join(outpath, 'CovariancematrixTaus_%s.png'%(extname) )
     plt.savefig(filename, dpi=150)
+    plt.close()
     print(filename, 'Printed!')
+
+
 
 def plotalltauscorrmatfits(filenames, outpath):
     import fitsio
@@ -340,6 +348,7 @@ def plotcorrmat(cov,  title=None):
                aspect='auto', origin='lower', vmin=cov_vmin, vmax=1.)
     plt.colorbar()
     if title is not None: plt.title(title)
+    plt.tight_layout()
  
 def plotcovmat(samples, mflags, namecovmat):
     import numpy as np
@@ -370,7 +379,7 @@ def plotcovmat(samples, mflags, namecovmat):
     plt.savefig(namecovmat, dpi=150)
     print('Printing', namecovmat)
     
-def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont, zbin=0):
+def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont, title):
     import numpy as np
     import emcee
     aflag, bflag, eflag =  mflags
@@ -457,7 +466,7 @@ def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecon
         idx = np.arange(len(par))
         axs[i][0].scatter(idx, par[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
         # Get selfcorrelation using emcee
-        ac = emcee.autocorr.function(par)
+        ac = emcee.autocorr.function_1d(par)
         idx = np.arange(len(ac),step=1)
         axs[i][1].scatter(idx, ac[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
         axs[i][1].axhline(alpha=1., lw=1., color='red')
@@ -466,8 +475,8 @@ def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecon
     plt.tight_layout()
     plt.savefig(namemc)
     plt.close(fig)
-    print(namemc, "Printed")
-    corner_plot(samples, labels, namecont,title='zbin %d'%(zbin))
+    print(namemc, "Printed")                                    
+    corner_plot(samples, labels, namecont,title=title)
 
 def pretty_residuals(axs, idx, meanr,res,sig,label='Corr',color='black'):
     axs[idx].plot(meanr, res, color=color, label=label)
@@ -683,6 +692,9 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
     covtausp =[data['cov_taus'][2*i*nrows:(2*i + 1)*nrows , 2*i*nrows:(2*i + 1)*nrows] for i in range(3)]
     tausm =[data['taus'][2*i + 1] for i in range(3)]
     covtausm =[data['cov_taus'][(2*i + 1)*nrows:2*(i + 1)*nrows , (2*i + 1)*nrows:2*(i + 1)*nrows] for i in range(3)]
+
+    if zbin is not None: label = r'Bin %d'%(zbin)
+    else: label = 'Non-tomographic'; zbin = 1
     
     if(overall and not margin):
         a = b = e = 0; 
@@ -752,31 +764,31 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
         res2m = np.array(res2m)*meanr
         
        
-
+        
         
         #if zbin == 2 or zbin == 3: return
         colors=['red','green','blue','black']
-        pretty_residuals_tomo(axs[0], meanr,tausp[0], sigmasp[0], label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[0], meanr,tausp[0], sigmasp[0], label=label, color=colors[zbin-1])
         axs[0].plot( meanr,res0p, 'k', color=colors[zbin-1])
         #axs[0].plot( meanr, -res0p, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[1], meanr,tausm[0], sigmasm[0], label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[1], meanr,tausm[0], sigmasm[0], label=label, color=colors[zbin-1])
         axs[1].plot( meanr,res0m, 'k', color=colors[zbin-1])
         #axs[1].plot( meanr, -res0m, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[2],  meanr,tausp[1], sigmasp[1], label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[2],  meanr,tausp[1], sigmasp[1], label=label, color=colors[zbin-1])
         axs[2].plot( meanr,res1p, 'k', color=colors[zbin-1])
         #axs[2].plot( meanr, -res1p, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[3], meanr,tausm[1], sigmasm[1], label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[3], meanr,tausm[1], sigmasm[1], label=label, color=colors[zbin-1])
         axs[3].plot( meanr,res1m, 'k', color=colors[zbin-1])
         #axs[3].plot( meanr, -res1m, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[4],  meanr,tausp[2], sigmasp[2], label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[4],  meanr,tausp[2], sigmasp[2], label=label, color=colors[zbin-1])
         axs[4].plot( meanr,res2p, 'k', color=colors[zbin-1])
         #axs[4].plot( meanr, -res2p, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[5], meanr,tausm[2], sigmasm[2], label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[5], meanr,tausm[2], sigmasm[2], label=label, color=colors[zbin-1])
         axs[5].plot( meanr,res2m, 'k', color=colors[zbin-1])
         #axs[5].plot( meanr, -res2m, 'k', color=colors[zbin-1])
         
@@ -858,27 +870,27 @@ def plotbestfit(zbin,axs,samplesp, samplesm,  meanr, data, models_combo, plotpat
         res2m = am*rhosm[5] + bm*rhosm[4] + em*rhosm[3]
         
         colors=['red','green','blue','black']
-        pretty_residuals_tomo(axs[0], meanr,tausp[0], np.sqrt(np.diag(covtausp[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[0], meanr,tausp[0], np.sqrt(np.diag(covtausp[0])), label=label, color=colors[zbin-1])
         axs[0].plot( meanr,res0p, 'k', color=colors[zbin-1])
         axs[0].plot( meanr, -res0p, 'k', color=colors[zbin-1])
          
-        pretty_residuals_tomo(axs[1], meanr,tausm[0], np.sqrt(np.diag(covtausm[0])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[1], meanr,tausm[0], np.sqrt(np.diag(covtausm[0])), label=label, color=colors[zbin-1])
         axsp[1].lot( meanr,res0m, 'k', color=colors[zbin-1])
         axsp[1].lot( meanr, -res0m, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[2],  meanr,tausp[1], np.sqrt(np.diag(covtausp[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[2],  meanr,tausp[1], np.sqrt(np.diag(covtausp[1])), label=label, color=colors[zbin-1])
         axs[2].plot( meanr,res1p, 'k', color=colors[zbin-1])
         axs[2].plot( meanr, -res1p, 'k', color=colors[zbin-1])
             
-        pretty_residuals_tomo(axs[3], meanr,tausm[1], np.sqrt(np.diag(covtausm[1])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[3], meanr,tausm[1], np.sqrt(np.diag(covtausm[1])), label=label, color=colors[zbin-1])
         axs[3].plot( meanr,res1m, 'k', color=colors[zbin-1])
         axs[3].plot( meanr, -res1m, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[4],  meanr,tausp[2], np.sqrt(np.diag(covtausp[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[4],  meanr,tausp[2], np.sqrt(np.diag(covtausp[2])), label=label, color=colors[zbin-1])
         axs[4].plot( meanr,res2p, 'k', color=colors[zbin-1])
         axs[4].plot( meanr, -res2p, 'k', color=colors[zbin-1])
         
-        pretty_residuals_tomo(axs[5], meanr,tausm[2], np.sqrt(np.diag(covtausm[2])), label=r'Bin %d'%(zbin), color=colors[zbin-1])
+        pretty_residuals_tomo(axs[5], meanr,tausm[2], np.sqrt(np.diag(covtausm[2])), label=label, color=colors[zbin-1])
         axs[5].plot( meanr,res2m, 'k', color=colors[zbin-1])
         axs[5].plot( meanr, -res2m, 'k', color=colors[zbin-1])
         
