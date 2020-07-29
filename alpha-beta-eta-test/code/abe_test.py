@@ -42,6 +42,8 @@ def parse_args():
                         help='nsteps of MCMC')
     parser.add_argument('--nwalkers', default=100, type=int, 
                         help='nwalkers of MCMC')
+    parser.add_argument('--hartlap', default=1, type=float, 
+                        help='hartlap factor for chi2')
     parser.add_argument('--eq', default=4, type=int, 
                         help='Select equations to be used for istance --eq=0, 4 represent the whole system of equations')
     parser.add_argument('--abe', default=False,
@@ -888,7 +890,7 @@ def RUNTEST_PERTAU(rhofile, taufile, minscale, maxscale, models_combo, nwalkers,
         
     if (margin and not overall):
         if(plots):
-            if zbin is not None: title = 'zbin_%d'%(zbin)
+            if zbin is not None: title = 'zbin %d'%(zbin)
             else: title =  'Non-tomographic' 
             if (splitxipxim):
                 plot_samplesdist(auxp1, auxp2 , mflags, nwalkers, nsteps, os.path.join(plotspath,'%s_%s_p_.png'%(namemc, title)), os.path.join(plotspath, '%s_%s_p_.png'%(namecont, title )), title=title )
@@ -1044,7 +1046,7 @@ def main():
     data = {}
     data['rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[1]
     data['cov_rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[2]
-
+    hartlap = args.hartlap
 
     if args.margin:
         if args.singletau is not None:
@@ -1065,6 +1067,7 @@ def main():
             samplesm_list = []; parsm_list = []
             chisqp_list = []; chisqm_list = []; chisq_list = []
             #data was before here
+            #This loop is to get stimate per redshift bins
             for i,  taufile in enumerate(args.taus):
                 if (len(args.taus) == 1): zbin = None
                 else: zbin = (i + 1)
@@ -1084,10 +1087,10 @@ def main():
                 data['taus'] = read_taus(taufile, minscale=args.minscale, maxscale=args.maxscale)[1]
                 data['cov_taus'] = read_taus(taufile, minscale=args.minscale, maxscale=args.maxscale)[2]
                 if args.splitxipxim:
-                    chisqp_list.append(chi2nu(bestparameters(samplesp),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=False))
-                    chisqm_list.append(chi2nu(bestparameters(samplesm),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=False, xim=True))
+                    chisqp_list.append(hartlap*chi2nu(bestparameters(samplesp),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=False))
+                    chisqm_list.append(hartlap*chi2nu(bestparameters(samplesm),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=False, xim=True))
                 else:
-                    chisq_list.append(chi2nu(bestparameters(samplesp),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True))
+                    chisq_list.append(hartlap*chi2nu(bestparameters(samplesp),data, eq=args.eq, mflags=getflagsnames(models_combo)[0], xip=True, xim=True))
 
             eq, abe, ab, ae, be, a, b, e = models_combo
             if abe:  filename = os.path.join(outpath, 'table_%s_margin_eq%d')%('abe', eq)
@@ -1121,8 +1124,8 @@ def main():
             parsp, chi2p_nu, parsm, chi2m_nu = RUNTEST_PERTAU(args.rhos,args.singletau, args.minscale, args.maxscale,
                                                models_combo ,nwalkers,nsteps, args.uwmprior,
                                                args.splitxipxim, False, True, args.plots, plotspath)
-            print( ' overall likelihood best fit xi+',  parsp, 'chi2_reduced', chi2p_nu)
-            print( ' overall likelihood best fit xi+',  parsm, 'chi2_reduced', chi2m_nu)
+            print( ' overall likelihood best fit xi+',  parsp, 'chi2_reduced:', hartlap*chi2p_nu, 'hartlap:', hartlap)
+            print( ' overall likelihood best fit xi+',  parsm, 'chi2_reduced:', hartlap*chi2m_nu, 'hartlap:', hartlap)
             write_singlexip_overall(parsp, parsm, args.rhoscosmo,  models_combo, args.plots,  outpath,  plotspath)
         
         else:
@@ -1147,14 +1150,14 @@ def main():
                                                                  False, True, args.plots, plotspath,  zbin=zbin, axs=axs)
                 if args.splitxipxim :
                     print( 'overall parameters xi+', parsp.tolist()) 
-                    print( 'chi2r: ',  chi2p_nu)
+                    print( 'chi2r: ',  hartlap*chi2p_nu, 'hartlap:', hartlap)
                     print( 'overall parameters xi-', parsm.tolist()) 
-                    print( 'chi2r: ',  chi2m_nu)
+                    print( 'chi2r: ',  hartlap*chi2m_nu, 'hartlap:', hartlap)
                 else:
                     print( 'overall parameters ', parsp.tolist()) 
-                    print( 'chi2r: ',  chi2p_nu)
+                    print( 'chi2r: ',  hartlap*chi2p_nu, 'hartlap:', hartlap)
                 parsp_list.append(parsp); parsm_list.append(parsm)
-                chisqp_list.append(chi2p_nu); chisqm_list.append(chi2m_nu);
+                chisqp_list.append(hartlap*chi2p_nu); chisqm_list.append(hartlap*chi2m_nu);
             if(args.plots):
                 for i, fig in enumerate(figs):
                     filename = os.path.join(plotspath, 'tau%d_bestfit.png'%(i))

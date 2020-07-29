@@ -87,7 +87,8 @@ def read_rhos(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
             rho4p, rho4m, rho5p, rho5m]
     nrhos = len(rhos)
     print(stat_file, "Format seems OK")
-    if maxscale is not None and maxbin is None:
+
+    if maxscale is not None and maxbin is None and minscale is None:
         meanr = meanr[meanr<maxscale]
         idx = int(len(meanr))
         ind =  np.arange(idx); size = int(len(covmat)/nrhos)
@@ -95,7 +96,7 @@ def read_rhos(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
         covmat = covmat[indxs,: ][:,indxs]
         for i in range(len(rhos)):
             rhos[i] = rhos[i][:idx]
-    if minscale is not None and minbin is None:
+    if minscale is not None and minbin is None and maxscale is None:
         idx = len(meanr[meanr<minscale])
         meanr = meanr[idx:]
         ind =  np.arange(idx, idx + len(meanr)); size = int(len(covmat)/nrhos)
@@ -103,7 +104,7 @@ def read_rhos(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
         covmat = covmat[indxs,: ][:,indxs]
         for i in range(len(rhos)):
             rhos[i] = rhos[i][idx:]
-    if minbin is not None:
+    if minbin is not None and maxbin is None:
         idx = minbin
         meanr = meanr[idx:]
         ind =  np.arange(idx, idx + len(meanr)); size = int(len(covmat)/nrhos)
@@ -111,14 +112,21 @@ def read_rhos(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
         covmat = covmat[indxs,: ][:,indxs]
         for i in range(len(rhos)):
             rhos[i] = rhos[i][idx:]
-    if maxbin is not None:
+    if maxbin is not None and minbin is None:
         idx = maxbin
         meanr = meanr[:idx]
         ind =  np.arange(idx); size = int(len(covmat)/nrhos)
         indxs = np.concatenate([ind + i*size for i in range(nrhos) ] )
         covmat = covmat[indxs,: ][:,indxs]
         for i in range(len(rhos)):
-            rhos[i] = rhos[i][:idx]
+            rhos[i] = rhos[i][:idx]      
+    if minbin is not None and maxbin is not None:
+        meanr = meanr[minbin:maxbin]
+        ind =  np.arange(minbin, maxbin); size = int(len(covmat)/nrhos)
+        indxs = np.concatenate([ind + i*size for i in range(nrhos) ] )
+        covmat = covmat[indxs,: ][:,indxs]
+        for i in range(len(rhos)):
+            rhos[i] = rhos[i][minbin:maxbin] 
         
     return  meanr, rhos,  covmat
 
@@ -138,7 +146,7 @@ def read_taus(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
     taus = [tau0p, tau0m, tau2p, tau2m, tau5p, tau5m]
     ntaus = len(taus)
     #print(stat_file, "Format seems OK")
-    if maxscale is not None:
+    if maxscale is not None and minscale is None:
         meanr = meanr[meanr<maxscale]
         idx = len(meanr)
         ind =  np.arange(idx); size = int(len(covmat)/ntaus)
@@ -147,7 +155,7 @@ def read_taus(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
         for i in range(len(taus)):
             taus[i] = taus[i][:idx]
 
-    if minscale is not None:
+    if minscale is not None and maxscale is None:
         idx = len(meanr[meanr<minscale])
         meanr = meanr[idx:]
         ind =  np.arange(idx, idx + len(meanr)); size = int(len(covmat)/ntaus)
@@ -156,7 +164,7 @@ def read_taus(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
         for i in range(len(taus)):
             taus[i] = taus[i][idx:]
 
-    if minbin is not None:
+    if minbin is not None and maxbin is None:
         idx = minbin
         meanr = meanr[idx:]
         ind =  np.arange(idx, idx + len(meanr)); size = int(len(covmat)/ntaus)
@@ -165,7 +173,7 @@ def read_taus(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
         for i in range(ntaus):
             taus[i] = taus[i][idx:]
 
-    if maxbin is not None:
+    if maxbin is not None and minbin is None:
         idx = maxbin
         meanr = meanr[:idx]
         ind =  np.arange(idx); size = int(len(covmat)/ntaus)
@@ -173,6 +181,14 @@ def read_taus(stat_file, minscale=None, maxscale=None, minbin=None, maxbin=None)
         covmat = covmat[indxs,: ][:,indxs]
         for i in range(ntaus):
             taus[i] = taus[i][:idx]
+
+    if minbin is not None and maxbin is not None:
+        meanr = meanr[minbin:maxbin]
+        ind =  np.arange(minbin, maxbin); size = int(len(covmat)/ntaus)
+        indxs = np.concatenate([ind + i*size for i in range(ntaus) ] )
+        covmat = covmat[indxs,: ][:,indxs]
+        for i in range(ntaus):
+            taus[i] = taus[i][minbin:maxbin]
     return  meanr, taus,  covmat
 
 def read_xis(stat_file, minscale=None, maxscale=None):

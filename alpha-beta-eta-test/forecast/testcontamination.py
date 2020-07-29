@@ -187,7 +187,7 @@ def plotcontaminantandfiducial(contaminant, fiducial, out,overall=False, title=N
         theta_cont=xipfit_cont['ANG'][bin]
         xip_cont=xipfit_cont['VALUE'][bin]
         if overall: yerr_cont = None
-        else: yerr_cont=get_error(covmatrixfit_cont, lengths_cont, 'xim')[bin]
+        else: yerr_cont=get_error(covmatrixfit_cont, lengths_cont, 'xip')[bin]
         plot_tomograpically_bin(ax, i, j, theta_cont,
                                 xip_cont,
                                 yerr=yerr_cont,

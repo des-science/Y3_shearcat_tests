@@ -1,7 +1,7 @@
 #Log natural of the prior
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
-plt.style.use('SVA1StyleSheet.mplstyle')
+#plt.style.use('SVA1StyleSheet.mplstyle')
  
 def logprior(pars, mflags=[True, True, True],  uwmprior=False):
     aflag, bflag, eflag =  mflags
