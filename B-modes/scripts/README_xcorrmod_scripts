@@ -7,3 +7,20 @@
 
 Apologies that a lot of the stuff/settings in these above files are not used.
 It's exactly because things are a bit obfuscated that there is probably an issue now...
+
+UPDATE: Sep 13, 2020
+
+Final script for measuring xi+/- is "Y3KP_xipm_forcosebis_script.py"
+which also needs "cats_cosebis.yaml" and destest/treecorr
+
+Things that are hard-coded that need to be updated:
+--out_ascii output name at very end of the script; an ascii file is needed
+for the rest of the COSEBIs pipeline.
+--The call to corr.process(cat_s, num_threads=40) probably needs num_threads
+removed or updated to whatever threads your machine uses.
+--datafile path to catalog at top of cats_cosebis.yaml
+
+The rest should be ok, but good to double-check everything looks as it should.
+The script is fairly short since there's no tomographic binning.
+
+`python Y3KP_xipm_forcosebis_script.py` runs it!
