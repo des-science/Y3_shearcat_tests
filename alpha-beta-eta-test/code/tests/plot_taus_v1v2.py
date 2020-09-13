@@ -56,7 +56,8 @@ def main():
     #legends=[r'e$_{\textrm{model}}$', r'e$_{\textrm{obs}}$'];  colors=['blue', 'red'];  markers=['o', '^']
     #legends=['Mean-subtracted', r'Non-mean-subtracted'];  colors=['blue', 'red'];  markers=['o', '^']
     #legends=['DES Y3', r'DES Y3 with weights'];  colors=['blue', 'red'];  markers=['o', '^']
-    legends=['DES Y3 (w=epiff*dT, e=eobs)', r'DES Y3 (w=eobs*dT, e=epiff)'];  colors=['blue', 'red'];  markers=['o', '^']
+    #legends=['DES Y3 (w=epiff*dT, e=eobs)', r'DES Y3 (w=eobs*dT, e=epiff)'];  colors=['blue', 'red'];  markers=['o', '^']
+    legends=['DES Y3 (e= eobs, w=epiff*dT, e=eobs)', r'DES Y3 (e=epiff,w=eobs*dT, e=epiff)'];  colors=['blue', 'red'];  markers=['o', '^']
 
 
     args = parse_args()
