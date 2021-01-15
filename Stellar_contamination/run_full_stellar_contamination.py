@@ -13,11 +13,12 @@ field_list = [
 
 mastercat_version = '03_31_20'
 
-mastercat_dir = '/global/cscratch1/sd/troxel/cats_des_y3/'
+#mastercat_dir = '/global/cscratch1/sd/troxel/cats_des_y3/'
+mastercat_dir = '/project/projectdirs/des/www/y3_cats/'
 mcal_bpz_dir = '/global/cscratch1/sd/itrharri/cats_des_y3/'
-mcal_bpz_dir = './data/'
-deep_dir = './data/'
-#deep_dir = '/project/projectdirs/des/www/y3_deep_cats/'
+#mcal_bpz_dir = './data/'
+#deep_dir = './data/'
+deep_dir = '/project/projectdirs/des/www/y3_deep_cats/'
 
 make_deep_cats(mastercat_version=mastercat_version,
                mastercat_dir=mastercat_dir,
