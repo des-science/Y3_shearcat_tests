@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 from matplotlib import rc
 import galsim
 import pickle
+import pdb
 
 rc('text', usetex=True)
 rc('font', family='serif')
@@ -63,17 +64,31 @@ def make_response_plots(mastercat_version, mcal_bpz_dir, plot_dir='./plots/', pi
   star_R_66 = jackknife_stats(star_R11, np.mean, 0.66)[2]
   shape_star_R_66 = jackknife_stats(shape_star_R11, np.mean, 0.66)[2]
 
+  gal_R_66 = 0.
+  shape_gal_R_66 = 0.
+
+  n_sub_r = 100
+
+  for i_r in np.arange(n_sub_r):
+    print('Jackknife of subsample {0}/{1}'.format(i_r, n_sub_r))
+
+    gal_R11_sub = np.random.choice(gal_R11, star_R11.shape[0], replace=False)
+    shape_gal_R11_sub = np.random.choice(shape_gal_R11, shape_star_R11.shape[0], replace=False)
+
+    gal_R_66 += jackknife_stats(gal_R11_sub, np.mean, 0.66)[2] / n_sub_r
+    shape_gal_R_66 += jackknife_stats(shape_gal_R11_sub, np.mean, 0.66)[2] / n_sub_r
+
   plt.figure(1, figsize=(2*4.5, 3.75))
   plt.subplot(121)
   plt.hist(star_R11, histtype='step', bins=np.linspace(-3,3,50), density=True, label='kNN Stars $\\langle R \\rangle  = {0:.4f} \pm {1:.4f}\,(66\%)$'.format(star_R11.mean(), star_R_66))
-  plt.hist(gal_R11, histtype='step', bins=np.linspace(-3,3,50), density=True, label='kNN Galaxies')
+  plt.hist(gal_R11, histtype='step', bins=np.linspace(-3,3,50), density=True, label='kNN Galaxies $\\langle R \\rangle  = {0:.4f} \pm {1:.4f}\,(66\%)$'.format(gal_R11.mean(), gal_R_66))
   plt.title('All objects')
   plt.axvline(0, alpha=0.4, color='k', linestyle='dashed', zorder=-1)
   plt.legend(loc='upper left', fontsize='small')
   plt.xlabel('$R_{11}$')
   plt.subplot(122)
   star_R_counts, star_R_bins, _ = plt.hist(shape_star_R11, histtype='step', bins=np.linspace(-3,3,50), density=True, label='kNN Stars $\\langle R \\rangle  = {0:.4f} \pm {1:.4f}\,(66\%)$'.format(shape_star_R11.mean(), shape_star_R_66))
-  galaxy_R_counts, galaxy_R_bins, _ = plt.hist(shape_gal_R11, histtype='step', bins=np.linspace(-3,3,50), density=True, label='kNN Galaxies')
+  galaxy_R_counts, galaxy_R_bins, _ = plt.hist(shape_gal_R11, histtype='step', bins=np.linspace(-3,3,50), density=True, label='kNN Galaxies $\\langle R \\rangle  = {0:.4f} \pm {1:.4f}\,(66\%)$'.format(shape_gal_R11.mean(), shape_gal_R_66))
   star_R_bins = (star_R_bins[:-1]+ star_R_bins[1:])/2
   galaxy_R_bins = (galaxy_R_bins[:-1]+ galaxy_R_bins[1:])/2
   plt.axvline(0, alpha=0.4, color='k', linestyle='dashed', zorder=-1)
@@ -137,9 +152,11 @@ def make_response_plots(mastercat_version, mcal_bpz_dir, plot_dir='./plots/', pi
            'star_R11' : star_R11,
            'gal_R11' : gal_R11,
            'star_R_66' : star_R_66,
+           'gal_R_66' : gal_R_66,
            'shape_star_R11' : shape_star_R11,
            'shape_gal_R11' : shape_gal_R11,
            'shape_star_R_66' : shape_star_R_66,
+           'shape_gal_R_66' : shape_gal_R_66,
            'gals_kNN' : gals_kNN,
            'stars_kNN' : stars_kNN,
            'shape_cut' : shape_cut,
@@ -150,3 +167,8 @@ def make_response_plots(mastercat_version, mcal_bpz_dir, plot_dir='./plots/', pi
     
   with open(pickle_dir + 'everything_you_need_for_stellar_contamination.pkl', 'wb') as f:
     pickle.dump(sav_obj, f, pickle.HIGHEST_PROTOCOL)
+
+if __name__=='__main__':
+
+  make_response_plots(mastercat_version='03_31_20',
+                      mcal_bpz_dir='./data/')

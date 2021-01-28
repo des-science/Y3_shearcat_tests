@@ -266,12 +266,6 @@ def main():
             os.makedirs(plotspath)
     except OSError:
         if not os.path.exists(outpath): raise
-
-
-
-    
-    
-    
         
     if not (args.abe or args.ab or args.ae or args.be or args.a or args.b or args.e): args.abe = True
     models_combo = [args.eq, args.abe, args.ab, args.ae, args.be, args.a, args.b, args.e]
@@ -283,33 +277,43 @@ def main():
     ndim =  len(list(itertools.compress(range(len(mflags)),  mflags)))
 
     ##Format of the fit file output
-    if args.abe: names=['a1', 'a2','a3', 'a4', 'b1', 'b2','b3', 'b4','e1','e2','e3','e4']
-    if args.ab:  names=['a1', 'a2','a3', 'a4', 'b1', 'b2','b3', 'b4']
-    if args.ae:  names=['a1', 'a2','a3', 'a4', 'e1', 'e2','e3', 'e4']
-    if args.be: names=['b1', 'b2','b3', 'b4','e1','e2','e3','e4']
-    if args.a:  names=['a1', 'a2','a3', 'a4']
-    if args.b:  names=['b1', 'b2','b3', 'b4']
-    if args.e:  names=['e1', 'e2','e3', 'e4']
+    nbins = len(args.taus)
+
+    del_flag = [ not a for a in mflags] + [False] #all tables print chi2
+    names = np.concatenate(np.array([ np.delete(['a%i'%(i),'b%i'%(i),'e%i'%(i),'chi2nu%i'%i], del_flag) for i in range(1,nbins + 1)]).T)
+
     forms = ['f4']*len(names) 
     dtype = dict(names = names, formats=forms)
+    print("LOOK HERR \n",  names)
 
     print("STARTING TOMOGRAPHIC ANALYSIS")
     data = {}
     data['rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[1]
     data['cov_rhos'] = read_rhos(args.rhos, minscale=args.minscale, maxscale=args.maxscale)[2]
 
-    aplist = []; bplist = []; eplist = []
-    amlist = []; bmlist = []; emlist = []
+    aplist = []; bplist = []; eplist = []; chi2pnulist = [];
+    amlist = []; bmlist = []; emlist = []; chi2mnulist = [];
+
+    
     for i,  taufile in enumerate(args.taus):
         samplesp, samplesm=RUNTEST_PERTAU(args.rhos,taufile,args.minscale, args.maxscale,
                                                   models_combo ,nwalkers,nsteps, args.uwmprior, args.splitxipxim,
                                                   True, False, args.plots, plotspath,  zbin=(i + 1))
+        
+        data['taus'] =  read_taus(taufile, minscale=args.minscale, maxscale=args.maxscale)[1]
+        data['cov_taus'] =  read_taus(taufile, minscale=args.minscale, maxscale=args.maxscale)[2]
+        if args.splitxipxim:
+            chi2pnulist.append(np.array([ chi2nu(pars, data, eq=eq , mflags=mflags, xip=True, xim=False,  moderr=False) for pars in samplesp.T ]))
+            chi2mnulist.append(np.array([ chi2nu(pars, data, eq=eq , mflags=mflags, xip=False, xim=True,  moderr=False) for pars in samplesm.T ]))
+        else:
+            chi2pnulist.append(np.array( [ chi2nu(pars, data, eq=eq , mflags=mflags, xip=True, xim=True,  moderr=False) for pars in samplesp.T ]))
+            chi2mnulist.append(np.array( [ chi2nu(pars, data, eq=eq , mflags=mflags, xip=True, xim=True,  moderr=False) for pars in samplesm.T ]))
+        
         if (ndim == 3):
             apl, bpl, epl = samplesp
             aml, bml, eml = samplesm
             aplist.append(apl); bplist.append(bpl); eplist.append(epl)
             amlist.append(aml); bmlist.append(bml); emlist.append(eml)
-
             print("All this numbers should be the same", len(apl), len(bpl), len(epl) )
             print("All this numbers should be the same", len(aml), len(bml), len(eml) )
 
@@ -335,17 +339,17 @@ def main():
     nrows = len(aplist[0])
     
     outdata1 = np.recarray((nrows, ), dtype=dtype)
-    if (ndim == 3): array_list = aplist + bplist + eplist
-    if (ndim == 2): array_list = aplist + bplist 
-    if (ndim == 1): array_list = aplist 
+    if (ndim == 3): array_list = aplist + bplist + eplist + chi2pnulist
+    if (ndim == 2): array_list = aplist + bplist + chi2pnulist
+    if (ndim == 1): array_list = aplist + chi2pnulist
     for array, name in zip(array_list, names): outdata1[name] = array
     table = fits.BinTableHDU(outdata1, name='abe xip' )
     hdul.insert(1, table)
     
     outdata2 = np.recarray((nrows, ), dtype=dtype)
-    if (ndim == 3): array_list = amlist + bmlist + emlist
-    if (ndim == 2): array_list = amlist + bmlist
-    if (ndim == 1): array_list = amlist
+    if (ndim == 3): array_list = amlist + bmlist + emlist + chi2mnulist
+    if (ndim == 2): array_list = amlist + bmlist + chi2mnulist
+    if (ndim == 1): array_list = amlist + chi2mnulist
     for array, name in zip(array_list, names): outdata2[name] = array 
     table = fits.BinTableHDU(outdata2, name='abe xim' )
     hdul.insert(2, table)
