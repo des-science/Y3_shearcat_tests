@@ -3,7 +3,7 @@ from astropy.table import Table, vstack, hstack
 from astropy.stats import jackknife_stats
 from matplotlib import pyplot as plt
 from matplotlib import rc
-import galsim
+#import galsim
 import pickle
 import pdb
 
@@ -49,6 +49,15 @@ def make_response_plots(mastercat_version, mcal_bpz_dir, plot_dir='./plots/', pi
   #shape_cut = make_shape_cuts(cat, snr=[10,1000])
   shape_cut = cat['select_bool']
   shape_cut = shape_cut*(~binary_cut)
+
+  binary_R11 = cat['R11'][binary_cut]
+
+  sav_obj = {
+            'binary_R11' : binary_R11
+           }
+
+  with open(pickle_dir + 'binary_responses.pkl', 'wb') as f:
+    pickle.dump(sav_obj, f, pickle.HIGHEST_PROTOCOL)
 
   # kNN star/gals
   stars_kNN = cat['NearestNeighbors_class']==2
@@ -118,55 +127,55 @@ def make_response_plots(mastercat_version, mcal_bpz_dir, plot_dir='./plots/', pi
   # N have posson distribution
   # R have observed distribution
 
-  star_R_rng = galsim.DistDeviate(rseed, function=galsim.LookupTable(star_R_bins,star_R_counts))
-  galaxy_R_rng = galsim.DistDeviate(rseed, function=galsim.LookupTable(galaxy_R_bins,galaxy_R_counts))
+  #star_R_rng = galsim.DistDeviate(rseed, function=galsim.LookupTable(star_R_bins,star_R_counts))
+  #galaxy_R_rng = galsim.DistDeviate(rseed, function=galsim.LookupTable(galaxy_R_bins,galaxy_R_counts))
 
-  N_shape_star_rng = galsim.PoissonDeviate(rseed, mean=N_shape_star)
+  #N_shape_star_rng = galsim.PoissonDeviate(rseed, mean=N_shape_star)
 
-  star_R_arr = np.zeros(n_realisations)
-  galaxy_R_arr = np.zeros(n_realisations)
-  N_shape_star_arr = np.zeros(n_realisations)
+  # star_R_arr = np.zeros(n_realisations)
+  # galaxy_R_arr = np.zeros(n_realisations)
+  # N_shape_star_arr = np.zeros(n_realisations)
 
-  print('MC-ing errors...')
-  for ir in np.arange(n_realisations):
-    star_R_arr[ir] = star_R_rng()
-    galaxy_R_arr[ir] = galaxy_R_rng()
-    N_shape_star_arr[ir] = N_shape_star_rng()
+  # print('MC-ing errors...')
+  # for ir in np.arange(n_realisations):
+  #   star_R_arr[ir] = star_R_rng()
+  #   galaxy_R_arr[ir] = galaxy_R_rng()
+  #   N_shape_star_arr[ir] = N_shape_star_rng()
 
-  fstar_arr = N_shape_star_arr / (N_shape_star + N_shape_gal)
-  fgal_arr = 1. - fstar_arr
+  # fstar_arr = N_shape_star_arr / (N_shape_star + N_shape_gal)
+  # fgal_arr = 1. - fstar_arr
 
-  m = (fstar_arr/fgal_arr)*(star_R_arr/galaxy_R_arr)
+  # m = (fstar_arr/fgal_arr)*(star_R_arr/galaxy_R_arr)
 
-  mask = (m>-0.05)*(m<0.05)
+  # mask = (m>-0.05)*(m<0.05)
 
-  plt.figure(2, figsize=(4.5, 3.75))
-  plt.hist(m[mask], histtype='step', bins=np.linspace(-0.02, 0.04, 50), density=True)
-  plt.axvline(np.median(m[mask]), linestyle='dashed', alpha=0.4)
-  plt.axhline(0, color='k', linewidth=1, zorder=-10)
-  plt.xlabel('Stellar contamination shear bias $m$')
-  plt.savefig(plot_dir + 'stellar-contamination-biases_{0}.png'.format(mastercat_version), dpi=300, bbox_inches='tight')
-  plt.savefig(plot_dir + 'stellar-contamination-biases_{0}.pdf'.format(mastercat_version), bbox_inches='tight')
+  # plt.figure(2, figsize=(4.5, 3.75))
+  # plt.hist(m[mask], histtype='step', bins=np.linspace(-0.02, 0.04, 50), density=True)
+  # plt.axvline(np.median(m[mask]), linestyle='dashed', alpha=0.4)
+  # plt.axhline(0, color='k', linewidth=1, zorder=-10)
+  # plt.xlabel('Stellar contamination shear bias $m$')
+  # plt.savefig(plot_dir + 'stellar-contamination-biases_{0}.png'.format(mastercat_version), dpi=300, bbox_inches='tight')
+  # plt.savefig(plot_dir + 'stellar-contamination-biases_{0}.pdf'.format(mastercat_version), bbox_inches='tight')
 
-  sav_obj = {
-           'star_R11' : star_R11,
-           'gal_R11' : gal_R11,
-           'star_R_66' : star_R_66,
-           'gal_R_66' : gal_R_66,
-           'shape_star_R11' : shape_star_R11,
-           'shape_gal_R11' : shape_gal_R11,
-           'shape_star_R_66' : shape_star_R_66,
-           'shape_gal_R_66' : shape_gal_R_66,
-           'gals_kNN' : gals_kNN,
-           'stars_kNN' : stars_kNN,
-           'shape_cut' : shape_cut,
-           'mastercat_version' : mastercat_version,
-           'm' : m,
-           'mask' : mask,
-           }
+  # sav_obj = {
+  #          'star_R11' : star_R11,
+  #          'gal_R11' : gal_R11,
+  #          'star_R_66' : star_R_66,
+  #          'gal_R_66' : gal_R_66,
+  #          'shape_star_R11' : shape_star_R11,
+  #          'shape_gal_R11' : shape_gal_R11,
+  #          'shape_star_R_66' : shape_star_R_66,
+  #          'shape_gal_R_66' : shape_gal_R_66,
+  #          'gals_kNN' : gals_kNN,
+  #          'stars_kNN' : stars_kNN,
+  #          'shape_cut' : shape_cut,
+  #          'mastercat_version' : mastercat_version,
+  #          'm' : m,
+  #          'mask' : mask,
+  #          }
     
-  with open(pickle_dir + 'everything_you_need_for_stellar_contamination.pkl', 'wb') as f:
-    pickle.dump(sav_obj, f, pickle.HIGHEST_PROTOCOL)
+  # with open(pickle_dir + 'everything_you_need_for_stellar_contamination.pkl', 'wb') as f:
+  #   pickle.dump(sav_obj, f, pickle.HIGHEST_PROTOCOL)
 
 if __name__=='__main__':
 
