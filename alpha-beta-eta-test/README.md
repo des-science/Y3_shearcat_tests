@@ -1,17 +1,26 @@
 # ALPHA-BETA-ETA test
 
   Modeling PSF errors and propagate errors in cosmological estimates.
+  
+## HOW TO RUN
+   1) sample_abe.py
+   2) create_table.py
+   3) produce_2pcfpsfbias.py
+   4) plot_samples_and_biases.py
+   5) forecast/contaminate.py
+   6) forecast/pipeline (COSMOSIS)
+   7) plotmarginalised_fidvscont.py
 
-## In the folder code/ you will find all the required code to estimate
-   the parameters alpha, beta and eta and find the total shear PSF
-   bias.  These parameters are obtained solving a fitting problem
+## In the folder code/ 
+   you will find all the required code to estimate the parameters alpha, 
+   beta and eta and find the total shear PSF bias.  
+   These parameters are obtained solving a fitting problem
    where the model vector is determined by the concatenation of
    rho-stats and the data vector by what we have called tau-stats. See
    https://www.overleaf.com/19082636fhptxgfskhwd for definitions and
    details.
 
-   1) abe_test.py main script that solves the fitting problem provided
-   all the preliminar measurements. The output are two contributions
+   1) abe_test.py main script used for development only (DEPRECATED)
    
    a) --plots & --plotspath: boolean and direction of all the plots the
    correlations rho-stats and tau-staus, covariances matrix both of
@@ -26,13 +35,7 @@
 
    There are the following modes of analysis:
 
-   a) --singletau useful to test a particular measure of taus, i.e it
-   does not perform the full tomograpyc analysis, and only determine
-   the parameters once. Otherwise, it would require a full list of
-   taus for each tomobin and estimate a set of parameter for each
-   redshift bin.
-
-   b) --eq We have defined a set of three equation and then with the
+   a) --eq We have defined a set of three equation and then with the
    concatenation of them we solve the fitting problem. We could use
    less equation to track errors. So to see each equation behaviour we
    can choose a index from 0 to 2. The full right thing is to use the
@@ -41,32 +44,32 @@
    equations --eq=10 uses tau0 and tau2, --eq=20 uses tau0 and tau5
    and --eq=21 uses equations with tau2 and tau5
 
-   c) --splitxipxim Calculate independent contamination parameter abe for
+   b) --splitxipxim Calculate independent contamination parameter abe for
    xip and xim tau-stat and rho-stats. The right thing to do is to use
    only one set of parmeter using the whole set of stats
    simultaneously. But again this might be useful to track problems in
    the code.
 
-   d) --uwmprior use strong prior for abe based on unweighted moments
-
-   e) --overall get the estimated abe values from maximum the overall
+   c) --overall get the estimated abe values from maximum the overall
    likelihood that correspond to the maximum of the full posterior
 
-   f) --margin get the estimated abe values from the maximum of the
+   d) --margin get the estimated abe values from the maximum of the
    marginalized posterior.
 
-   g) --abe --ab --ae --be --a --b --e flags to select only a number
+   e) --abe --ab --ae --be --a --b --e flags to select only a number
    of parameter.  By default it chooses abe. Recalling that a
    represents the leakage, b is proportional to the shape residual and
    e to the size residuals.
 
-   NOTE: in abe_test.py errors are propagated in PSF bias using
-   standar deviations of the posteriors of parameters and errors in
-   rhos. However it is more convinient to use the full posterior to
-   sample the PSF bias. Then we wrote two functions sample_abe.py and
-   sample_bias.py to save in fits files the full posterior of abe
-   parameters, and to sample the 2PCF PSF bias (and estimate errors)
-
+   2) sample_abe.py Produce a sample of alphas, betas, etas and chis 
+   using emcee and the fitting problem defined above
+   
+   3) produce_2pcfpsfbias.py Using the sample of abe it produces the bias due
+   due to psf errors in the 2pcf. It requires the mean substracted rho-stat which
+   will be use to determine the final bias --rhoscosmo. 
+   
+   Note: --rhoscosmos does not need to be the same --rhos used for the fitting.
+   we con go to smaller scales with --rhos and fit better.
 
 
    ### In the folder code/essentials there is code to get inputs for
