@@ -72,10 +72,10 @@
    we con go to smaller scales with --rhos and fit better.
 
 
-   ### In the folder code/essentials there is code to get inputs for
-       the main code. i.e rho-stat file and tau-stat
-       file. Particularly getting taus from Flask simulations and
-       Jackknifing require some additional considerations.
+   ### In the folder code/essentials 
+   There is code to get inputs for the main code. i.e rho-stat file and tau-stat
+   file. Particularly getting taus from Flask simulations and Jackknifing 
+   require some additional considerations.
    
    1) rhos.py measure the rho-stats for reserved stars. You must
    provide:
@@ -164,10 +164,8 @@
    otherwise covariances of different tomo bins will be replaced
 
   
-   
-
-   ### In the folder code/tests there are some basic test, to validate the
-   catalogs and the code
+   ### In the folder code/tests 
+   there are some basic test, to validate the catalogs and the code
 
    a) jk_scaletest.py: run a JK in 4 patches and compare alpha, beta and eta
    obtained solving the fitting problem up to a maximum scale. The scale where
@@ -180,21 +178,21 @@
    d) taus_v1v2.py: compare the mean of correlation functions of  two version of taus flask
    e) covmat_v1v2.py: compare the covariances matrix and inverses of two version of taus flask
 
- ## In the folder forecast there are some scripts to contaminate, test
-    contamination of fiducial cosmology and plot contours plots using the
-    generated samples after running pipeline.
+   ## In the folder forecast/ 
+   there are some scripts to contaminate, test contamination of fiducial cosmology 
+   and plot contours plots using the generated samples after running pipeline.
 
-    a) contaminate.py: contaminate tomographycally the fiducial
+   a) contaminate.py: contaminate tomographycally the fiducial
     cosmology. THere three usage options: by default use the central values of
     the bias, use the --sup of the error bars or use the --inf of the error
     bars
 
-    b) testcontamination.py: plot fiducial, contaminated fiducial and
+   b) testcontamination.py: plot fiducial, contaminated fiducial and
     contaminant data vector and covariances matrix to test the contamination
     was done properly.
 
-    c) plotmarginalised_fidvscont.py: plot marginalised posteriors and
+   c) plotmarginalised_fidvscont.py: plot marginalised posteriors and
     contours plots of the samples obtainied after running cosmosis chains with
     datavectors coming from fiducial and contaminated fiducial cosmology
 
-    ### In the folder forecast/pipeline are the used pipelines to run in cosmosis
+   ### In the folder forecast/pipeline are the used pipelines to run in cosmosis
