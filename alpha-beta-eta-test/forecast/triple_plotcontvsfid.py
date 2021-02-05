@@ -3,17 +3,19 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.style.use('SVA1StyleSheet.mplstyle')
 
+relative_path = "/data/git_repositories/"
+
+
 import os
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Sofware to plot all quantities after running WL-pipeline')
     
-    parser.add_argument('--samplesfile_continf', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/runs/contamination/2sig-inf/2pt_sim_1110_baseline_Y3cov_contaminated_inf_2sig.fits_d_l_chain.txt', help='txt file with the samples contaminated after running cosmosis')
-    parser.add_argument('--samplesfile_contsup', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/runs/contamination/2sig-sup/2pt_sim_1110_baseline_Y3cov_contaminated_sup_2sig.fits_d_l_chain.txt', help='txt file with the samples contaminated after running cosmosis')
-    parser.add_argument('--samplesfile_forecast', default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/runs/nocontamination/5/2pt_sim_1110_baseline_Y3cov.fits_d_l_chain.txt', help='txt file with the samples after running cosmosis')
-    parser.add_argument('--outpath',
-                        default='/home/dfa/sobreira/alsina/Y3_shearcat_tests/alpha-beta-eta-test/forecast/',
-                        help='path where output will be send') 
+    parser.add_argument('--samplesfile_continf', default=relative_path+'/Y3_shearcat_tests/alpha-beta-eta-test/forecast/runs/contamination/2sig-inf/2pt_sim_1110_baseline_Y3cov_contaminated_inf_2sig.fits_d_l_chain.txt', help='txt file with the samples contaminated after running cosmosis')
+    parser.add_argument('--samplesfile_contsup', default=relative_path+'/Y3_shearcat_tests/alpha-beta-eta-test/forecast/runs/contamination/2sig-sup/2pt_sim_1110_baseline_Y3cov_contaminated_sup_2sig.fits_d_l_chain.txt', help='txt file with the samples contaminated after running cosmosis')
+    parser.add_argument('--samplesfile_forecast', default=relative_path+'/Y3_shearcat_tests/alpha-beta-eta-test/forecast/runs/nocontamination/5/2pt_sim_1110_baseline_Y3cov.fits_d_l_chain.txt', help='txt file with the samples after running cosmosis')
+    parser.add_argument('--outpath', default=relative_path+'/Y3_shearcat_tests/alpha-beta-eta-test/forecast/',
+                        help='path where output will be send')
     
     args = parser.parse_args()
     return args
@@ -98,8 +100,8 @@ def main():
     g.settings.figure_legend_frame = True
     g.settings.alpha_filled_add=0.1
     g.settings.title_limit_fontsize = 16
-    g.settings.figure_legend_loc = 'best'
-    g.settings.rcSizes(axes_fontsize = 12, lab_fontsize=20, legend_fontsize =40)
+    g.settings.figure_legend_loc = 'upper right'#'best'
+    g.settings.rc_sizes(axes_fontsize = 12, lab_fontsize=20, legend_fontsize =40)
     g.triangle_plot([samples, samples_continf, samples_contsup], filled_compare=[True, False, False],  shaded=False, Filled=False,
                     line_args=[{'ls':'solid', 'lw':2, 'color':'green'},{'ls':'--','lw':2, 'color':'blue'},{'ls':'dotted','lw':2, 'color':'red'}],
                     contour_colors=['green','blue', 'red'], title_limit=1)
